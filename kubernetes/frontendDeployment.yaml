@@ -20,6 +20,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mein-frontend
+  namespace: mein-frontend
 spec:
   replicas: 1
   selector:
