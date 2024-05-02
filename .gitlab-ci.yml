@@ -3,9 +3,9 @@ stages:
 
 docker_backend:
   stage: docker
-  image: docker:latest
+  image: docker:24.0.2 # Ensure compatibility
   services:
-    - name: docker:latest-dind
+    - name: docker:24.0.2-dind
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_DRIVER: overlay2
@@ -20,9 +20,9 @@ docker_backend:
 
 docker_frontend:
   stage: docker
-  image: docker:latest
+  image: docker:24.0.2
   services:
-    - name: docker:latest-dind
+    - name: docker:24.0.2-dind
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_DRIVER: overlay2
