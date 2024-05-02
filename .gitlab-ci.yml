@@ -1,6 +1,5 @@
 stages:
   - build
-  - push
 
 build_frontend:
   stage: build
