@@ -33,3 +33,15 @@ spec:
             - containerPort: 80
       imagePullSecrets:
         - name: my-registry-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mein-frontend
+  namespace: betterclassroom
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    app: mein-frontend
