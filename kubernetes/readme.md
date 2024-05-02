@@ -1,4 +1,4 @@
-####Anleitung lokal development (windows):
+####Local development:
 
 - start wsl 2
 - Install and run Docker
@@ -7,16 +7,20 @@
 ```brew install k3d```
 or
 ```curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash```
-- run K3D
-```sudo k3d cluster create mycluster```
+- Run K3D
+```k3d cluster create mycluster -p "8088:80@loadbalancer"```
 
-- ```sh kubectl get nodes```
-![Alt-Text](docs/k3d.png)
-- install flux cli
-```sh brew install fluxcd/tap/flux```
-- create secret
-```sh kubectl create namespace flux-system```
+    
+```kubectl config current-contex```
+![Alt-Text](docs/context.png)
 
+- Install flux cli
+```brew install fluxcd/tap/flux```
+- Create namespace
+```kubectl create namespace flux-system```
+![Alt-Text](docs/flux.png)
+
+- Create secret
 
 ``` sh
 kubectl create secret generic gitlab-token \
@@ -25,7 +29,10 @@ kubectl create secret generic gitlab-token \
   -n flux-system
 ```
   
-- start flux 
+- Start flux
+
+```flux install --components=image-reflector-controller,image-automation-controller```
+
 ``` sh
 flux bootstrap gitlab \
   --hostname=gitlab.in.htwg-konstanz.de \
@@ -36,10 +43,38 @@ flux bootstrap gitlab \
   --token-auth \
   --secret-name=gitlab-token 
 ```
-- add registry secret
+- Add registry secret
+
+```sh 
+kubectl create secret docker-registry my-registry-secret \
+  --docker-server=registry.gitlab.in.htwg-konstanz.de \
+  --docker-username=<Gitlab Username> \
+  --docker-password=<Gitlab Token> \
+  --docker-email=<Gitlab Mail> \
+ --namespace=betterclassroom
+```
+
+- Edit Hosts
+
+Open the editor with administrative privileges and navigate to  C:\Windows\System32\drivers\etc\hosts and add the Line: 
+```127.0.0.1 better-classroom.com```
+
+- Better Classrooms should be accessible under
+
+Frontend: http://better-classroom.com:8088/
+
+
+![Alt-Text](docs/frontend.png)
+
+Backend: http://better-classroom.com:8088/api/students
+
+
+![Alt-Text](docs/backend.png)
+
 
 
 ###Access Database
+TODO DATABASE access
 ```kubectl port-forward svc/my-mongodb 27017:27017```
 
 ``mongo --host 127.0.0.1 --port 27017``
