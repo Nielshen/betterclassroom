@@ -6,7 +6,8 @@ build_frontend:
   stage: build
   image: docker:stable
   services:
-    - docker:dind
+  - name: docker:dind
+    command: ["--tls=false"]
   script:
     - docker build -t nielshen/teamprojekt:vue-frontend ./betterclassroom-frontend
 
@@ -14,7 +15,8 @@ build_backend:
   stage: build
   image: docker:stable
   services:
-    - docker:dind
+  - name: docker:dind
+    command: ["--tls=false"]
   script:
     - docker build -t nielshen/teamprojekt:flask-backend ./betterclassroom-backend
 
@@ -22,7 +24,8 @@ push_frontend:
   stage: push
   image: docker:stable
   services:
-    - docker:dind
+  - name: docker:dind
+    command: ["--tls=false"]
   script:
     - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAM" --password-stdin
     - docker tag frontend_image:latest nielshen/teamprojekt:vue-frontend
@@ -32,7 +35,8 @@ push_backend:
   stage: push
   image: docker:stable
   services:
-    - docker:dind
+  - name: docker:dind
+    command: ["--tls=false"]
   script:
     - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAM" --password-stdin
     - docker tag backend_image:latest nielshen/teamprojekt:flask-backend
