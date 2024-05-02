@@ -5,9 +5,10 @@ docker_backend:
   stage: docker
   image: docker:latest
   services:
-    - docker:dind
+    - name: docker:dind
+      command: ["--privileged"]
   variables:
-    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: "tcp://docker:2375"
   before_script:
     - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin https://index.docker.io/v1/
   script:
@@ -19,9 +20,10 @@ docker_frontend:
   stage: docker
   image: docker:latest
   services:
-    - docker:dind
+    - name: docker:dind
+      command: ["--privileged"]
   variables:
-    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: "tcp://docker:2375"
   before_script:
     - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin https://index.docker.io/v1/
   script:
