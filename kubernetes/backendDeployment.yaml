@@ -1,3 +1,8 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: mein-backend
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
