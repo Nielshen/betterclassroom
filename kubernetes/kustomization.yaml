@@ -5,3 +5,4 @@ resources:
   - mongodb.yaml
   - frontendDeployment.yaml
   - backendDeployment.yaml
+  - ingress.yaml
