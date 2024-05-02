@@ -16,25 +16,25 @@ metadata:
 #      targetPort: 80
 #  type: ClusterIP
 #---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mein-frontend
-  namespace: mein-frontend
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mein-frontend
-  template:
-    metadata:
-      labels:
-        app: mein-frontend
-    spec:
-      containers:
-        - name: mein-frontend
-          image: nielshen/teamprojekt:vue-frontend
-          ports:
-            - containerPort: 80
-      imagePullSecrets:
-        - name: my-registry-secret
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+ # name: mein-frontend
+  #namespace: mein-frontend
+#spec:
+ # replicas: 1
+  #selector:
+   # matchLabels:
+    #  app: mein-frontend
+  #template:
+   # metadata:
+    #  labels:
+     #   app: mein-frontend
+    #spec:
+     # containers:
+     #   - name: mein-frontend
+      #    image: nielshen/teamprojekt:vue-frontend
+       #   ports:
+        #    - containerPort: 80
+      #imagePullSecrets:
+       # - name: my-registry-secret
