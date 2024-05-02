@@ -1,12 +1,13 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: mein-backend
+  name: betterclassroom
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mein-backend
+  namespace: betterclassroom
 spec:
   replicas: 1
   selector:
@@ -19,7 +20,7 @@ spec:
     spec:
       containers:
         - name: mein-backend
-          image: nielshen/teamprojekt:flask-backend
+          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:latest
           imagePullPolicy: Always # Zieht das Image immer
       imagePullSecrets:
         - name: my-registry-secret

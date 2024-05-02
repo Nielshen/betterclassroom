@@ -1,7 +1,7 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: mein-frontend
+  name: betterclassroom
 ---
 #apiVersion: v1
 #kind: Service
@@ -20,7 +20,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mein-frontend
-  namespace: mein-frontend
+  namespace: betterclassroom
 spec:
   replicas: 1
   selector:

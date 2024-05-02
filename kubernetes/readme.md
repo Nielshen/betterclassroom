@@ -10,22 +10,24 @@ or
 - run K3D
 ```sudo k3d cluster create mycluster```
 
-- ```kubectl get nodes```
+- ```sh kubectl get nodes```
 ![Alt-Text](docs/k3d.png)
 - install flux cli
-```brew install fluxcd/tap/flux```
+```sh brew install fluxcd/tap/flux```
 - create secret
-```kubectl create namespace flux-system```
+```sh kubectl create namespace flux-system```
 
 
-```kubectl create secret generic gitlab-token \
+``` sh
+kubectl create secret generic gitlab-token \
   --from-literal=username=<Gitlab Username> \
   --from-literal=password=<Gitlab Token> \
   -n flux-system
 ```
   
 - start flux 
-```flux bootstrap gitlab \
+``` sh
+flux bootstrap gitlab \
   --hostname=gitlab.in.htwg-konstanz.de \
   --owner=lehre/meiglspe/sose24 \
   --repository=betterclassroom \
@@ -34,8 +36,8 @@ or
   --token-auth \
   --secret-name=gitlab-token 
 ```
+- add registry secret
 
-- todo
 
 ###Access Database
 ```kubectl port-forward svc/my-mongodb 27017:27017```
