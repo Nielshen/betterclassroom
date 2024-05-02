@@ -17,17 +17,18 @@ spec:
         - name: mein-backend
           image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:latest
           imagePullPolicy: Always # Zieht das Image immer
+          ports:
+            - containerPort: 5000
       imagePullSecrets:
         - name: my-registry-secret
-
-#---
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  name: mein-backend
-#spec:
-#  type: ClusterIP
-#  ports:
-#  - port: 80
-#  selector:
-#    app: mein-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mein-backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5000
+  selector:
+    app: mein-backend
