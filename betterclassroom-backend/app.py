@@ -7,11 +7,11 @@ CORS(app)
 
 logging.basicConfig(level=logging.DEBUG)
 
-@app.route("/")
+@app.route("/api")
 def hello():
     return "Hello, World!"
 
-@app.route("/students")
+@app.route("/api/students")
 def get_students():
     students = [
         {"id": 1, "name": "Alice"},
