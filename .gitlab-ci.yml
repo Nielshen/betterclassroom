@@ -15,8 +15,6 @@ docker_backend:
     - docker buildx inspect --bootstrap
   script:
     - docker buildx build --platform linux/amd64,linux/arm64 -t nielshen/teamprojekt:flask-backend --file betterclassroom-backend/Dockerfile --push .
-  tags:
-    - docker
 
 docker_frontend:
   stage: docker
@@ -32,5 +30,3 @@ docker_frontend:
     - docker buildx inspect --bootstrap
   script:
     - docker buildx build --platform linux/amd64,linux/arm64 -t nielshen/teamprojekt:vue-frontend --file betterclassroom-frontend/Dockerfile --push .
-  tags:
-    - docker
