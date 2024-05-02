@@ -6,38 +6,32 @@ build_frontend:
   stage: build
   image: docker:stable
   services:
-  - name: docker:dind
-    command: ["--tls=false"]
+    - name: docker:dind
   script:
-    - docker build -t nielshen/teamprojekt:vue-frontend ./betterclassroom-frontend
+    - docker build -t $CI_REGISTRY_IMAGE/vue-frontend ./betterclassroom-frontend
 
 build_backend:
   stage: build
   image: docker:stable
   services:
-  - name: docker:dind
-    command: ["--tls=false"]
+    - name: docker:dind
   script:
-    - docker build -t nielshen/teamprojekt:flask-backend ./betterclassroom-backend
+    - docker build -t $CI_REGISTRY_IMAGE/flask-backend ./betterclassroom-backend
 
 push_frontend:
   stage: push
   image: docker:stable
   services:
-  - name: docker:dind
-    command: ["--tls=false"]
+    - name: docker:dind
   script:
-    - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAM" --password-stdin
-    - docker tag frontend_image:latest nielshen/teamprojekt:vue-frontend
-    - docker push nielshen/teamprojekt:vue-frontend
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - docker push $CI_REGISTRY_IMAGE/vue-frontend
 
 push_backend:
   stage: push
   image: docker:stable
   services:
-  - name: docker:dind
-    command: ["--tls=false"]
+    - name: docker:dind
   script:
-    - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAM" --password-stdin
-    - docker tag backend_image:latest nielshen/teamprojekt:flask-backend
-    - docker push nielshen/teamprojekt:flask-backend
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - docker push $CI_REGISTRY_IMAGE/flask-backend
