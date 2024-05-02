@@ -20,3 +20,10 @@ spec:
                 name: mein-frontend
                 port:
                   number: 80
+          - path: /api
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mein-backend
+                port:
+                  number: 5000
