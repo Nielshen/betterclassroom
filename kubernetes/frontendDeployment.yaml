@@ -36,3 +36,5 @@ spec:
           image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/frontend:latest
           ports:
             - containerPort: 80
+      imagePullSecrets:
+        - name: my-registry-secret
