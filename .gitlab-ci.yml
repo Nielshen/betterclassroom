@@ -1,0 +1,29 @@
+# .gitlab-ci.yml
+stages:
+  - docker
+
+docker_backend:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build -t nielshen/teamprojekt:flask-backend -f betterclassroom-backend/Dockerfile
+    - docker push nielshen/teamprojekt:flask-backend
+
+docker_frontend:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build -t nielshen/teamprojekt:vue-frontend -f betterclassroom-frontend/Dockerfile
+    - docker push nielshen/teamprojekt:vue-frontend
