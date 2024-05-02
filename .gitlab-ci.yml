@@ -1,32 +1,47 @@
 stages:
-  - docker
+  - build
+  - push
 
-docker_backend:
-  stage: docker
-  image: docker:24.0.2 # Ensure compatibility
+build_frontend:
+  stage: build
+  image: docker:latest
   services:
-    - name: docker:24.0.2-dind
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_DRIVER: overlay2
-  before_script:
-    - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
-    - docker buildx create --use
-    - docker buildx inspect --bootstrap
+    - docker:dind
   script:
-    - docker buildx build --platform linux/amd64,linux/arm64 -t nielshen/teamprojekt:flask-backend --file betterclassroom-backend/Dockerfile --push .
+    - docker build -t nielshen/teamprojekt:vue-frontend
+  tags:
+    - docker
 
-docker_frontend:
-  stage: docker
-  image: docker:24.0.2
+build_backend:
+  stage: build
+  image: docker:latest
   services:
-    - name: docker:24.0.2-dind
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_DRIVER: overlay2
-  before_script:
-    - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
-    - docker buildx create --use
-    - docker buildx inspect --bootstrap
+    - docker:dind
   script:
-    - docker buildx build --platform linux/amd64,linux/arm64 -t nielshen/teamprojekt:vue-frontend --file betterclassroom-frontend/Dockerfile --push .
+    - docker build -t nielshen/teamprojekt:flask-backend
+  tags:
+    - docker
+
+push_frontend:
+  stage: push
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+    - docker tag frontend_image:latest nielshen/teamprojekt:vue-frontend
+    - docker push nielshen/teamprojekt:vue-frontend
+  tags:
+    - docker
+
+push_backend:
+  stage: push
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+    - docker tag backend_image:latest nielshen/teamprojekt:flask-backend
+    - docker push nielshen/teamprojekt:flask-backend
+  tags:
+    - docker
