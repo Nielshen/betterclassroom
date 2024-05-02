@@ -6,4 +6,4 @@ resources:
   - frontendDeployment.yaml
   - backendDeployment.yaml
   - ingress.yaml
-  - image-updater.yaml
+  #- image-updater.yaml
