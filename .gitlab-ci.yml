@@ -4,7 +4,7 @@ stages:
 
 build_frontend:
   stage: build
-  image: docker:latest
+  image: docker:stable
   services:
     - docker:dind
   script:
@@ -12,7 +12,7 @@ build_frontend:
 
 build_backend:
   stage: build
-  image: docker:latest
+  image: docker:stable
   services:
     - docker:dind
   script:
@@ -20,7 +20,7 @@ build_backend:
 
 push_frontend:
   stage: push
-  image: docker:latest
+  image: docker:stable
   services:
     - docker:dind
   script:
@@ -30,7 +30,7 @@ push_frontend:
 
 push_backend:
   stage: push
-  image: docker:latest
+  image: docker:stable
   services:
     - docker:dind
   script:
