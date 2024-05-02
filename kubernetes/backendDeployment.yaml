@@ -24,14 +24,14 @@ spec:
       imagePullSecrets:
         - name: my-registry-secret
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mein-backend
-spec:
-  type: ClusterIP
-  ports:
-  - port: 80
-  selector:
-    app: mein-backend
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: mein-backend
+#spec:
+#  type: ClusterIP
+#  ports:
+#  - port: 80
+#  selector:
+#    app: mein-backend
