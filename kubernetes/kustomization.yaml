@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - mongodb.yaml
   - frontendDeployment.yaml
+  - backendDeployment.yaml
