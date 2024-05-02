@@ -7,7 +7,6 @@ docker_backend:
   services:
     - name: docker:dind
       command: ["--privileged"]
-      network_mode: "host"
   variables:
     DOCKER_HOST: "tcp://docker:2375"
   before_script:
@@ -24,7 +23,6 @@ docker_frontend:
   services:
     - name: docker:dind
       command: ["--privileged"]
-      network_mode: "host"
   variables:
     DOCKER_HOST: "tcp://docker:2375"
   before_script:
