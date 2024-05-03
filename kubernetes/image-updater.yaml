@@ -4,7 +4,8 @@ metadata:
   name: my-app-repo
   namespace: flux-system
 spec:
-  image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend
+  image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend #TODO: frotend
+  branch: main
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
@@ -15,4 +16,21 @@ spec:
   imageRepositoryRef:
     name: my-app-repo
   policy:
-    latest: {}
+    latest: "*" #Accepted Image Versions
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: update-my-app
+  namespace: flux-system
+spec:
+  sourceRef:
+    kind: GitRepository
+    name: my-app-repo
+  interval: 1m # search for image updates
+  git:
+    commit:
+      authorName: Flux
+      authorEmail: flux@yourdomain.com
+  update:
+    strategy: Setters

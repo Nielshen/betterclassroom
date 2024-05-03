@@ -29,20 +29,24 @@ kubectl create secret generic gitlab-token \
   -n flux-system
 ```
   
-- Start flux
+- Connect flux to the Git Repo
+
+TODO TEST THIS
+```flux install```
 
 ```flux install --components=image-reflector-controller,image-automation-controller```
-
-``` sh
-flux bootstrap gitlab \
-  --hostname=gitlab.in.htwg-konstanz.de \
-  --owner=lehre/meiglspe/sose24 \
-  --repository=betterclassroom \
-  --branch=main \
-  --path=./kubernetes \
-  --token-auth \
-  --secret-name=gitlab-token 
 ```
+flux create source git gitlab-repo \
+  --url=https://gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom.git \
+  --branch=main \
+  --interval=1m
+flux create kustomization betterclassroom \
+  --source=GitRepository/gitlab-repo \
+  --path="./kubernetes" \
+  --prune=true \
+  --interval=1m
+```
+
 - Add registry secret
 
 ```sh 
