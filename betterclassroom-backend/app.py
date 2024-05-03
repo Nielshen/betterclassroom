@@ -51,11 +51,11 @@ def get_students():
     ]
 
     # Clear existing data and insert new students
-    students_collection.delete_many({}) #TODO: requires authentification
+    students_collection.delete_many({})
     students_collection.insert_many(students)
 
     # Retrieve student
-    all_students = list(students_collection.find({}, {"_id": 1}))
+    all_students = list(students_collection.find({}, {"_id": 0}))
 
     return jsonify(all_students)
 
