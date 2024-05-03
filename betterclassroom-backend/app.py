@@ -10,11 +10,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Connect to MongoDB
 #client = MongoClient("mongodb://mongodb.betterclassroom:27017/")
-
+username = "admin"
 password = "admin"
 
 # Verbindungszeichenfolge erstellen
-connection = f"mongodb://{password}@mongodb.betterclassroom:27017/"
+connection = f"mongodb://{username}:{password}@mongodb.betterclassroom:27017/"
 client = MongoClient(connection)
 
 try:
