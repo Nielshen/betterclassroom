@@ -2,14 +2,14 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
 import logging
-#test image build
+
 app = Flask(__name__)
 CORS(app)
 
 logging.basicConfig(level=logging.DEBUG)
 
 # Connect to MongoDB
-client = MongoClient("mongodb://mongodb-mongodb.betterclassroom:27017/")
+client = MongoClient("mongodb://mongodb.betterclassroom:27017/")
 try:
     client.admin.command('ismaster')
     print("MongoDB connection successful")
