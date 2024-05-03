@@ -15,6 +15,8 @@ password = "admin"
 
 # Verbindungszeichenfolge erstellen
 connection = f"mongodb://{username}:{password}@mongodb.betterclassroom:27017/"
+
+print(connection)
 client = MongoClient(connection)
 
 try:
@@ -51,8 +53,8 @@ def get_students():
     students_collection.delete_many({}) #TODO: requires authentification
     students_collection.insert_many(students)
 
-    # Retrieve all students
-    all_students = list(students_collection.find({}, {"_id": 0}))
+    # Retrieve student
+    all_students = list(students_collection.find({}, {"_id": 1}))
 
     return jsonify(all_students)
 

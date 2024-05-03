@@ -29,3 +29,5 @@ spec:
     auth:
       enabled: true
       rootPassword: admin
+    username: admin
+    password: admin
