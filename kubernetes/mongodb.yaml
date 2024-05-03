@@ -28,5 +28,5 @@ spec:
   values:
     auth:
       enabled: false
-    username: admin
-    password: admin
+ #   username: admin
+  #  password: admin

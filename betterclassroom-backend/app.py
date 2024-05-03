@@ -15,7 +15,7 @@ password = "admin"
 
 # Verbindungszeichenfolge erstellen
 #connection = f"mongodb://{username}:{password}@mongodb.betterclassroom.svc.cluster.local:27017/"
-connection = f"mongodb://{username}:{password}@mongodb.betterclassroom.svc.cluster.local:27017/"
+connection = f"mongodb://mongodb.betterclassroom.svc.cluster.local:27017/"
 
 print("MongoDB connection string:", connection)
 client = MongoClient(connection)
