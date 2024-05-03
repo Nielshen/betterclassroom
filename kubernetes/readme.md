@@ -47,7 +47,7 @@ flux create kustomization betterclassroom \
   --interval=1m
 ```
 
-- Add registry secret
+- Add registry secrets
 
 ```sh 
 kubectl create secret docker-registry my-registry-secret \
@@ -56,6 +56,14 @@ kubectl create secret docker-registry my-registry-secret \
   --docker-password=<Gitlab Token> \
   --docker-email=<Gitlab Mail> \
  --namespace=betterclassroom
+```
+```sh 
+kubectl create secret docker-registry my-registry-secret \
+  --docker-server=registry.gitlab.in.htwg-konstanz.de \
+  --docker-username=<Gitlab Username> \
+  --docker-password=<Gitlab Token> \
+  --docker-email=<Gitlab Mail> \
+ --namespace=flux-system
 ```
 
 - Edit Hosts
