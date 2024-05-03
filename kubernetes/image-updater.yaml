@@ -7,7 +7,7 @@ spec:
   image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend #TODO: frotend
   secretRef:
     name: my-registry-secret
-  #branch: main
+  branch: main
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
@@ -18,8 +18,8 @@ spec:
   imageRepositoryRef:
     name: my-app-repo
   policy:
-    semver:
-      range: "*" #Accepted Image Versions
+    alphabetical:
+      order: asc #Accepted Image Version Tags sorted by alphabet order
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta1
 kind: ImageUpdateAutomation
