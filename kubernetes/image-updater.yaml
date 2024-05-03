@@ -31,7 +31,8 @@ spec:
   interval: 1m # search for image updates
   git:
     commit:
-      authorName: Flux
-      authorEmail: flux@yourdomain.com
+      author:
+        name: Flux
+        email: flux@yourdomain.com
   update:
     strategy: Setters
