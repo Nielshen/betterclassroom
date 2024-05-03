@@ -83,6 +83,13 @@ Backend: http://better-classroom.com:8088/api/students
 
 ![Alt-Text](docs/backend.png)
 
+###Manually Delete and apply new versions
+go to 
+betterclassroom/kubernetes
+
+```kubectl delete -f backendDeployment.yaml```
+
+```kubectl apply -f backendDeployment.yaml```
 
 
 ###Access Database
@@ -96,4 +103,7 @@ or access inside of the Cluster
 
 ``mongo --host mongodb.betterclassroom --port 27017``
 
-Todo Database Authentification
+Database Authentification
+
+``mongo --host admin:admin@mongodb.betterclassroom --port 27017``
+
