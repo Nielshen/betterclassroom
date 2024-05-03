@@ -28,5 +28,4 @@ spec:
   values:
     auth:
       enabled: true
-      rootUsername: admin
       rootPassword: admin
