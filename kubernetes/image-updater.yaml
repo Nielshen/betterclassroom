@@ -5,7 +5,7 @@ metadata:
   namespace: flux-system
 spec:
   image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend #TODO: frotend
-  branch: main
+  #branch: main
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
@@ -17,7 +17,7 @@ spec:
     name: my-app-repo
   policy:
     semver:
-      range: "*" "*" #Accepted Image Versions
+      range: "*" #Accepted Image Versions
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageUpdateAutomation
