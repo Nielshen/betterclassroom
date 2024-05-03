@@ -25,3 +25,8 @@ spec:
         name: mongodb
       interval: 5m
   releaseName: mongodb
+  values:
+    auth:
+      enabled: true
+      rootUsername: admin
+      rootPassword: admin

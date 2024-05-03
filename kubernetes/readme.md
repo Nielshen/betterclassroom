@@ -86,8 +86,14 @@ Backend: http://better-classroom.com:8088/api/students
 
 
 ###Access Database
-TODO DATABASE access
+port forward
+
 ```kubectl port-forward svc/my-mongodb 27017:27017```
 
 ``mongo --host 127.0.0.1 --port 27017``
 
+or access inside of the Cluster
+
+``mongo --host mongodb.betterclassroom --port 27017``
+
+Todo Database Authentification

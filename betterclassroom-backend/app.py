@@ -9,8 +9,15 @@ CORS(app)
 logging.basicConfig(level=logging.DEBUG)
 
 # Connect to MongoDB
-#client = MongoClient("mongodb://mongodb-mongodb.betterclassroom:27017/")
 client = MongoClient("mongodb://mongodb.betterclassroom:27017/")
+
+username = "admin"
+password = "admin"
+
+# Verbindungszeichenfolge erstellen
+connection = f"mongodb://{username}:{password}@mongodb.betterclassroom:27017/"
+client = MongoClient(connection)
+
 try:
     #client.admin.command('ismaster')
     client.admin.command('ping')
@@ -42,7 +49,7 @@ def get_students():
     ]
 
     # Clear existing data and insert new students
-    students_collection.delete_many({})
+    students_collection.delete_many({}) #TODO: requires authentification
     students_collection.insert_many(students)
 
     # Retrieve all students
