@@ -19,7 +19,7 @@ spec:
     semver:
       range: "*" #Accepted Image Versions
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1beta1
 kind: ImageUpdateAutomation
 metadata:
   name: update-my-app
