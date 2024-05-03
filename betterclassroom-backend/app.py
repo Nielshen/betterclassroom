@@ -16,7 +16,7 @@ password = "admin"
 # Verbindungszeichenfolge erstellen
 connection = f"mongodb://{username}:{password}@mongodb.betterclassroom:27017/"
 
-print(connection)
+print("MongoDB connection string:", connection)
 client = MongoClient(connection)
 
 try:

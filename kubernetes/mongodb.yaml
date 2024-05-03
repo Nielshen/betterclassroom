@@ -27,7 +27,6 @@ spec:
   releaseName: mongodb
   values:
     auth:
-      enabled: true
-      rootPassword: admin
+      enabled: false
     username: admin
     password: admin
