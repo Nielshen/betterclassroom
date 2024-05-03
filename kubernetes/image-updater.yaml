@@ -16,7 +16,8 @@ spec:
   imageRepositoryRef:
     name: my-app-repo
   policy:
-    latest: "*" #Accepted Image Versions
+    semver:
+      range: "*" "*" #Accepted Image Versions
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageUpdateAutomation
