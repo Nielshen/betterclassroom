@@ -7,7 +7,6 @@ spec:
   image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend #TODO: frotend
   secretRef:
     name: my-registry-secret
-  branch: main
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy

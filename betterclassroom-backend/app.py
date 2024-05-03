@@ -9,9 +9,11 @@ CORS(app)
 logging.basicConfig(level=logging.DEBUG)
 
 # Connect to MongoDB
+#client = MongoClient("mongodb://mongodb-mongodb.betterclassroom:27017/")
 client = MongoClient("mongodb://mongodb.betterclassroom:27017/")
 try:
-    client.admin.command('ismaster')
+    #client.admin.command('ismaster')
+    client.admin.command('ping')
     print("MongoDB connection successful")
 except Exception as e:
     print(f"Error connecting to MongoDB: {e}")
