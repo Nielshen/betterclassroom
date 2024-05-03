@@ -27,6 +27,6 @@ spec:
   releaseName: mongodb
   values:
     auth:
-      enabled: false
+      enabled: false #Todo: enable auth in Production
  #   username: admin
   #  password: admin

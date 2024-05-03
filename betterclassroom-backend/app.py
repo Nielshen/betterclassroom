@@ -9,9 +9,8 @@ CORS(app)
 logging.basicConfig(level=logging.DEBUG)
 
 # Connect to MongoDB
-#client = MongoClient("mongodb://mongodb.betterclassroom:27017/")
-username = "admin"
-password = "admin"
+#username = "admin"
+#password = "admin"
 
 # Verbindungszeichenfolge erstellen
 #connection = f"mongodb://{username}:{password}@mongodb.betterclassroom.svc.cluster.local:27017/"
@@ -21,7 +20,6 @@ print("MongoDB connection string:", connection)
 client = MongoClient(connection)
 
 try:
-    #client.admin.command('ismaster')
     client.admin.command('ping')
     print("MongoDB connection successful")
 except Exception as e:
@@ -34,20 +32,13 @@ students_collection = db["students"]
 def hello():
     return "Hello, World!"
 
-#@app.route("/api/students")
-#def get_students():
- #   students = [
-  #      {"id": 1, "name": "Alice"},
-   #     {"id": 2, "name": "Bob"}
-    #]
-    #return jsonify(students)
-
 #Test API and MongoDB
 @app.route("/api/students")
 def get_students():
     students = [
         {"id": 1, "name": "Alice"},
-        {"id": 2, "name": "Bob"}
+        {"id": 2, "name": "Bob"},
+        {"id": 3, "name": "Dieter"}
     ]
 
     # Clear existing data and insert new students

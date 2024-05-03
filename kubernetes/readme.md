@@ -95,15 +95,6 @@ betterclassroom/kubernetes
 ###Access Database
 port forward
 
-```kubectl port-forward svc/my-mongodb 27017:27017```
+```kubectl port-forward svc/mongodb -n betterclassroom 27017:27017```
 
 ``mongo --host 127.0.0.1 --port 27017``
-
-or access inside of the Cluster
-
-``mongo --host mongodb.betterclassroom --port 27017``
-
-Database Authentification
-
-``mongo --host admin:admin@mongodb.betterclassroom --port 27017``
-
