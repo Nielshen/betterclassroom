@@ -2,7 +2,6 @@
 
 - start wsl 2
 - Install and run Docker
-![Alt-Text](docs/dockerhub.png)
 - Install K3D
 ```brew install k3d```
 or
