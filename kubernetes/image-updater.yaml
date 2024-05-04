@@ -31,11 +31,17 @@ spec:
     name: my-app-repo
   interval: 1m # search for image updates
   git:
+    checkout:
+      ref:
+        branch: main
     commit:
       author:
         name: Flux
         email: flux@yourdomain.com
+    push:
+      branch: main
   update:
+    path: ./deployments
     strategy: Setters
 
 #spec:
