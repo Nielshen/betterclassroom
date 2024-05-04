@@ -1,4 +1,4 @@
-####Local development:
+#### Local development:
 
 - start wsl 2
 - Install and run Docker
@@ -30,8 +30,6 @@ kubectl create secret generic gitlab-token \
 ```
   
 - Connect flux to the Git Repo
-
-TODO TEST THIS
 ```flux install```
 
 ```flux install --components=image-reflector-controller,image-automation-controller```
@@ -84,16 +82,26 @@ Backend: http://better-classroom.com:8088/api/students
 
 ![Alt-Text](docs/backend.png)
 
-###Manually Delete and apply new versions
+### Manually Delete and apply new versions
 go to 
 betterclassroom/kubernetes
 
 ```kubectl delete -f backendDeployment.yaml```
 
 ```kubectl apply -f backendDeployment.yaml```
+### Change Branches
+1. change Flux Branch
 
+```kubectl edit gitrepository flux-system -n flux-system```
 
-###Access Database
+```spec:
+  interval: 1m0s
+  ref:
+    branch: main # set to current Branch
+```
+2. change Branch in backendDeployment.yaml and frontendDeployment.yaml
+
+### Access Database
 port forward
 
 ```kubectl port-forward svc/mongodb -n betterclassroom 27017:27017```
