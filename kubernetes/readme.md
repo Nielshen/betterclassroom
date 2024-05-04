@@ -94,13 +94,9 @@ betterclassroom/kubernetes
 
 ```kubectl edit gitrepository flux-system -n flux-system```
 
-```spec:
-  interval: 1m0s
-  ref:
-    branch: main # set to current Branch
-```
+![Alt-Text](docs/changeBranchFlux.png)
 2. change Branch in backendDeployment.yaml and frontendDeployment.yaml
-
+![Alt-Text](docs/changeBranchBackend.png)
 ### Access Database
 port forward
 

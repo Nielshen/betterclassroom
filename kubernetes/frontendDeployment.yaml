@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: mein-frontend
-          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/frontend:fb1-Niels #TODO change this to your branch name
+          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/frontend:main #TODO: change this to your current branch name
           imagePullPolicy: Always
           ports:
             - containerPort: 80
