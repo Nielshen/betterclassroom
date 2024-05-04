@@ -95,6 +95,7 @@ betterclassroom/kubernetes
 ```kubectl edit gitrepository flux-system -n flux-system```
 
 ![Alt-Text](docs/changeBranchFlux.png)
+
 2. change Branch in backendDeployment.yaml and frontendDeployment.yaml
 ![Alt-Text](docs/changeBranchBackend.png)
 ### Access Database
