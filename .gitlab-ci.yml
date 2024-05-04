@@ -21,4 +21,4 @@ build_backend:
     - /kaniko/executor
       --context "${CI_PROJECT_DIR}/betterclassroom-backend"
       --dockerfile "${CI_PROJECT_DIR}/betterclassroom-backend/Dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}/backend:${BRANCH_VERSION}"
+      --destination "${CI_REGISTRY_IMAGE}/backend:${CI_COMMIT_REF_NAME}"
