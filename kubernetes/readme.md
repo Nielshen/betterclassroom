@@ -30,8 +30,6 @@ kubectl create secret generic gitlab-token \
 ```
   
 - Connect flux to the Git Repo
-
-TODO TEST THIS
 ```flux install```
 
 ```flux install --components=image-reflector-controller,image-automation-controller```
