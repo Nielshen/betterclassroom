@@ -11,7 +11,7 @@ or
 ```k3d cluster create mycluster -p "8088:80@loadbalancer"```
 
     
-```kubectl config current-contex```
+```kubectl config current-context```
 ![Alt-Text](docs/context.png)
 
 - Install flux cli
@@ -39,7 +39,8 @@ TODO TEST THIS
 flux create source git gitlab-repo \
   --url=https://gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom.git \
   --branch=main \
-  --interval=1m
+  --interval=1m \
+  --secret-ref=gitlab-token
 flux create kustomization betterclassroom \
   --source=GitRepository/gitlab-repo \
   --path="./kubernetes" \
