@@ -91,7 +91,7 @@ betterclassroom/kubernetes
 ### Change Branches
 1. change Flux Branch
 
-```kubectl edit gitrepository flux-system -n flux-system```
+```kubectl edit gitrepository flux-system -n flux-system``` (if not working, try: ```kubectl edit gitrepository -n flux-system```)
 
 ![Alt-Text](docs/changeBranchFlux.png)
 
@@ -101,5 +101,7 @@ betterclassroom/kubernetes
 port forward
 
 ```kubectl port-forward svc/mongodb -n betterclassroom 27017:27017```
+
+Note: ```kubectl port-forward``` does not return. To continue, you will need to open another terminal.
 
 ``mongo --host 127.0.0.1 --port 27017``
