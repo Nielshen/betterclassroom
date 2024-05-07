@@ -91,6 +91,8 @@ betterclassroom/kubernetes
 ### Change Branches
 1. change Flux Branch
 
+```export EDITOR=nano```
+
 ```kubectl edit gitrepository flux-system -n flux-system``` (if not working, try: ```kubectl edit gitrepository -n flux-system```)
 
 ![Alt-Text](docs/changeBranchFlux.png)
