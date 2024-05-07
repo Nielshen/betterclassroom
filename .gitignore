@@ -1,5 +1,4 @@
 backend/__pycache__
 .venv
-.idea
-.vscode
-*.iml
+/.vscode/
+/.idea/
