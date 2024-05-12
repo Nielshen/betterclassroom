@@ -11,6 +11,16 @@ const props = defineProps(
     }
 )
 
+
+const data = [
+    {
+        name: "Max Mustermann",
+        seat: "C1",
+        maxTasks: 5,
+        finishedTasks: 3
+    },
+];
+
 </script>
 <template>
 <!-- 30 -> Base / 8 -> Anzahl Karten -->

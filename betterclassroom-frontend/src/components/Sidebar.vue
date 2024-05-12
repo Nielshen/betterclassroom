@@ -1,18 +1,7 @@
 <script setup>
+import { useRouter } from 'vue-router';
 
-const data = [
-    {
-        name: "Software Qualitätssicherung",
-        raum: "O-201",
-        count: 25
-    },
-    {
-        name: "Web-Technologien",
-        raum: "O-301",
-        count: 14
-    },
-]
-
+const router = useRouter();
 </script>
 
 <template>
@@ -25,9 +14,9 @@ const data = [
         <div class="drawer-side">
             <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
             <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-                <li><a href="/courses">Kurse</a></li>
-                <li><a href="/tasks">Aufgaben</a></li>
-                <li><a href="/dashboard">Studenten</a></li>
+                <li><a @click="router.push('/courses')">Kurse</a></li>
+                <li><a @click="router.push('/createtasks')">Aufgaben</a></li>
+                <li><a @click="router.push('/students')">Studenten</a></li>
             </ul>
 
         </div>

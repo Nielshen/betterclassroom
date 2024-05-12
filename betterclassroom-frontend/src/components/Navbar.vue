@@ -1,7 +1,14 @@
+<script setup>
+
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+</script>
+
 <template>
    <div class="navbar bg-base-300">
   <div class="flex-1">
-    <a class="btn btn-ghost text-xl">BetterClassroom</a>
+    <a @click="router.push('/')" class="btn btn-ghost text-xl">BetterClassroom</a>
   </div>
   <div class="flex-none gap-2">
     <div class="dropdown dropdown-end">
