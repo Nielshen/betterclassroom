@@ -1,18 +1,7 @@
 <script setup>
+import { useRouter } from 'vue-router';
 
-const data = [
-    {
-        name: "Software Qualitätssicherung",
-        raum: "O-201",
-        count: 25
-    },
-    {
-        name: "Web-Technologien",
-        raum: "O-301",
-        count: 14
-    },
-]
-
+const router = useRouter();
 </script>
 
 <template>

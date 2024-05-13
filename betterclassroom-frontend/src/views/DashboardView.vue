@@ -6,32 +6,6 @@ const tableCount = ref(20)
 /*
     Hier direkt DashboardPersonen auflösen und pro DashboardTable 2 personen dem <DashboardTable> weitergeben?
 */
-const data = [
-    {
-        name: "Max Mustermann",
-        seat: "C1",
-        maxTasks: 5,
-        finishedTasks: 3
-    },
-    {
-        name: "Max Mustermann",
-        seat: "C1",
-        maxTasks: 5,
-        finishedTasks: 3
-    },
-    {
-        name: "Max Mustermann",
-        seat: "C1",
-        maxTasks: 5,
-        finishedTasks: 3
-    },
-    {
-        name: "Max Mustermann",
-        seat: "C1",
-        maxTasks: 5,
-        finishedTasks: 3
-    },
-];
 
 </script>
 <template>

@@ -1,3 +1,10 @@
+<script setup>
+
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+</script>
+
 <template>
    <div class="navbar bg-neutral">
   <div class="flex-1">
