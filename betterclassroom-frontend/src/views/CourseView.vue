@@ -1,4 +1,9 @@
 <script setup>
+import { useRouter } from "vue-router"
+
+const router = useRouter()
+
+const newCourse = () => router.push("/createCourse")
 
 const data = [
     {
@@ -27,6 +32,7 @@ const data = [
 
 <template>
     <div class="overflow-x-auto">
+        <div class="flex flex-col  justify-start items-start ">
         <table class="table-lg">
             <!-- head -->
             <thead>
@@ -36,15 +42,22 @@ const data = [
                     <th>Teilnehmer</th>
                 </tr>
             </thead>
-            <tbody v-for="e in data">
+            <tbody v-for="e in data" >
                 <!-- row 1 -->
                 <tr class="bg-base-200">
                     <td>{{ e.name }}</td>
                     <td>{{ e.raum }}</td>
                     <td>{{ e.count }} Teilnehmende</td>
-                    <td><button class="btn btn-accent btn-wide">beitreten</button></td>
+                    <td>
+                    <div>
+                    <button class="btn btn-accent mr-4 ">Bearbeiten</button>
+                    <button class="btn btn-accent ">Starten</button>
+                    </div>
+                    </td>
                 </tr>
             </tbody>
         </table>
+        <button class="btn btn-accent mt-4" @click="newCourse" >Neuer Kurs</button>
+        </div>
     </div>
 </template>

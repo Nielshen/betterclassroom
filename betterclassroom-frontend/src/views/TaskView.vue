@@ -14,11 +14,15 @@ const previousTask = () => {
     index.value = (index.value - 1 + tasks.value.length) % tasks.value.length;
 }
 
+const questionAsked = ref(false)
+
+const toggleQuestion = () => questionAsked.value = !questionAsked.value
+
 </script>
 
 <template>
     <div class="carousel w-full h-full">
-        <div id="slide1" class="carousel-item relative w-full">
+        <div id="slide1" class=" carousel-item relative w-full">
             <div class="mx-20">
                 <h1 class="text-2xl my-10">
                     Aufgabe {{ index + 1 }} / {{ tasks.length }}
@@ -31,7 +35,9 @@ const previousTask = () => {
                 <a @click="previousTask" class="btn btn-circle btn-accent">❮</a>
                 <a @click="nextTask" class="btn btn-circle btn-accent">❯</a>
             </div>
-            <button class="btn btn-primary absolute bottom-5 right-5">Hilfe anfordern</button>
+                <button @click="toggleQuestion" :class="['btn', 'btn-accent', 'm-4', 'text-2xl', !questionAsked && 'btn-outline']">✋🏼</button>
+
+
         </div>
     </div>
 </template>

@@ -32,7 +32,7 @@ const data = [
           <DashboardPerson v-for="e in data" :key="e" :name="e.name" :seat="e.seat" :maxTasks="e.maxTasks" :finishedTasks="e.finishedTasks" />
         </div>
         <div class="mt-4">
-          <DashboardPerson v-for="e in data" :key="e" :name="e.name" :seat="e.seat" :maxTasks="e.maxTasks" :finishedTasks="e.finishedTasks" />
+          <DashboardPerson v-for="e in data" :raisedHand="true"  :key="e" :name="e.name" :seat="e.seat" :maxTasks="e.maxTasks" :finishedTasks="e.finishedTasks" />
         </div>
       </div>
     </div>
