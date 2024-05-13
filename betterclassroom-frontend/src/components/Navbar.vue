@@ -1,7 +1,7 @@
 <template>
-   <div class="navbar bg-base-300">
+   <div class="navbar bg-neutral">
   <div class="flex-1">
-    <a class="btn btn-ghost text-xl">BetterClassroom</a>
+    <a class="btn btn-primary text-xl">BetterClassroom</a>
   </div>
   <div class="flex-none gap-2">
     <div class="dropdown dropdown-end">

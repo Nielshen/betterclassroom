@@ -42,7 +42,7 @@ const data = [
                     <td>{{ e.name }}</td>
                     <td>{{ e.raum }}</td>
                     <td>{{ e.count }} Teilnehmende</td>
-                    <td><button class="btn btn-primary btn-wide">beitreten</button></td>
+                    <td><button class="btn btn-accent btn-wide">beitreten</button></td>
                 </tr>
             </tbody>
         </table>
