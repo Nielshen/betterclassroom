@@ -10,7 +10,7 @@ class Table(BaseModel):
 
 
 class Classroom(BaseModel):
-    _id: str
+    id: str
     tablesPerRow: int
     rows: int
     tables: List[Table]

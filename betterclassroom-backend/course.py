@@ -10,7 +10,7 @@ from exercise import Exercise
 
 
 class Course(BaseModel):
-    _id: str
+    id: str
     description: str
     exercises: List[Exercise]
     participants: List[Student]

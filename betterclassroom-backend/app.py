@@ -34,12 +34,12 @@ students_collection = db["students"]
 # Example: Create a classroom
 classroom = ClassroomRepository(db)
 
-classroom.save(Classroom(_id="O-301", tablesPerRow=4, rows=5, tables=[
+classroom.save(Classroom(id="O-301", tablesPerRow=4, rows=5, tables=[
     Table(_id=1, occupied=False),
     Table(_id=2, occupied=False),
 ]))
 
-classroom.save(Classroom(_id="O-201", tablesPerRow=4, rows=5, tables=[
+classroom.save(Classroom(id="O-201", tablesPerRow=4, rows=5, tables=[
     Table(_id=1, occupied=False),
     Table(_id=2, occupied=False),
     Table(_id=3, occupied=False),

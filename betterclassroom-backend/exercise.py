@@ -10,7 +10,7 @@ class SubExercise(BaseModel):
 
 
 class Exercise(BaseModel):
-    _id: str
+    id: str
     description: str
     exercises: List[SubExercise]
 

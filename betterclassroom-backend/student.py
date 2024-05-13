@@ -7,7 +7,7 @@ from classroom import Table
 
 
 class Student(BaseModel):
-    _id: str
+    id: str
     table: Table
     progress: Dict[Exercise, bool]
 
