@@ -38,7 +38,8 @@ def get_students():
     students = [
         {"id": 1, "name": "Alice"},
         {"id": 2, "name": "Bob"},
-        {"id": 3, "name": "fb1 test"}
+        {"id": 3, "name": "fb1 test"},
+        {"id": 4, "name": "fb1 test2"}
     ]
 
     # Clear existing data and insert new students
