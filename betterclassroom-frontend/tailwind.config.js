@@ -10,26 +10,26 @@ export default {
     themes: [
       {
         mytheme: {
-          "primary": "#334152",
-          "primary-content": "#FFFFFF",
-          "secondary": "#FFFFFF",
-          "secondary-content": "#161616",
-          "accent": "#009B91",
-          "accent-content": "#FFFFFF",
-          "neutral": "#334152",
-          "neutral-content": "#FFFFFF",
-          "base-100": "#D9E5EC",
+          "primary": "#334152",           //Primary        = Dark Blue
+          "primary-content": "#FFFFFF",   //Primary text   = White
+          "secondary": "#FFFFFF",         //Secondary      = White
+          "secondary-content": "#000000", //Secondary text = Black
+          "accent": "#009B91",            //Accent         = Teal
+          "accent-content": "#FFFFFF",    //Accent text    = White
+          "neutral": "#334152",           //Neutral        = Dark Blue
+          "neutral-content": "#FFFFFF",   //Neutral text   = White
+          "base-100": "#D9E5EC",          //Base           = Soft Blue
           "base-200": "#bdc7cd",
           "base-300": "#a1aaaf",
-          "base-content": "#000000",
-          "info": "#000000",
-          "info-content": "#FFFFFF",
-          "success": "#009B91",
-          "success-content": "#FFFFFF",
-          "warning": "#009B91",
-          "warning-content": "#FFFFFF",
-          "error": "#009B91",
-          "error-content": "#FFFFFF",
+          "base-content": "#000000",      //Base text      = Black
+          "info": "#000000",              //Info           = Black
+          "info-content": "#FFFFFF",      //Info text      = White
+          "success": "#009B91",           //Success        = Teal
+          "success-content": "#FFFFFF",   //Success text   = White
+          "warning": "#009B91",           //Warning        = Teal
+          "warning-content": "#FFFFFF",   //Warning text   = White
+          "error": "#009B91",             //Error          = Teal
+          "error-content": "#FFFFFF",     //Error text     = White
         },
       },
     ],

@@ -28,8 +28,8 @@ const previousTask = () => {
                 </p>
             </div>
             <div class="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2">
-                <a @click="previousTask" class="btn btn-circle">❮</a>
-                <a @click="nextTask" class="btn btn-circle">❯</a>
+                <a @click="previousTask" class="btn btn-circle btn-accent">❮</a>
+                <a @click="nextTask" class="btn btn-circle btn-accent">❯</a>
             </div>
             <button class="btn btn-primary absolute bottom-5 right-5">Hilfe anfordern</button>
         </div>
