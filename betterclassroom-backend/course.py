@@ -20,4 +20,4 @@ class Course(BaseModel):
 
 class CourseRepository(AbstractRepository[Course]):
     class Meta:
-        collectionName = 'course'
+        collection_name = 'course'

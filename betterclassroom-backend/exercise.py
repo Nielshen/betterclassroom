@@ -17,4 +17,4 @@ class Exercise(BaseModel):
 
 class ExerciseRepository(AbstractRepository[Exercise]):
     class Meta:
-        collectionName = 'exercise'
+        collection_name = 'exercise'

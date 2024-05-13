@@ -14,4 +14,4 @@ class Student(BaseModel):
 
 class StudentRepository(AbstractRepository[Student]):
     class Meta:
-        collectionName = 'student'
+        collection_name = 'student'

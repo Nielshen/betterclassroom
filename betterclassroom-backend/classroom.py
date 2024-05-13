@@ -18,4 +18,4 @@ class Classroom(BaseModel):
 
 class ClassroomRepository(AbstractRepository[Classroom]):
     class Meta:
-        collectionName = 'classroom'
+        collection_name = 'classroom'
