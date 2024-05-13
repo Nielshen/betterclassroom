@@ -1,13 +1,16 @@
 <script setup>
-import { defineProps, computed } from 'vue'
+import { defineProps, computed, ref } from 'vue'
 const props = defineProps(
     {
         name: String,
         seat: String,
         maxTasks: Number,
-        finishedTasks: Number
+        raisedHand: Boolean,
+        finishedTasks: Number,
     }
 )
+
+const raisedHand = ref(props.raisedHand)
 
 const progress = computed(() => {
     return (props.finishedTasks / props.maxTasks) * 100
@@ -16,6 +19,6 @@ const progress = computed(() => {
 
 <template>
     <div>
-        <div class="radial-progress" :style="`--value: ${progress}`" role="progressbar">{{ finishedTasks }} / {{ maxTasks }}</div>
+        <div :class="['radial-progress', raisedHand ? 'text-error' : 'text-base-100']" :style="`--value: ${progress}`" role="progressbar">{{ finishedTasks }} / {{ maxTasks }}</div>
     </div>
 </template>
