@@ -74,7 +74,7 @@ def get_students():
 
 @app.route("/api/classroom")
 def get_classroom():
-    classroom1 = list(classroom.get_collection().find({}, {"_id": "O-201"}))
+    classroom1 = list(classroom.get_collection().find({"id": "O-201"}))
     return jsonify(classroom1)
 
 
