@@ -42,8 +42,8 @@ classroom.save(
         tablesPerRow=4,
         rows=5,
         tables=[
-            Table(_id=1, occupied=False),
-            Table(_id=2, occupied=False),
+            Table(id=1, occupied=False),
+            Table(id=2, occupied=False),
         ],
     )
 )
@@ -55,10 +55,10 @@ classroom.save(
         tablesPerRow=4,
         rows=5,
         tables=[
-            Table(_id=1, occupied=False),
-            Table(_id=2, occupied=False),
-            Table(_id=3, occupied=False),
-            Table(_id=4, occupied=False),
+            Table(id=1, occupied=False),
+            Table(id=2, occupied=False),
+            Table(id=3, occupied=False),
+            Table(id=4, occupied=False),
         ],
     )
 )

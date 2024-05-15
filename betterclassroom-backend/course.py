@@ -3,9 +3,6 @@ from typing import List
 from pydantic import BaseModel
 from pydantic_mongo import AbstractRepository
 
-from classroom import Classroom
-from professor import Professor
-from student import Student
 from exercise import Exercise
 
 
@@ -13,9 +10,9 @@ class Course(BaseModel):
     id: str
     description: str
     exercises: List[Exercise]
-    participants: List[Student]
-    classroom: Classroom
-    professor: Professor
+    participants: List[str]
+    classroom: str
+    professor: str
 
 
 class CourseRepository(AbstractRepository[Course]):

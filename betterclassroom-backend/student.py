@@ -4,7 +4,6 @@ from pydantic_mongo import AbstractRepository
 
 from exercise import Exercise
 from classroom import Table
-from course import Course
 
 
 class Student(BaseModel):
