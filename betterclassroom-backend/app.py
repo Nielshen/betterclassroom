@@ -101,7 +101,7 @@ def hello():
 @app.route("/api/students")
 def get_students():
     # # Retrieve student
-    all_students = list(students.find({}, {"_id": 0}))
+    all_students = list(students.get_collection().find({}, {"_id": 0}))
     return jsonify(all_students)
 
 
