@@ -105,7 +105,7 @@ def get_students():
     return jsonify(all_students)
 
 
-@app.route("/api/students/<student>/exercises", method="GET")
+@app.route("/api/students/<student>/exercises", methods=["GET"])
 def get_student_exercises(student):
     course = db["course"].find_one({"participants": student})
     exercises = course["exercises"]
