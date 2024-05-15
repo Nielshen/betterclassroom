@@ -5,7 +5,7 @@ from pydantic_mongo import AbstractRepository
 
 
 class SubExercise(BaseModel):
-    _id: str
+    id: str
     description: str
 
 
@@ -15,6 +15,6 @@ class Exercise(BaseModel):
     exercises: List[SubExercise]
 
 
-class ExerciseRepository(AbstractRepository[Exercise]):
-    class Meta:
-        collection_name = 'exercise'
+# class ExerciseRepository(AbstractRepository[Exercise]):
+#     class Meta:
+#         collection_name = 'exercise'

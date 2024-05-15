@@ -9,4 +9,4 @@ class Professor(BaseModel):
 
 class ProfessorRepository(AbstractRepository[Professor]):
     class Meta:
-        collection_name = 'professor'
+        collection_name = "professor"

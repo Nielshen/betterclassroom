@@ -5,7 +5,7 @@ from pydantic_mongo import AbstractRepository
 
 
 class Table(BaseModel):
-    _id: int
+    id: int
     occupied: bool
 
 
