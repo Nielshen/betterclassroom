@@ -65,8 +65,12 @@ classroom.save(
 
 
 students = StudentRepository(db)
-students.save(Student(id="Alice", table=Table(id=1, occupied=True), progress={}))
-students.save(Student(id="Bernardo", table=Table(id=2, occupied=True), progress={}))
+students.save(
+    Student(id="Alice", table=Table(id=1, occupied=True), course="SWQS", progress={})
+)
+students.save(
+    Student(id="Bernardo", table=Table(id=2, occupied=True), course="SWQS", progress={})
+)
 
 
 course = CourseRepository(db)
