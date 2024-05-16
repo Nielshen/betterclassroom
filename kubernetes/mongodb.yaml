@@ -19,7 +19,7 @@ spec:
   chart:
     spec:
       chart: mongodb
-      version: 12.1.16 #Selected MongoDB version < v5 because the HTWG VM lacks the AVX instruction set
+      version: 5.1.4  #Helm Chart Version/ MongoDB version < v5 because the HTWG VM lacks the AVX instruction set
       sourceRef:
         kind: HelmRepository
         name: mongodb
