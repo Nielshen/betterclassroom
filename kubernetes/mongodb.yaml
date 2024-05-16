@@ -14,12 +14,12 @@ metadata:
   name: mongodb
   namespace: betterclassroom
 spec:
-  interval: 10m
+  interval: 1m
   timeout: 5m
   chart:
     spec:
       chart: mongodb
-      version: 7.8.10
+      version: 7.8.10 #Selected MongoDB version < v5 because the HTWG VM lacks the AVX instruction set
       sourceRef:
         kind: HelmRepository
         name: mongodb
