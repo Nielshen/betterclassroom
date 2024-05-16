@@ -30,5 +30,3 @@ spec:
       tag: "4.4.29"  # Selected MongoDB version < v5 because the HTWG VM lacks the AVX instruction set.
     auth:
       enabled: false #enable auth in Production
- #   username: admin
-  #  password: admin
