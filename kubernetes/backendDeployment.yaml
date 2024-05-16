@@ -29,8 +29,10 @@ metadata:
   name: mein-backend
   namespace: betterclassroom
 spec:
-  type: ClusterIP
-  ports:
-  - port: 5000
   selector:
     app: mein-backend
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP
