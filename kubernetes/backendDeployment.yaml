@@ -15,8 +15,7 @@ spec:
     spec:
       containers:
         - name: mein-backend
-          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:main #TODO: set to current branch name
-          #image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:latest
+          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:main #TODO: set to current feature branch name or on production and main to image tag name
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -29,8 +28,10 @@ metadata:
   name: mein-backend
   namespace: betterclassroom
 spec:
-  type: ClusterIP
-  ports:
-  - port: 5000
   selector:
     app: mein-backend
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP

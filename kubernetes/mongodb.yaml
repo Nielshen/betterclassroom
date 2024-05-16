@@ -6,7 +6,8 @@ metadata:
   namespace: betterclassroom
 spec:
   interval: 5m
-  url: https://charts.bitnami.com/bitnami
+  url: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+  #url: https://charts.bitnami.com/bitnami
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -14,18 +15,20 @@ metadata:
   name: mongodb
   namespace: betterclassroom
 spec:
-  interval: 10m
+  interval: 1m
   timeout: 5m
   chart:
     spec:
       chart: mongodb
-      version: 15.1.7
+      version: 11.2.0  #Helm Chart Version/ MongoDB version < v5 because the HTWG VM lacks the AVX instruction set
       sourceRef:
         kind: HelmRepository
         name: mongodb
       interval: 5m
   releaseName: mongodb
   values:
+    #image:
+     # tag: "4.4.29"  # MongoDB-Version
     auth:
       enabled: false #enable auth in Production
  #   username: admin
