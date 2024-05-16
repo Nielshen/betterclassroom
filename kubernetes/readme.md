@@ -107,3 +107,18 @@ port forward
 Note: ```kubectl port-forward``` does not return. To continue, you will need to open another terminal.
 
 ``mongo --host 127.0.0.1 --port 27017``
+### Access Production HTWG VM
+- Edit Hosts
+
+Open the editor with administrative privileges and navigate to  C:\Windows\System32\drivers\etc\hosts and add the Line: 
+```141.37.29.38 betterclassroom-cluster.in.htwg-konstanz.de``` TODO DNS Auflösung
+
+- Better Classrooms production should be accessible under
+
+http://betterclassroom-cluster.in.htwg-konstanz.de/
+
+http://betterclassroom-cluster.in.htwg-konstanz.de/api
+
+### Merge Process from feature Branch to Production Branch
+
+
