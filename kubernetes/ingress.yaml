@@ -1,13 +1,10 @@
-# apiVersion: networking.k8s.io/v1beta1 # for k3s < v1.19
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: my-ingress
   namespace: betterclassroom
   annotations:
-    #cert-manager.io/cluster-issuer: letsencrypt-prod #letsencrypt-staging !!!
     kubernetes.io/ingress.class: traefik
-    #traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd,default-ratelimit@kubernetescrd
 spec:
   rules:
     # host name should be replaced by flux substitution e.g. ${domain:=better-classroom.com}
