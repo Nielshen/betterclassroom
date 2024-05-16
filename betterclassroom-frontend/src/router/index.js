@@ -6,13 +6,33 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView
-    },
-    {
-      path: '/dashboard',
       name: 'dashboard',
       component: () => import('../views/DashboardView.vue')
+    },
+    {
+      path: '/students',
+      name: 'studenten',
+      component: () => import('../views/StudentenView.vue')
+    },
+    {
+      path: '/createTasks',
+      name: 'createTasks',
+      component: () => import('../views/CreateTaskView.vue')
+    },
+    {
+      path: '/createCourse',
+      name: 'createCourse',
+      component: () => import('../views/CreateCourseView.vue')
+    },
+    {
+      path: '/tasks',
+      name: 'tasks',
+      component: () => import('../views/TaskView.vue')
+    },
+    {
+      path: '/courses',
+      name: 'courses',
+      component: () => import('../views/CourseView.vue')
     },
     {
       path: '/about',

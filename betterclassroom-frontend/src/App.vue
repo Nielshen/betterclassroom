@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { ref } from 'vue'
 import Navbar from './components/Navbar.vue'
+import Sidebar from './components/Sidebar.vue'
 
 const students = ref([])
 
@@ -18,6 +19,6 @@ const fetchStudents = async () => {
 
 <template>
   <Navbar />
-  <router-view></router-view>
+  <Sidebar />
 </template>
 
