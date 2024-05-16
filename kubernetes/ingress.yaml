@@ -10,7 +10,25 @@ metadata:
     #traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd,default-ratelimit@kubernetescrd
 spec:
   rules:
+    # host name should be replaced by flux substitution e.g. ${domain:=better-classroom.com}
     - host: betterclassroom-cluster.in.htwg-konstanz.de
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mein-frontend
+                port:
+                  number: 80
+          - path: /api
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mein-backend
+                port:
+                  number: 5000
+    - host: better-classroom.com
       http:
         paths:
           - path: /
