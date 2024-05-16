@@ -10,7 +10,7 @@ metadata:
     #traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd,default-ratelimit@kubernetescrd
 spec:
   rules:
-    - host: better-classroom.com
+    - host: betterclassroom-cluster.in.htwg-konstanz.de
       http:
         paths:
           - path: /

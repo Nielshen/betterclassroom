@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: mein-backend
-          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:main #TODO: set to current branch name
+          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:production #TODO: set to current branch name
           #image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:latest
           imagePullPolicy: Always
           ports:
