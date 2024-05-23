@@ -13,8 +13,3 @@ class Exercise(BaseModel):
     id: str
     description: str
     exercises: List[SubExercise]
-
-
-# class ExerciseRepository(AbstractRepository[Exercise]):
-#     class Meta:
-#         collection_name = 'exercise'

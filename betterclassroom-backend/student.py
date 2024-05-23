@@ -1,16 +1,16 @@
-from typing import Dict
+from typing import Dict, Optional
 from pydantic import BaseModel
 from pydantic_mongo import AbstractRepository
 
 from exercise import Exercise
-from classroom import Table
 
 
 class Student(BaseModel):
     id: str
-    table: Table
+    table: str
     course: str
-    progress: Dict[Exercise, bool]
+    progress: Optional[Dict[str, bool]]
+    help_requested: bool
 
 
 class StudentRepository(AbstractRepository[Student]):
