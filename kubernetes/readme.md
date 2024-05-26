@@ -91,6 +91,8 @@ betterclassroom/kubernetes
 ### Change Branches
 1. change Flux Branch
 
+```export EDITOR=nano```
+
 ```kubectl edit gitrepository flux-system -n flux-system``` (if not working, try: ```kubectl edit gitrepository -n flux-system```)
 
 ![Alt-Text](docs/changeBranchFlux.png)
@@ -105,3 +107,40 @@ port forward
 Note: ```kubectl port-forward``` does not return. To continue, you will need to open another terminal.
 
 ``mongo --host 127.0.0.1 --port 27017``
+### Access Production HTWG VM
+
+- Better Classrooms production should be accessible under
+
+http://betterclassroom-cluster.in.htwg-konstanz.de/
+
+http://betterclassroom-cluster.in.htwg-konstanz.de/api
+
+### Merge Process from Feature Branch to Production Branch
+
+1. **Create Feature Branch from Main**
+   - Create a new feature branch from the main branch.
+
+2. **Set Files to Current Feature Branch Name**
+   - Update files to reflect the current feature branch name (see "Change Branches").
+
+3. **Develop**
+   - Develop your features or changes.
+
+4. **Test Changes in Local Cluster**
+   - Test the changes in the local cluster.
+   - Commit changes to the feature branch.
+   - The local cluster updates automatically, or you can update it manually (see "Manually Delete and Apply New Versions").
+   - Cluster access:
+     - [http://better-classroom.com:8088/](http://better-classroom.com:8088/)
+     - [http://better-classroom.com:8088/api](http://better-classroom.com:8088/api)
+
+5. **Stable Version Reached and Ready to Merge to Main**
+   - Create a tag (e.g., 0.0.1) from your current feature branch.
+   - Update files to reflect the tag name (e.g., 0.0.1) (see "Change Branches").
+   - Merge from the feature branch into the main branch.
+
+6. **Version Passed Tests and Peer Review and is Ready for Production**
+   - Merge from the main branch into the production branch.
+   - Cluster access:
+     - [http://betterclassroom-cluster.in.htwg-konstanz.de/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
+     - [http://betterclassroom-cluster.in.htwg-konstanz.de/api](http://betterclassroom-cluster.in.htwg-konstanz.de/api)

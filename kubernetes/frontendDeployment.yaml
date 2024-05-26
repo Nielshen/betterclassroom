@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: mein-frontend
-          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/frontend:backend-dev #TODO: change this to your current branch name
+          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/frontend:0.0.2 #TODO: set to current feature branch name or on production and main to image tag name
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -28,21 +28,10 @@ metadata:
   name: mein-frontend
   namespace: betterclassroom
 spec:
-  type: ClusterIP
-  ports:
-  - port: 80
   selector:
     app: mein-frontend
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  name: mein-frontend
-#spec:
-#  selector:
-#    app: mein-frontend
-#  ports:
-#    - protocol: TCP
-#      port: 80
-#      targetPort: 80
-#  type: ClusterIP
-#---
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP

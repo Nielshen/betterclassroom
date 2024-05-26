@@ -71,6 +71,17 @@ def validate_request(model: BaseModel):
 def hello():
     return "Hello, World!"
 
+<<<<<<< daef71f92001deb0a994fc66c96eca3cce4bf57e
+=======
+#Test API and MongoDB
+@app.route("/api/students")
+def get_students():
+    students = [
+        {"id": 1, "name": "Alice"},
+        {"id": 2, "name": "Bob"},
+        {"id": 3, "name": "test new production VM"}
+    ]
+>>>>>>> 12f853e229e5be48810b13d2d8a05e0ac5990c3f
 
 # returns all students / creates new student
 @app.route("/api/students", methods=["GET", "POST"])
