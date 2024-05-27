@@ -59,7 +59,30 @@ const save = () => {
     })
 }
 
-const deleteCourse = () => {}
+const deleteCourse = async (courseId) => {
+  try {
+    const courseId = route.params.courseId
+    const result = await axios.delete(`${api_url}/course/${courseId}`)
+    console.log(result)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const remove = (courseId) => {
+  if (!courseId) {
+    alert("No Course ID")
+    return
+  }
+  deleteCourse(courseId)
+    .then(() => {
+      alert("Course deleted")
+      router.push('/courses')
+    })
+    .catch((err) => {
+      alert('Error', err)
+    })
+}
 
 onBeforeMount(async () => {
   const oldCourseId = route.params.courseId
@@ -87,8 +110,8 @@ const startTask = (taskId) => {
     const courseId = route.params.courseId
     const courseLink = `${window.location.host}/student/${courseId}/${taskId}`
     alert(`Kurs gestartet: ${courseLink}`)
+    router.push(`/dashboard/${courseId}/${taskId}`)
 }
-
 const tasks = ref([])
 </script>
 
@@ -133,7 +156,7 @@ const tasks = ref([])
       </thead>
       <tbody>
         <tr v-for="task in tasks">
-          <td>{{ task.name }}</td>
+          <td>{{ task.id }}</td>
           <td>{{ task.length  }}</td>
           <button class="btn btn-xs btn-primary mr-4">Bearbeiten</button>
           <button class="btn btn-xs btn-accent mr-4" @click="startTask(task.id)">Starten</button>

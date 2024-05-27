@@ -126,7 +126,7 @@ def handle_student_progress(student):
         if not progress_data:
             return Response("No data provided", 400)
         try:
-            progress_data = {k: to_boolean(v) for k, v in progress_data.items()}
+            progress_data = {k: to_boolean(v) for k, v in progress_data.items()} #k ist exercise_id, v ist true/false
             Student.__pydantic_validator__.validate_assignment(
                 Student.model_construct(), "progress", progress_data
             )
@@ -229,14 +229,14 @@ def delete_course(course_id):
 def handle_exercises(course_id, data):
     if request.method == "GET":
         course = course_repo.get_collection().find_one(
-            {"_id": course_id}, {"exercises": 1}
+            {"_id": course_id}, {"exercises": 1} #exercises ist hier alle Hauptaufgaben?
         )
-        if not course or "exercises" not in course:
+        if not course or "exercises" not in course: #exercises ist hier alle Hauptaufgaben?
             return Response("Course not found or no exercises available", 404)
         return jsonify(course["exercises"])
     elif request.method == "POST":
         course = course_repo.get_collection().find_one(
-            {"_id": course_id}, {"exercises": 1}
+            {"_id": course_id}, {"exercises": 1} #exercises ist hier alle Hauptaufgaben?
         )
         if not course:
             return Response("Course not found", 404)
