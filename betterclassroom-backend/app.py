@@ -71,8 +71,9 @@ def validate_request(model: BaseModel):
 def hello():
     return "Hello, World!"
 
+
 # returns all students / creates new student
-@app.route("/api/students", methods=["GET", "POST"])
+@app.route("/api/students", methods=["GET", "POST", "DELETE"])
 @validate_request(Student)
 def handle_students(data):
     if request.method == "GET":
@@ -91,12 +92,24 @@ def handle_students(data):
                 course=data["course"],
             )
         )
-        # TODO check if table exists and is not occupied
         course_repo.get_collection().update_one(
             {"_id": data["course"]},
             {"$addToSet": {"participants": data["id"]}},
         )
         return Response("Student inserted successfully", status=201)
+    elif request.method == "DELETE":
+        students_repo.get_collection().delete_many({})
+        return Response("All students deleted successfully", 200)
+
+
+def to_boolean(value):
+    """Converts a string that is 'true' or 'false' to a boolean value, otherwise returns the value unchanged."""
+    if isinstance(value, str):
+        if value.lower() == "true":
+            return True
+        elif value.lower() == "false":
+            return False
+    return value
 
 
 # returns student progress / updates student progress
@@ -113,7 +126,7 @@ def handle_student_progress(student):
         if not progress_data:
             return Response("No data provided", 400)
         try:
-            # TODO can use false, true, "false", "true", "False", "True" as values
+            progress_data = {k: to_boolean(v) for k, v in progress_data.items()}
             Student.__pydantic_validator__.validate_assignment(
                 Student.model_construct(), "progress", progress_data
             )
@@ -122,7 +135,12 @@ def handle_student_progress(student):
         student_data = students_repo.find_one_by({"id": student})
         if student_data is None:
             return Response("Student not found", 404)
-        # TODO check if exercise exists
+        course_data = course_repo.find_one_by({"id": student_data.course})
+
+        exercise_ids = {exercise.id for exercise in course_data.exercises}
+        if not all(ex_id in exercise_ids for ex_id in progress_data.keys()):
+            return Response("Exercise not found in the course", 400)
+
         students_repo.get_collection().update_one(
             {"_id": student}, {"$set": {"progress": progress_data}}
         )
@@ -178,7 +196,13 @@ def handle_courses(data):
         all_courses = list(course_repo.get_collection().find({}))
         return all_courses
     elif request.method == "POST":
-        # TODO check if professor and classroom exist
+        professor_data = professor_repo.find_one_by({"id": data["professor"]})
+        if professor_data is None:
+            return Response("Professor not found", 404)
+        classroom_data = classroom_repo.find_one_by({"id": data["classroom"]})
+        if classroom_data is None:
+            return Response("Classroom not found", 404)
+
         course_repo.save(
             Course(
                 id=data["id"],
@@ -188,6 +212,15 @@ def handle_courses(data):
             )
         )
         return Response("Inserted course successfully", status=201)
+
+
+@app.route("/api/course/<course_id>", methods=["DELETE"])
+def delete_course(course_id):
+    course = course_repo.get_collection().find_one({"_id": course_id})
+    if not course:
+        return Response("Course not found", 404)
+    course_repo.get_collection().delete_one({"_id": course_id})
+    return Response("Course deleted successfully", 200)
 
 
 # returns all exercises / creates new exercise
@@ -213,6 +246,17 @@ def handle_exercises(course_id, data):
             {"_id": course_id}, {"$push": {"exercises": data}}
         )
         return Response("Exercise added successfully", 201)
+
+
+@app.route("/api/course/<course_id>/exercise/<exercise_id>", methods=["DELETE"])
+def delete_exercise(course_id, exercise_id):
+    course = course_repo.get_collection().find_one({"_id": course_id})
+    if not course:
+        return Response("Course not found", 404)
+    course_repo.get_collection().update_one(
+        {"_id": course_id}, {"$pull": {"exercises": {"id": exercise_id}}}
+    )
+    return Response("Exercise deleted successfully", 200)
 
 
 # returns all classrooms
