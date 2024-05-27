@@ -73,8 +73,7 @@ const editCourse = (e) => {
                     <td>{{ e.participants.length }} Teilnehmende</td>
                     <td>
                     <div>
-                    <button class="btn btn-accent mr-4 " @click="editCourse(e)" >Bearbeiten</button>
-                    <button class="btn btn-accent ">Starten</button>
+                    <button class="btn btn-primary mr-4 " @click="editCourse(e)" >Öffnen</button>
                     </div>
                     </td>
                 </tr>
