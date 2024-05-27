@@ -2,6 +2,8 @@
 import DashboardPerson from '../components/DashboardPerson.vue'
 import { defineProps, computed } from 'vue'
 
+const tableNumber = 2
+
 const props = defineProps(
     {
         name: String,

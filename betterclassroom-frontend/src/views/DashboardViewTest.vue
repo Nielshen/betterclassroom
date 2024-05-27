@@ -1,9 +1,72 @@
 <script setup>
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import DashboardTable from '../components/DashboardTable.vue'
 import axios from 'axios'
+import { useRoute, useRouter } from 'vue-router'
 
-const tableCount = ref(20)
+const route = useRoute()
+const router = useRouter()
+
+const courseId = route.params.courseId
+const exerciseId = route.params.taskId /*Exercise ID*/
+
+const tableCount = ref(20) /* Count of table is hardcoded as 20 / 5 rows, 4 tables per row, when it's variable and in DB, find out how much tables are in this room*/
+const tableOccupation = {}
+
+// Our relevant students
+const courseStudents = ['']
+
+const apiUrl = import.meta.env.VITE_API_PROD_URL
+const loadExercise = async () => {
+  const response = await axios.get(`${apiUrl}/course/${courseId}/exercise`)
+  const _tasks = response.data
+
+  console.log()
+  console.log({ t: _tasks, exerciseId })
+  const currentTask = _tasks.find((task) => task.id === exerciseId)
+  console.log({ currentTask })
+
+  const exercises = currentTask.exercises.map((e) => e.description)
+  console.log(exercises)
+}
+
+const loadCourse = async () => {
+  /* Get our current course */
+  const courseResponse = await axios.get(`${apiUrl}/course`)
+  const _course = courseResponse.data
+  
+  const currentCourse = _course.find((course) => course._id === courseId)
+  console.log(currentCourse)
+  const participants = currentCourse.participants
+  console.log(participants)
+
+    /* Get all students */
+
+  const studentsResponse = await axios.get(`${apiUrl}/students`)
+  const _students = studentsResponse.data
+  const relevantStudents = _students.filter((student) => student.course === courseId)
+  courseStudents = relevantStudents
+
+  for (tableNumber in tableCount) {
+    tableOccupation.
+  }
+  
+}
+
+
+
+
+/*
+
+
+*/
+
+
+onBeforeMount(async () => {
+  await loadCourse()
+})
+
+
 /*
     Unsere parameter:
     class Course(BaseModel):
@@ -25,6 +88,8 @@ const tableCount = ref(20)
         progress: Dict[str, bool] = Field(default_factory=dict)
         help_requested: bool = False
 
+    @app.route("/api/course/<course_id>/exercise", methods=["GET", "POST"])
+    GET 
 */
 
 /* test parameter course*/
