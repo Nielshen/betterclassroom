@@ -12,7 +12,7 @@ class Course(BaseModel):
     exercises: List[Exercise] = Field(default_factory=list)
     participants: List[str] = Field(default_factory=list)
     classroom: str
-    professor: str
+    professor: int
 
 
 class CourseRepository(AbstractRepository[Course]):
