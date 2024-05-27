@@ -4,7 +4,7 @@ const router = useRouter();
 
 const toCourses = () => router.push('/courses');
 const toTasks = () => router.push('/tasks');
-const toStudents = () => router.push('/students');
+const toDashboard = () => router.push("/");
 
 </script>
 
@@ -19,8 +19,7 @@ const toStudents = () => router.push('/students');
             <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
             <ul class="menu p-4 w-80 min-h-full bg-secondary text-base-content">
                 <li><a @click="toCourses" >Kurse</a></li>
-                <li><a @click="toTasks" >Aufgaben</a></li>
-                <li><a @click="toStudents" >Studenten</a></li>
+                <li> <a @click="toDashboard">Dashboard</a></li>
             </ul>
 
         </div>

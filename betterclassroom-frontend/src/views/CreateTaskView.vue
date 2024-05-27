@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios'
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -27,11 +27,11 @@ const createSubExercise = () => {
 const api_url = import.meta.env.VITE_API_PROD_URL
 
 const createExercise = async () => {
-  const id = null || uuidv4()
+  const id = null || taskName.value
   try {
     const result = await axios.post(`${api_url}/course/${courseId}/exercise`, {
       id: id,
-      description: taskName.value,
+      description: taskDescription.value,
       exercises: subExercises.value.map((e) => ({ ...e, id: uuidv4() }))
     })
     alert('Aufgabe erstellt')
@@ -40,7 +40,16 @@ const createExercise = async () => {
   }
 }
 
+const loadOldTasks = async () => {
+  const result = await axios.get(`${api_url}/course/${courseId}/exercise`)
+  const data = result.data[0]
+  taskName.value = data.id
+  taskDescription.value = data.description
+  subExercises.value = data.exercises
+}
+
 const subExercises = ref([])
+onBeforeMount(async () => {})
 </script>
 
 <template>
@@ -52,10 +61,8 @@ const subExercises = ref([])
       class="input input-bordered input-accent w-full max-w-xs my-5"
       v-model="taskName"
     />
-    <!---
-        <textarea class="textarea textarea-accent my-5 overflow-auto" placeholder="Beschreibung der Aufgabe"
-            style="min-height: 300px;" v-model="taskDescription"></textarea>
-            -->
+    <textarea class="textarea textarea-accent my-5 overflow-auto" placeholder="Beschreibung der Aufgabe" 
+    style="min-height: 300px;" v-model="taskDescription"></textarea>
     <div class="overflow-x-auto">
       <input
         type="text"
