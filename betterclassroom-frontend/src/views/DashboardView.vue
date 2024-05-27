@@ -1,11 +1,26 @@
 <script setup>
 import { ref } from 'vue'
 import DashboardTable from '../components/DashboardTable.vue'
+import axios from 'axios'
 
 const tableCount = ref(20)
 /*
     Hier direkt DashboardPersonen auflösen und pro DashboardTable 2 personen dem <DashboardTable> weitergeben?
 */
+const api_url = import.meta.env.VITE_API_PROD_URL
+
+const helloApi = () => {
+    axios.get(api_url )
+    .then(response => {
+        console.log(response.data)
+    })
+    .catch(error => {
+        console.log(error)
+    })
+}
+
+helloApi()
+
 
 </script>
 <template>

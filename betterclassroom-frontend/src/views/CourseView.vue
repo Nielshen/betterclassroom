@@ -1,7 +1,25 @@
 <script setup>
+import { onBeforeMount,ref  } from "vue"
 import { useRouter } from "vue-router"
+import axios from "axios"
 
 const router = useRouter()
+
+const api_url = import.meta.env.VITE_API_PROD_URL
+
+const courseData = ref([])
+
+const fetchCourses = async () => {
+    const result = await axios.get(`${api_url}/course`)
+    const data = result.data
+    courseData.value = data
+}
+
+
+onBeforeMount(async () => {
+    await fetchCourses()
+})
+
 
 const newCourse = () => router.push("/createCourse")
 
@@ -28,6 +46,13 @@ const data = [
     },
 ]
 
+const editCourse = (e) => {
+    const id = e._id
+    console.log({id})
+    /* Query in router */
+    router.push(`/createCourse/${id}`)
+}
+
 </script>
 
 <template>
@@ -42,15 +67,15 @@ const data = [
                     <th>Teilnehmer</th>
                 </tr>
             </thead>
-            <tbody v-for="e in data" >
+            <tbody v-for="e in courseData" >
                 <!-- row 1 -->
                 <tr class="bg-base-200">
-                    <td>{{ e.name }}</td>
-                    <td>{{ e.raum }}</td>
-                    <td>{{ e.count }} Teilnehmende</td>
+                    <td>{{ e.description }}</td>
+                    <td>{{ e.classroom }}</td>
+                    <td>{{ e.participants.length }} Teilnehmende</td>
                     <td>
                     <div>
-                    <button class="btn btn-accent mr-4 ">Bearbeiten</button>
+                    <button class="btn btn-accent mr-4 " @click="editCourse(e)" >Bearbeiten</button>
                     <button class="btn btn-accent ">Starten</button>
                     </div>
                     </td>
