@@ -41,7 +41,7 @@ const changeIndex = async (index) => {
 
 const raisedHand = async (value) => {
   console.log('Hand raised', value)
-  const response = await axios.post(`${apiUrl}/students/${studentId.value}/help`, {})
+  const response = await axios.post(`${apiUrl}/students/${studentName.value}/help`, {})
   console.log(response)
 }
 
