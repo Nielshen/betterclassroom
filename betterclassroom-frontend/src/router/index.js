@@ -15,13 +15,18 @@ const router = createRouter({
       component: () => import('../views/StudentenView.vue')
     },
     {
-      path: '/createTasks',
-      name: 'createTasks',
+      path: '/createTask/:courseId',
+      name: 'createTask/:courseId',
       component: () => import('../views/CreateTaskView.vue')
     },
     {
-      path: '/createCourse',
-      name: 'createCourse',
+      path: '/createTask/:courseId/:taskId',
+      name: 'createTask/:id:/:taskId',
+      component: () => import('../views/CreateTaskView.vue')
+    },
+    {
+      path: '/createCourse/:courseId',
+      name: 'createCourse/:courseId',
       component: () => import('../views/CreateCourseView.vue')
     },
     {

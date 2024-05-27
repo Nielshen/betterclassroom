@@ -48,8 +48,6 @@ const data = [
 
 const editCourse = (e) => {
     const id = e._id
-    console.log({id})
-    /* Query in router */
     router.push(`/createCourse/${id}`)
 }
 

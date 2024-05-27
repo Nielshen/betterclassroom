@@ -49,7 +49,7 @@ const save = () => {
         return
     }
     pushCourse({
-        oldId: oldCourse ? oldCourse.id : null,
+        oldId:  route.params.id || null,
         description: courseName.value,
         professor: 'Prof. Dr. Max Mustermann',
         classroom: courseRoom.value
@@ -66,7 +66,7 @@ const save = () => {
 const deleteCourse = () => {}
 
 onBeforeMount(async () => {
-  const oldCourseId = route.params.id
+  const oldCourseId = route.params.courseId
   if (oldCourseId) {
     const oldCourse = await loadOldCourse(oldCourseId)
     courseName.value = oldCourse.description
@@ -79,13 +79,19 @@ onBeforeMount(async () => {
   }
 
 })
+
+const createTask = (id) => {
+  const courseId = route.params.courseId
+  console.log({ courseId})
+  router.push(`/createTask/${courseId}`)
+}
 </script>
 
 <template>
   <div class="flex flex-col w-2/3">
   <div class="flex flex-row items-center justify-between">
     <h1 class="text-2xl my-10">{{ title }}</h1>
-    <button v-if="route.params.id" class="btn btn-danger" @click="deleteCourse">Löschen</button>
+    <button v-if="route.params.courseId" class="btn btn-danger" @click="deleteCourse">Löschen</button>
   </div>
     <input
       type="text"
@@ -110,6 +116,7 @@ onBeforeMount(async () => {
     <div class="flex w-1/2 justify-around">
     <button class="btn btn-primary" @click="save">{{ createButton }} </button>
     <button class="btn btn-warning" @click="router.push('/courses')">Abbrechen</button>
+    <button class="btn btn-primary" @click="createTask" >Aufgaben erstellen</button>
     </div>
   </div>
 </template>
