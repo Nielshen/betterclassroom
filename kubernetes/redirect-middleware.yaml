@@ -1,0 +1,10 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: spa-redirect
+  namespace: betterclassroom
+spec:
+  redirectRegex:
+    regex: "^/[a-zA-Z0-9-/]+$"
+    replacement: "/"
+    permanent: true
