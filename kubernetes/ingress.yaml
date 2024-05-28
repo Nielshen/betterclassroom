@@ -5,7 +5,7 @@ metadata:
   namespace: betterclassroom
   annotations:
     kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/router.middlewares: betterclassroom-spa-fallback@kubernetescrd
+    #traefik.ingress.kubernetes.io/router.middlewares: betterclassroom-spa-fallback@kubernetescrd
 spec:
   rules:
     # host name should be replaced by flux substitution e.g. ${domain:=better-classroom.com}
@@ -26,6 +26,13 @@ spec:
                 name: mein-backend
                 port:
                   number: 5000
+          - path: /(.*) # catch other paths
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mein-frontend
+                port:
+                  number: 80
     - host: better-classroom.com
       http:
         paths:
@@ -43,3 +50,10 @@ spec:
                 name: mein-backend
                 port:
                   number: 5000
+          - path: /(.*) # catch other paths
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mein-frontend
+                port:
+                  number: 80
