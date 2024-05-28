@@ -1,5 +1,8 @@
 FROM node:lts-alpine
 
+# Define the environment variable for BASE_URL
+ENV BASE_URL=http://better-classroom.com:8088/
+
 # install simple http server for serving static content
 RUN npm install -g http-server
 
