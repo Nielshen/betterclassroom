@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,18 +9,38 @@ const router = createRouter({
       component: () => import('../views/DashboardView.vue')
     },
     {
+      path: '/dashboard/:courseId/:taskId',
+      name: 'dashboard/:courseId/:taskId',
+      component: () => import('../views/DashboardViewTest.vue')
+    },
+    {
+      path: "/student/:courseId/:taskId",
+      name: "student/:courseId/:taskId",
+      component: () => import('../views/StudentTaskView.vue')
+    },
+    {
       path: '/students',
       name: 'studenten',
       component: () => import('../views/StudentenView.vue')
     },
     {
-      path: '/createTasks',
-      name: 'createTasks',
+      path: '/createTask/:courseId',
+      name: 'createTask/:courseId',
       component: () => import('../views/CreateTaskView.vue')
     },
     {
-      path: '/createCourse',
-      name: 'createCourse',
+      path: '/createTask/:courseId/:taskId',
+      name: 'createTask/:id:/:taskId',
+      component: () => import('../views/CreateTaskView.vue')
+    },
+    {
+      path: '/createCourse/:courseId',
+      name: 'createCourse/:courseId',
+      component: () => import('../views/CreateCourseView.vue')
+    },
+    {
+      path: '/createCourse/',
+      name: 'createCourse/',
       component: () => import('../views/CreateCourseView.vue')
     },
     {

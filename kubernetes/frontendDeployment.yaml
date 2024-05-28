@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: mein-frontend
-          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/frontend:0.0.3 #TODO: set to current feature branch name or on production and main to image tag name
+          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/frontend:0.0.4 #TODO: set to current feature branch name or on production and main to image tag name
           imagePullPolicy: Always
           ports:
             - containerPort: 80

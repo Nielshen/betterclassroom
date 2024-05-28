@@ -11,4 +11,4 @@ class SubExercise(BaseModel):
 class Exercise(BaseModel):
     id: str
     description: str
-    exercises: List[SubExercise]
+    exercises: List[SubExercise] #in sub_exercises umbenennen für übersicht?

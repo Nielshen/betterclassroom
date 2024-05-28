@@ -1,7 +1,11 @@
 <script setup>
 import { useRouter } from 'vue-router';
-
 const router = useRouter();
+
+const toCourses = () => router.push('/courses');
+const toTasks = () => router.push('/tasks');
+const toDashboard = () => router.push("/");
+
 </script>
 
 <template>
@@ -14,9 +18,8 @@ const router = useRouter();
         <div class="drawer-side">
             <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
             <ul class="menu p-4 w-80 min-h-full bg-secondary text-base-content">
-                <li><a href="/courses">Kurse</a></li>
-                <li><a href="/tasks">Aufgaben</a></li>
-                <li><a href="/dashboard">Studenten</a></li>
+                <li><a @click="toCourses" >Kurse</a></li>
+                <li> <a @click="toDashboard">Dashboard</a></li>
             </ul>
 
         </div>
