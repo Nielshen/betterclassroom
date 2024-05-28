@@ -1,10 +1,13 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-  name: spa-fallback
+  name: spa-redirect
   namespace: betterclassroom
 spec:
-  redirectRegex:
-    regex: "^(?!/api)(.*)"
-    replacement: "/index.html"
-    permanent: false
+  errors:
+    status:
+      - "404"
+    service:
+      name: mein-frontend
+      port: 80
+    query: "/index.html"
