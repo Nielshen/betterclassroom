@@ -1,5 +1,4 @@
 from app.main import app
-import eventlet
 import eventlet.wsgi
 
 if __name__ == "__main__":
