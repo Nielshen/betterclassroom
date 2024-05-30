@@ -23,8 +23,8 @@ def create_app():
 
     logging.basicConfig(level=logging.DEBUG)
 
-    # connection = "mongodb://mongodb.betterclassroom.svc.cluster.local:27017/"
-    connection = "mongodb://127.0.0.1:27017/"
+    connection = "mongodb://mongodb.betterclassroom.svc.cluster.local:27017/"
+    # connection = "mongodb://127.0.0.1:27017/"
     logging.info("MongoDB connection string: %s", connection)
     client = MongoClient(connection)
 
