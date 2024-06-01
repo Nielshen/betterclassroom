@@ -1,7 +1,7 @@
 from flask import Blueprint, request, Response, jsonify
 from app.db_models.course import Course, Exercise
 from app.utils.helpers import validate_request
-from app import course_repo, professor_repo, classroom_repo
+from app import course_repo, professor_repo, classroom_repo, students_repo
 
 
 course_bp = Blueprint("course", __name__)
@@ -46,6 +46,15 @@ def handle_course(course_id):
             return Response("Course not found", 404)
         course_repo.get_collection().delete_one({"_id": course_id})
         return Response("Course deleted successfully", 200)
+
+
+@course_bp.route("/api/course/<course_id>/students", methods=["GET"])
+def get_students(course_id):
+    course = course_repo.get_collection().find_one({"_id": course_id})
+    if not course:
+        return Response("Course not found", 404)
+    students = list(students_repo.get_collection().find({"course": course_id}))
+    return students
 
 
 # returns all exercises / creates new exercise
