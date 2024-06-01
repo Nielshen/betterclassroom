@@ -12,7 +12,11 @@ from app.db_models import (
 from app.utils.helpers import createO201, createO301, createProfEigslperger
 
 socketio = SocketIO(
-    cors_allowed_origins="*", logger=True, engineio_logger=True, async_mode="eventlet"
+    cors_allowed_origins="*",
+    logger=True,
+    engineio_logger=True,
+    async_mode="eventlet",
+    path="/api/socket.io"
 )
 
 
