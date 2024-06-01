@@ -5,7 +5,7 @@ metadata:
   namespace: betterclassroom
   annotations:
     kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/router.middlewares: betterclassroom-spa-redirect@kubernetescrd
+    #traefik.ingress.kubernetes.io/router.middlewares: betterclassroom-spa-redirect@kubernetescrd
     traefik.ingress.kubernetes.io/websocket.enabled: "true"
 spec:
   rules:
