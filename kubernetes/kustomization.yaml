@@ -7,3 +7,4 @@ resources:
   - backendDeployment.yaml
   - ingress.yaml
   - image-updater.yaml
+  - redirect-middleware.yaml

@@ -23,4 +23,4 @@ COPY . /app/
 EXPOSE 5000
 
 # Start
-CMD ["python", "app.py"] || echo "Failed to start app"
+CMD ["python", "run.py"] || echo "Failed to start app"
