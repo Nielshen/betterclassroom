@@ -144,3 +144,60 @@ http://betterclassroom-cluster.in.htwg-konstanz.de/api
    - Cluster access:
      - [http://betterclassroom-cluster.in.htwg-konstanz.de/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
      - [http://betterclassroom-cluster.in.htwg-konstanz.de/api](http://betterclassroom-cluster.in.htwg-konstanz.de/api)
+
+### How to test WebSockets in Production
+
+e.g test student_socket:
+
+ws://betterclassroom-cluster.in.htwg-konstanz.de/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student
+```<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocketIO Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Verbindung zum SocketIO Server mit spezifischen Optionen und Namespace
+            const socket = io('ws://betterclassroom-cluster.in.htwg-konstanz.de/student', {
+                path: '/api/socket.io',
+                transports: ['websocket']
+            });
+
+            // Listener für die Verbindungsherstellung
+            socket.on('connect', function() {
+                console.log('Connected to server');
+            });
+
+            // Listener für Nachrichten vom Server
+            socket.on('response', function(data) {
+                console.log('Server says:', data.data);
+                document.getElementById('serverResponse').textContent = data.data;
+            });
+
+            // Funktion zum Senden einer Nachricht an den Server
+            function sendMessage() {
+                var message = document.getElementById('messageInput').value;
+                socket.emit('message', message);
+            }
+
+            // Event-Listener für den Senden-Button
+            document.getElementById('sendMessage').addEventListener('click', sendMessage);
+        });
+    </script>
+</head>
+<body>
+    <h1>SocketIO Communication Test</h1>
+    <input type="text" id="messageInput" placeholder="Type your message here">
+    <button id="sendMessage">Send Message</button>
+    <p>Server response: <span id="serverResponse"></span></p>
+</body>
+</html> 
+```
+
+### How to test WebSockets local
+
+e.g test student_socket:
+
+ws://better-classroom.com:8088/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student
