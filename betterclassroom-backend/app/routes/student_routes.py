@@ -32,7 +32,7 @@ def handle_students(data):
             {"_id": data["course"]},
             {"$addToSet": {"participants": data["id"]}},
         )
-        socketio.emit("student", {"data": data}, namespace="/student")
+        socketio.emit("student", {"data": data}, namespace="/student", broadcast=True)
         return Response("Student inserted successfully", status=201)
     elif request.method == "DELETE":
         students_repo.get_collection().delete_many({})
@@ -88,8 +88,12 @@ def handle_student_progress(student_id):
         students_repo.get_collection().update_one(
             {"_id": student_id}, {"$set": {"progress": progress_data}}
         )
-        result_data = {"id": student_id, "progress": progress_data}
-        socketio.emit("progress", {"data": result_data}, namespace="/student")
+        socketio.emit(
+            "progress",
+            {"data": {"id": student_id, "progress": progress_data}},
+            namespace="/student",
+            broadcast=True,
+        )
         return Response("Progress updated successfully", 200)
 
 
@@ -113,5 +117,6 @@ def handle_help(student_id):
             "help",
             {"data": {"id": student_id, "help_requested": not student.help_requested}},
             namespace="/student",
+            broadcast=True,
         )
         return Response("Help status updated successfully", 200)
