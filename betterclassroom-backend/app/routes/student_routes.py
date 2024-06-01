@@ -2,7 +2,7 @@ from flask import Blueprint, request, Response, jsonify
 from pydantic import ValidationError
 from app.db_models import Student
 from app import students_repo, course_repo, socketio
-from app.utils.helpers import validate_request
+from app.utils.helpers import validate_request, to_boolean
 
 
 student_bp = Blueprint("students", __name__)
@@ -52,16 +52,6 @@ def handle_student(student_id):
             return Response("Student not found", 404)
         students_repo.delete_by_id(student.id)
         return Response("Student deleted successfully", 200)
-
-
-def to_boolean(value):
-    """Converts a string that is 'true' or 'false' to a boolean value, otherwise returns the value unchanged."""
-    if isinstance(value, str):
-        if value.lower() == "true":
-            return True
-        elif value.lower() == "false":
-            return False
-    return value
 
 
 # returns student progress / updates student progress
