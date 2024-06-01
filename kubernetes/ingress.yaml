@@ -6,6 +6,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: betterclassroom-spa-redirect@kubernetescrd
+    traefik.ingress.kubernetes.io/websocket.enabled: "true"
 spec:
   rules:
     # host name should be replaced by flux substitution e.g. ${domain:=better-classroom.com}
@@ -26,7 +27,7 @@ spec:
                 name: mein-backend
                 port:
                   number: 5000
-          - path: /(.*) # catch other paths
+          - path: /(.*) # other paths
             pathType: ImplementationSpecific
             backend:
               service:
