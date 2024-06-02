@@ -105,6 +105,12 @@ const createTask = (id) => {
   router.push(`/createTask/${courseId}`)
 }
 
+const editTask = (taskid) => {
+  const courseId = route.params.courseId
+  router.push(`/editTask/${courseId}/${taskid}`)
+
+}
+
 const startTask = (taskId) => {
     console.log('Start task', taskId)
     const courseId = route.params.courseId
@@ -158,7 +164,7 @@ const tasks = ref([])
         <tr v-for="task in tasks">
           <td>{{ task.id }}</td>
           <td>{{ task.length  }}</td>
-          <button class="btn btn-xs btn-primary mr-4">Bearbeiten</button>
+          <button class="btn btn-xs btn-primary mr-4"@click="editTask(task.id)">Bearbeiten</button>
           <button class="btn btn-xs btn-accent mr-4" @click="startTask(task.id)">Starten</button>
         </tr>
       </tbody>

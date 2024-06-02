@@ -1,33 +1,32 @@
 <script setup>
 import axios from 'axios'
 import { onBeforeMount, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { v4 as uuidv4 } from 'uuid'
 
 const route = useRoute()
+const router = useRouter()
 
 const courseId = route.params.courseId
+const taskId = route.params.taskid // Verwende taskid statt taskId
 
 console.log(route.params)
-
-const { oldTasks } = defineProps({
-  oldTasks: Object
-})
 
 const title = ref('Aufgabe erstellen')
 const taskName = ref('')
 const taskDescription = ref('')
 const subtask = ref('')
+const subExercises = ref([])
+
+const api_url = import.meta.env.VITE_API_PROD_URL
 
 const createSubExercise = () => {
   subExercises.value.push({ description: subtask.value })
   subtask.value = ''
 }
 
-const api_url = import.meta.env.VITE_API_PROD_URL
-
 const createExercise = async () => {
-  const id = null || taskName.value
+  const id = taskId || uuidv4()
   try {
     const result = await axios.post(`${api_url}/course/${courseId}/exercise`, {
       id: id,
@@ -35,26 +34,36 @@ const createExercise = async () => {
       exercises: subExercises.value.map((e) => ({ ...e, id: uuidv4() }))
     })
     alert('Aufgabe erstellt')
+    router.push(`/createCourse/${courseId}`)
   } catch (error) {
     console.log(error)
   }
 }
 
-const loadOldTasks = async () => {
-  const result = await axios.get(`${api_url}/course/${courseId}/exercise`)
-  const data = result.data[0]
-  taskName.value = data.id
-  taskDescription.value = data.description
-  subExercises.value = data.exercises
+const loadOldTask = async () => {
+  try {
+    //const result = await axios.get(`${api_url}/course/${courseId}/exercise`)
+    const result = await axios.get(`${api_url}/course/${courseId}/${taskId}`)
+    const data = result.data
+    taskName.value = data.id
+    taskDescription.value = data.description
+    subExercises.value = data.exercises
+  } catch (error) {
+    console.log(error)
+  }
 }
 
-const subExercises = ref([])
-onBeforeMount(async () => {})
+onBeforeMount(async () => {
+  if (taskId) {
+    await loadOldTask()
+    title.value = 'Aufgabe bearbeiten'
+  }
+})
 </script>
 
 <template>
   <div class="flex flex-col w-2/3">
-    <h1 class="text-2xl my-10">Aufgaben erstellen</h1>
+    <h1 class="text-2xl my-10">{{ title }}</h1>
     <input
       type="text"
       placeholder="Aufgabenname"
@@ -72,10 +81,8 @@ onBeforeMount(async () => {})
       />
       <table class="table">
         <tbody>
-          <tr v-for="s in subExercises" :key="s">
-            {{
-              s.description
-            }}
+          <tr v-for="s in subExercises" :key="s.id">
+            <td>{{ s.description }}</td>
           </tr>
         </tbody>
       </table>
