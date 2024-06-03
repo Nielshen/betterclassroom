@@ -51,7 +51,7 @@ const save = () => {
     classroom: courseRoom.value
   })
     .then(() => {
-      alert('Sucess')
+      alert('Success')
       router.push('/courses')
     })
     .catch((err) => {
