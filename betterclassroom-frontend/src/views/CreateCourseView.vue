@@ -3,9 +3,15 @@ import axios from 'axios'
 import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
+import { v4 as uuidv4 } from 'uuid'
+
 
 const route = useRoute()
 const router = useRouter()
+
+const api_url = import.meta.env.VITE_API_PROD_URL
+
+const courseId = route.params.courseId
 
 const loadOldCourse = async (id) => {
   try {
@@ -16,20 +22,35 @@ const loadOldCourse = async (id) => {
   }
 }
 
+const loadProfessorId = async (professorName) => {
+  try {
+    const response = await axios.get(`${api_url}/professor?name=${professorName}`)
+    if (response.data && response.data.length > 0) {
+      return response.data[0]._id
+    } else {
+      return null
+    }
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
 const title = ref('')
 const courseName = ref('')
 const courseDescription = ref('')
 const courseRoom = ref('')
 const createButton = ref('')
-
-const api_url = import.meta.env.VITE_API_PROD_URL
+const professorId = ref('') 
+const tasks = ref([])
 
 const pushCourse = async ({ oldId, description, professor, classroom }) => {
-  const id = oldId || courseName.value
+  const id = oldId || uuidv4()
+  const professorId = await loadProfessorId(professor)
   try {
     const result = await axios.post(`${api_url}/course`, {
       id,
-      professor,
+      professor: professorId,
       description,
       classroom
     })
@@ -39,15 +60,23 @@ const pushCourse = async ({ oldId, description, professor, classroom }) => {
   }
 }
 
-const save = () => {
-  if (courseName.value === '' || courseName.value === '') {
+const save = async () => {
+  if (courseName.value === '' || courseRoom.value === '') {
     alert('Bitte füllen Sie alle Felder aus')
     return
   }
+  const oldId = route.params.courseId || courseName.value
+  console.log(route.params.courseId)
+  console.log({ oldId })
+  if (!oldId) {
+    alert('Keine alte ID vorhanden')
+    return
+  }
   pushCourse({
-    oldId: route.params.id || null,
+    //oldId: route.params.id || courseName.value,
+    oldId,
     description: courseName.value,
-    professor: 'Prof. Dr. Max Mustermann',
+    professor: professorId.value,
     classroom: courseRoom.value
   })
     .then(() => {
@@ -60,35 +89,27 @@ const save = () => {
 }
 
 const deleteCourse = async (courseId) => {
-  try {
-    const courseId = route.params.courseId
-    const result = await axios.delete(`${api_url}/course/${courseId}`)
-    console.log(result)
-  } catch (error) {
-    console.log(error)
-  }
-}
-
-const remove = (courseId) => {
   if (!courseId) {
-    alert("No Course ID")
+    alert("Keine Kurs-ID")
     return
   }
-  deleteCourse(courseId)
-    .then(() => {
-      alert("Course deleted")
-      router.push('/courses')
-    })
-    .catch((err) => {
-      alert('Error', err)
-    })
+  try {
+    await axios.delete(`${api_url}/course/${courseId}`)
+      .then(() => {
+        alert('Kurs gelöscht')
+        router.push('/courses')
+      })
+  } catch (error) {
+    alert('Fehler', error)
+    console.log(error)
+  }
 }
 
 onBeforeMount(async () => {
   const oldCourseId = route.params.courseId
   if (oldCourseId) {
     const oldCourse = await loadOldCourse(oldCourseId)
-    tasks.value = oldCourse.exercises.map(e => ({ name: e.description, length: e.exercises.length, id: e.id}))
+    tasks.value = oldCourse.exercises.map(e => ({ name: e.description, length: e.exercises.length, id: e.id }))
     courseName.value = oldCourse.description
     courseRoom.value = oldCourse.classroom
     title.value = 'Kurs bearbeiten'
@@ -96,6 +117,7 @@ onBeforeMount(async () => {
   } else {
     title.value = 'Kurs erstellen'
     createButton.value = 'Erstellen'
+    professorId.value = await loadProfessorId('Prof. Dr. Eiglsperger')
   }
 })
 
@@ -118,14 +140,14 @@ const startTask = (taskId) => {
     alert(`Kurs gestartet: ${courseLink}`)
     router.push(`/dashboard/${courseId}/${taskId}`)
 }
-const tasks = ref([])
+
 </script>
 
 <template>
   <div class="flex flex-col w-2/3">
   <div class="flex flex-row items-center justify-between">
     <h1 class="text-2xl my-10">{{ title }}</h1> 
-    <button v-if="route.params.courseId" class="btn btn-danger" @click="deleteCourse">Löschen</button>
+    <button v-if="route.params.courseId" class="btn btn-danger" @click="() => deleteCourse(courseId)">Löschen</button>
   </div>
     <input
       type="text"
