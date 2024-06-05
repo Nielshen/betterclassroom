@@ -62,6 +62,7 @@ onBeforeMount(async () => {
       taskName.value = oldTask.exercises.find(e => e.id === taskId)?.id
       taskDescription.value = oldTask.exercises.find(e => e.id === taskId)?.description
       title.value = 'Aufgabe bearbeiten'
+      createButton.value = 'Speichern'
     } else {
       console.error('loadOldTask hat keinen Wert zurückgegeben')
     }
@@ -85,23 +86,15 @@ const deleteTask = async (taskId) => {
   }
 }
 
-// TODO: Implement deleteSubTask
 const deleteSubTask = async (subTaskId) => {
+  if (!subTaskId) {
+    alert("Keine Aufgaben-ID")
+    return
+  }
   try {
-    // Abrufen der Übung
-    const response = await axios.get(`${api_url}/course/${courseId}/exercise/${taskId}`)
-    const exercise = response.data
-
-    // Finden und Entfernen des Subtasks
-    const index = exercise.subTasks.findIndex(subTask => subTask.id === subTaskId)
-    if (index !== -1) {
-      exercise.subTasks.splice(index, 1)
-    }
-
-    // Aktualisieren der Übung auf dem Server
-    await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}`, exercise)
-
-    alert("Subtask gelöscht")
+    const result = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}/${subTaskId}`)
+    alert("Aufgabe gelöscht")
+    router.push(`/createCourse/${courseId}/${taskId}`)
   } catch (error) {
     alert('Fehler', error)
   }
@@ -118,14 +111,15 @@ const deleteSubTask = async (subTaskId) => {
       v-model="taskName" />
     <textarea class="textarea textarea-accent my-5 overflow-auto" placeholder="Beschreibung der Aufgabe"
       style="min-height: 300px;" v-model="taskDescription"></textarea>
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto w-full">
       <input type="text" placeholder="Unteraufgabe" class="input input-bordered input-accent w-2/3 my-5"
         v-model="subtask" />
+        <button class="btn btn-primary mb-4 ml-4 mr-0" @click="createSubExercise">+</button>
       <table class="table">
         <tbody>
           <tr v-for="s in subExercises" :key="s.id">
             <td>{{ s.description }} </td>
-            <button class="btn btn-xs btn-square mt-2" @click="() => deleteSubTask(s.id)">🗑️</button>
+            <button class="btn btn-xs btn-square mt-2 float-right" @click="() => deleteSubTask(s.id)">🗑️</button>
           </tr>
         </tbody>
       </table>
