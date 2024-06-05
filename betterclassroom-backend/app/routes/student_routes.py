@@ -3,6 +3,7 @@ from pydantic import ValidationError
 from app.db_models import Student
 from app import students_repo, course_repo, socketio
 from app.utils.helpers import validate_request, to_boolean
+import logging
 
 
 student_bp = Blueprint("students", __name__)
@@ -57,40 +58,40 @@ def handle_student(student_id):
 # returns student progress / updates student progress
 @student_bp.route("/api/students/<student_id>/progress", methods=["GET", "POST"])
 def handle_student_progress(student_id):
+    student = students_repo.find_one_by({"id": student_id})
+    logging.info(student)
+    if student is None:
+        return Response("Student not found", 404)
+
     if request.method == "GET":
-        student = students_repo.find_one_by({"id": student_id})
-        if student is None:
-            return Response("Student not found", 404)
-        return student.progress
+        return student.current_exercise
 
     elif request.method == "POST":
         progress_data = request.get_json()
         if not progress_data:
             return Response("No data provided", 400)
-        try:
-            progress_data = {
-                k: to_boolean(v) for k, v in progress_data.items()
-            }  # k ist exercise_id, v ist true/false
-            Student.__pydantic_validator__.validate_assignment(
-                Student.model_construct(), "progress", progress_data
-            )
-        except ValidationError as e:
-            return Response(str(e), 400)
-        student = students_repo.find_one_by({"id": student_id})
-        if student is None:
-            return Response("Student not found", 404)
-        course_data = course_repo.find_one_by({"id": student.course})
 
-        exercise_ids = {exercise.id for exercise in course_data.exercises}
-        if not all(ex_id in exercise_ids for ex_id in progress_data.keys()):
-            return Response("Exercise not found in the course", 400)
+        if progress_data.get("current_exercise") is None:
+            return Response("No current_exercise provided", 400)
+
+        if not isinstance(progress_data.get("current_exercise"), int):
+            return Response("current_exercise must be an integer", 400)
+
+        logging.info(f"progress_data: {progress_data.get("current_exercise")}\n\n")
 
         students_repo.get_collection().update_one(
-            {"_id": student_id}, {"$set": {"progress": progress_data}}
+            {"_id": student_id},
+            {"$set": {"current_exercise": progress_data.get("current_exercise")}},
         )
         socketio.emit(
             "progress",
-            {"data": {"id": student_id, "progress": progress_data}},
+            {
+                "data": {
+                    "id": student_id,
+                    "progress": progress_data,
+                    "table": student.table,
+                }
+            },
             namespace="/student",
         )
         return Response("Progress updated successfully", 200)
@@ -114,7 +115,13 @@ def handle_help(student_id):
         )
         socketio.emit(
             "help",
-            {"data": {"id": student_id, "help_requested": not student.help_requested}},
+            {
+                "data": {
+                    "id": student_id,
+                    "help_requested": not student.help_requested,
+                    "table": student.table,
+                }
+            },
             namespace="/student",
         )
         return Response("Help status updated successfully", 200)

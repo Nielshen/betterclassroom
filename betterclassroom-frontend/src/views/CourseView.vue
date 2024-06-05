@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount,ref  } from "vue"
+import { onBeforeMount, ref } from "vue"
 import { useRouter } from "vue-router"
 import axios from "axios"
 
@@ -22,30 +22,6 @@ onBeforeMount(async () => {
 
 
 const newCourse = () => router.push("/createCourse")
-
-const data = [
-    {
-        name: "Software Qualitätssicherung",
-        raum: "O-201",
-        count: 25
-    },
-    {
-        name: "Web-Technologien",
-        raum: "O-301",
-        count: 14
-    },
-    {
-        name: "Softwarearchitekturen",
-        raum: "O-107",
-        count: 20
-    },
-    {
-        name: "Programmiertechnik 1",
-        raum: "O-002",
-        count: 32
-    },
-]
-
 const editCourse = (e) => {
     const id = e._id
     router.push(`/createCourse/${id}`)
@@ -56,30 +32,30 @@ const editCourse = (e) => {
 <template>
     <div class="overflow-x-auto">
         <div class="flex flex-col  justify-start items-start ">
-        <table class="table-lg">
-            <!-- head -->
-            <thead>
-                <tr>
-                    <th>Kurs</th>
-                    <th>Raum</th>
-                    <th>Teilnehmer</th>
-                </tr>
-            </thead>
-            <tbody v-for="e in courseData" >
-                <!-- row 1 -->
-                <tr class="bg-base-200">
-                    <td>{{ e.description }}</td>
-                    <td>{{ e.classroom }}</td>
-                    <td>{{ e.participants.length }} Teilnehmende</td>
-                    <td>
-                    <div>
-                    <button class="btn btn-primary mr-4 " @click="editCourse(e)" >Öffnen</button>
-                    </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <button class="btn btn-accent mt-4" @click="newCourse" >Neuer Kurs</button>
+            <table class="table-lg">
+                <!-- head -->
+                <thead>
+                    <tr>
+                        <th>Kurs</th>
+                        <th>Raum</th>
+                        <th>Teilnehmer</th>
+                    </tr>
+                </thead>
+                <tbody v-for="e in courseData">
+                    <!-- row 1 -->
+                    <tr class="bg-base-200">
+                        <td>{{ e.description }}</td>
+                        <td>{{ e.classroom }}</td>
+                        <td>{{ e.participants.length }} Teilnehmende</td>
+                        <td>
+                            <div>
+                                <button class="btn btn-primary mr-4 " @click="editCourse(e)">Öffnen</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn btn-accent mt-4" @click="newCourse">Neuer Kurs</button>
         </div>
     </div>
 </template>
