@@ -20,14 +20,14 @@ const loadCourse = async () => {
     /* Get our current course */
     const courseResponse = await axios.get(`${apiUrl}/course`)
     const _course = courseResponse.data
-    
+
     const currentCourse = _course.find((course) => course._id === courseId)
     if (!currentCourse) {
       console.error('Course not found')
       return
     }
     //console.log(currentCourse)
-    
+
     const participants = currentCourse.participants
     //console.log(participants)
 
@@ -40,10 +40,11 @@ const loadCourse = async () => {
     const tableOccupancy = Array(tableCount).fill().map(() => ({ student1: null, student2: null }))
 
     relevantStudents.forEach((student) => {
-      if (tableOccupancy[student.table - 1].student1 === null) {
-        tableOccupancy[student.table - 1].student1 = student
-      } else if (tableOccupancy[student.table - 1].student2 === null) {
-        tableOccupancy[student.table - 1].student2 = student
+      const studentTable = tableOccupancy[student.table - 1]
+      if (studentTable ? studentTable.student1 === null : null) {
+        studentTable.student1 = student
+      } else if (studentTable ? studentTable.student2 === null : null) {
+        studentTable.student2 = student
       }
     })
 
@@ -61,18 +62,16 @@ onBeforeMount(async () => {
 
 </script>
 <template>
-<div>
-<div class="flex justify-end m-4">
-    <button class="btn btn-warning">Beenden</button>
+  <div>
+    <div class="flex justify-end m-4">
+      <button class="btn btn-warning">Beenden</button>
     </div>
-    <div class="flex flex-row ">
-        <div class="flex flex-col justify-center m-4">
-            <div class="flex flex-row flex-wrap justify-center">
-                <DashboardTable v-for="table in tableOccupation" 
-                                        :tableNumber="table.id" 
-                                        :table="table"  />
-            </div>
+    <div class="flex flex-row">
+      <div class="flex flex-col justify-center m-4">
+        <div class="flex flex-row flex-wrap justify-center">
+          <DashboardTable v-for="table in tableOccupation" :tableNumber="table.id" :table="table" />
         </div>
+      </div>
     </div>
-    </div>
+  </div>
 </template>

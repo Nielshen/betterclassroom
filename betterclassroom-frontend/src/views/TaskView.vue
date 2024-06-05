@@ -6,7 +6,7 @@ const props = defineProps({
     type: Array,
     required: true
   }
-});
+})
 
 const emits = defineEmits(['idxChange', 'raisedHand'])
 
@@ -31,24 +31,26 @@ const toggleQuestion = () => {
 </script>
 
 <template>
-  <div class="carousel w-full h-full">
-    <div id="slide1" class="carousel-item relative w-full">
-      <div class="mx-20">
-        <h1 class="text-2xl my-10">Aufgabe {{ index + 1 }} / {{ props.tasks.length }}</h1>
-        <p>
-          {{ props.tasks[index] }}
-        </p>
+  <div class="w-full h-full">
+    <div class="carousel w-full h-full">
+      <div id="slide1" class="carousel-item relative justify-center item-center w-full h-full">
+        <div class="flex w-2/3">
+          <div class="mx-20 w-2/3">
+            <h1 class="text-2xl my-10">Aufgabe {{ index + 1 }} / {{ props.tasks.length }}</h1>
+            <p>
+              {{ props.tasks[index] }}
+            </p>
+          </div>
+          <button @click="toggleQuestion"
+            :class="['btn', 'btn-accent', 'm-4', 'text-2xl', !questionAsked && 'btn-outline']">
+            ✋🏼
+          </button>
+        </div>
+        <div class="absolute flex justify-between transform -translate-y-1/2 left-1 right-1 top-1/2">
+          <a @click="previousTask" class="btn btn-circle btn-accent">❮</a>
+          <a @click="nextTask" class="btn btn-circle btn-accent">❯</a>
+        </div>
       </div>
-      <div class="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2">
-        <a @click="previousTask" class="btn btn-circle btn-accent">❮</a>
-        <a @click="nextTask" class="btn btn-circle btn-accent">❯</a>
-      </div>
-      <button
-        @click="toggleQuestion"
-        :class="['btn', 'btn-accent', 'm-4', 'text-2xl', !questionAsked && 'btn-outline']"
-      >
-        ✋🏼
-      </button>
     </div>
   </div>
 </template>

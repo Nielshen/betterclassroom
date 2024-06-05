@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import TaskView from './TaskView.vue'
@@ -18,13 +18,13 @@ const apiUrl = import.meta.env.VITE_API_PROD_URL
 const loadTasks = async () => {
   const response = await axios.get(`${apiUrl}/course/${courseId}/exercise`)
   const _tasks = response.data
-  console.log({ t: _tasks, exerciseId })
+  //console.log({ t: _tasks, exerciseId })
   const currentTask = _tasks.find((task) => task.id === exerciseId)
-  console.log({ currentTask })
+  //console.log({ currentTask })
 
   description.value = currentTask.description
   const exercises = currentTask.exercises.map((e) => e.description)
-  console.log(exercises)
+  //console.log(exercises)
   tasks.value = exercises
 }
 
@@ -71,23 +71,31 @@ const loadUser = () => {
   studentName.value = localStorage.getItem('studentId') || null
 }
 
-const width = ref(4)
-const height = ref(10)
+const width = ref(-1)
+const height = ref(-1)
 
 const loadClassroom = async () => {
   const { data } = await axios.get(`${apiUrl}/classroom`)
-  console.log({ classroomData: data })
+  //console.log({ classroomData: data })
   const course = await axios.get(`${apiUrl}/course`)
   const { classroom } = course.data.find((c) => c._id === courseId)
   const currentRoom = data.find((room) => room._id === classroom) || {}
-  width.value = currentRoom.tablesPerRow || 4
-  height.value = currentRoom.rows || 10
+  width.value = currentRoom.tablesPerRow * 2 || 8
+  height.value = currentRoom.rows || 5
 }
 
 const clickOnSeat = (event) => {
   const id = event.target.id
   seat.value = id
 }
+
+const getSeat = (n, m, width, print = true) => {
+  return (n * width + m) + 1
+}
+
+const w_ = computed(() => Array.from({ length: width.value }, (_, i) => i))
+const h_ = computed(() => Array.from({ length: height.value }, (_, i) => i))
+
 
 onBeforeMount(async () => {
   loadUser()
@@ -96,33 +104,26 @@ onBeforeMount(async () => {
 })
 </script>
 <template>
-  <div>
+  <div class="h-full">
     <div v-if="!isAuth">
-      <input type="text" v-model="studentName" placeholder="Name..." class="input" />
-      <input type="text" v-model="seat" placeholder="Sitzplatz.." class="input" />
-      <div class="border">
-        <div class="flex flex-col justify-center items-center">
-          <div class="flex  justify-end w-3/4">
-            <div
-              class="rounded-lg w-[30px] h-[20px] bg-primary m-[2px] hover:bg-secondary text-s text-center text-white"
-            ></div>
-          </div>
-          <div v-for="n in width" :key="n" class="flex">
-            <div
-              :id="n * width + m"
-              v-for="m in height"
-              :key="m"
-              class="rounded-lg w-[30px] h-[20px] bg-primary m-[2px] hover:bg-secondary text-s text-center text-white"
-              @click="clickOnSeat"
-            >
-              {{ n * width + m }}
+      <div>
+        <input type="text" v-model="studentName" placeholder="Name" class="input input-bordered m-2 max-w-xs" />
+        <input type="text" v-model="seat" placeholder="Sitzplatz" class="input input-bordered m-2 max-w-xs" />
+        <div class="border">
+          <div class="flex flex-col justify-center items-center">
+            <div v-for="n in h_" :key="n" class="flex flex-row justify-center">
+              <div :id="getSeat(n, m, width, false)" v-for="m in w_" :key="m"
+                class="rounded-lg w-[75px] h-[55px] bg-primary m-1 hover:bg-secondary hover:text-black text-l text-center text-white"
+                @click="clickOnSeat">
+                {{ getSeat(n, m, width) }}
+              </div>
             </div>
           </div>
         </div>
+        <button @click="studentAuth" class="btn btn-primary">Bestätigen</button>
       </div>
-      <button @click="studentAuth" class="btn btn-primary">Bestätigen</button>
     </div>
-    <div v-else>
+    <div v-else class="h-full">
       <TaskView :tasks="tasks" @idxChange="changeIndex" @raisedHand="raisedHand" />
     </div>
   </div>

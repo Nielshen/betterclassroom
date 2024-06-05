@@ -49,38 +49,27 @@ const loadOldTasks = async () => {
 }
 
 const subExercises = ref([])
-onBeforeMount(async () => {})
+onBeforeMount(async () => { })
 </script>
 
 <template>
-  <div class="flex flex-col w-2/3">
-    <h1 class="text-2xl my-10">Aufgaben erstellen</h1>
-    <input
-      type="text"
-      placeholder="Aufgabenname"
-      class="input input-bordered input-accent w-full max-w-xs my-5"
-      v-model="taskName"
-    />
-    <textarea class="textarea textarea-accent my-5 overflow-auto" placeholder="Beschreibung der Aufgabe" 
-    style="min-height: 300px;" v-model="taskDescription"></textarea>
-    <div class="overflow-x-auto">
-      <input
-        type="text"
-        placeholder="Unteraufgabe"
-        class="input input-bordered input-accent w-full max-w-xs my-5"
-        v-model="subtask"
-      />
-      <table class="table">
-        <tbody>
-          <tr v-for="s in subExercises" :key="s">
-            {{
-              s.description
-            }}
-          </tr>
-        </tbody>
-      </table>
+  <div class="flex justify-center item-center">
+    <div class="flex flex-col w-2/4">
+      <h1 class="text-2xl my-10">Aufgaben erstellen</h1>
+      <input type="text" placeholder="Aufgabenname" class="input input-bordered input-accent w-full max-w-xs my-5" v-model="taskName" />
+      <textarea class="textarea textarea-accent my-5 overflow-auto" placeholder="Beschreibung der Aufgabe" style="min-height: 200px" v-model="taskDescription"></textarea>
+      <div>
+        <input type="text" placeholder="Unteraufgabe" class="input input-bordered input-accent w-full max-w-xs my-5" v-model="subtask" />
+        <table class="table">
+          <tbody>
+            <tr v-for="s in subExercises" :key="s">
+              {{ s.description }}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <button class="btn btn-primary mb-2" @click="createSubExercise">Unteraufgabe hinzufügen</button>
+      <button class="btn btn-primary" @click="createExercise">Erstellen</button>
     </div>
-    <button class="btn btn-primary" @click="createSubExercise">Unteraufgabe hinzufügen</button>
-    <button class="btn btn-primary" @click="createExercise">Erstellen</button>
   </div>
 </template>
