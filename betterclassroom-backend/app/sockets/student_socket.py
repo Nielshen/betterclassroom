@@ -1,5 +1,6 @@
 from flask_socketio import emit
 from flask_socketio.namespace import Namespace
+import logging
 
 
 class StudentNamespace(Namespace):
@@ -7,10 +8,11 @@ class StudentNamespace(Namespace):
         emit("response", {"data": "Connection established"})
 
     def on_disconnect(self):
-        print("Client disconnected")
+        logging.info("Client disconnected")
 
     def on_message(self, message):
         response_message = f"Received your message: {message}"
         emit("response", {"data": response_message})
+
 
 student_ns = StudentNamespace("/student")
