@@ -25,10 +25,11 @@ const taskDescription = ref('')
 const subtask = ref('')
 const subExercises = ref([])
 const createButton = ref('Erstellen')
+const exerciseButtonMethod = ref('')
 
 const api_url = import.meta.env.VITE_API_PROD_URL
 
-const createSubExercise = () => {
+const createSubTask = () => {
   const id = uuidv4()
   subExercises.value.push({ id: id, description: subtask.value })
   subtask.value = ''
@@ -49,6 +50,22 @@ const createExercise = async () => {
   }
 }
 
+const editExercise = async () => {
+  const id = taskName.value || uuidv4()
+  try {
+    const result1 = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}`)
+    const result = await axios.post(`${api_url}/course/${courseId}/exercise`, {
+      id: id,
+      description: taskDescription.value,
+      exercises: subExercises.value.map((e) => ({ ...e, id: uuidv4() }))
+    })
+    alert('Aufgabe bearbeitet')
+    router.push(`/createCourse/${courseId}`)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 onBeforeMount(async () => {
   const oldTaskId = route.params.taskid
   if (oldTaskId) {
@@ -56,19 +73,21 @@ onBeforeMount(async () => {
     if (oldTask) {
       const exercises = oldTask.exercises.find(e => e.id === taskId).exercises
       subExercises.value = exercises.map(e => {
-        const innerArray = e.innerArray;
         return { id: e.id, description: e.description }
-      })      
+      })
       taskName.value = oldTask.exercises.find(e => e.id === taskId)?.id
       taskDescription.value = oldTask.exercises.find(e => e.id === taskId)?.description
       title.value = 'Aufgabe bearbeiten'
       createButton.value = 'Speichern'
+      exerciseButtonMethod.value = editExercise
+
     } else {
       console.error('loadOldTask hat keinen Wert zurückgegeben')
     }
 
   } else {
     title.value = 'Aufgabe erstellen'
+    exerciseButtonMethod.value = createExercise
   }
 })
 
@@ -94,7 +113,7 @@ const deleteSubTask = async (subTaskId) => {
   try {
     const result = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}/${subTaskId}`)
     alert("Aufgabe gelöscht")
-    router.push(`/createCourse/${courseId}/${taskId}`)
+    subExercises.value = subExercises.value.filter(subTask => subTask.id !== subTaskId)
   } catch (error) {
     alert('Fehler', error)
   }
@@ -110,21 +129,23 @@ const deleteSubTask = async (subTaskId) => {
     <input type="text" placeholder="Aufgabenname" class="input input-bordered input-accent w-full max-w-xs my-5"
       v-model="taskName" />
     <textarea class="textarea textarea-accent my-5 overflow-auto" placeholder="Beschreibung der Aufgabe"
-      style="min-height: 300px;" v-model="taskDescription"></textarea>
+      style="min-height: 100px;" v-model="taskDescription"></textarea>
     <div class="overflow-x-auto w-full">
-      <input type="text" placeholder="Unteraufgabe" class="input input-bordered input-accent w-2/3 my-5"
-        v-model="subtask" />
-        <button class="btn btn-primary mb-4 ml-4 mr-0" @click="createSubExercise">+</button>
-      <table class="table">
+      <div class="flex items-center">
+        <textarea class="textarea textarea-accent my-5 overflow-auto flex-grow" placeholder="Unteraufgabe einfügen"
+          style="min-height: 200px;" v-model="subtask"></textarea>
+        <button class="btn btn-accent btn-circle btn-xl ml-10 mr-10 text-xl" @click="createSubTask">&#65291</button>
+      </div>
+      <table class="table table-zebra">
         <tbody>
           <tr v-for="s in subExercises" :key="s.id">
             <td>{{ s.description }} </td>
-            <button class="btn btn-xs btn-square mt-2 float-right" @click="() => deleteSubTask(s.id)">🗑️</button>
+            <button class="btn btn-xs btn-primary btn-square mt-2 mr-2 float-right"
+              @click="() => deleteSubTask(s.id)">🗑️</button>
           </tr>
         </tbody>
       </table>
     </div>
-    <button class="btn btn-primary mb-4" @click="createSubExercise">Unteraufgabe hinzufügen</button>
-    <button class="btn btn-primary" @click="createExercise">{{ createButton }}</button>
+    <button class="btn btn-primary mt-5" @click="exerciseButtonMethod">{{ createButton }}</button>
   </div>
 </template>
