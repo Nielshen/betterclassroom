@@ -182,7 +182,7 @@ const startTask = (taskId) => {
             <tr v-for="task in tasks">
               <td>{{ task.id }}</td>
               <td>{{ task.length }}</td>
-              <button class="btn btn-sm btn-primary m-1">Bearbeiten</button>
+              <button class="btn btn-sm btn-primary m-1" @click="editTask(task.id)">Bearbeiten</button>
               <button class="btn btn-sm btn-accent m-1" @click="startTask(task.id)">Starten</button>
             </tr>
           </tbody>
