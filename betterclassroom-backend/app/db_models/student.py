@@ -1,13 +1,14 @@
-from typing import Dict, Optional
+from typing import Dict
 from pydantic import BaseModel, Field
 from pydantic_mongo import AbstractRepository
 
 
-class Student(BaseModel): #Problem für Zukunft, wenn zwei courses mit selben studenten existieren, überschreibt sich der ältere Student mit dem neuen
+class Student(BaseModel):
     id: str
     table: int
     course: str
-    progress: Dict[str, bool] = Field(default_factory=dict) #str ist exercise_id?
+    progress: Dict[str, bool] = Field(default_factory=dict)  # str ist exercise_id
+    current_exercise: int = 0
     help_requested: bool = False
 
 

@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount,ref  } from "vue"
+import { onBeforeMount, ref } from "vue"
 import { useRouter } from "vue-router"
 import axios from "axios"
 

@@ -1,6 +1,6 @@
 <script setup>
 import DashboardPerson from '../components/DashboardPerson.vue'
-import { onBeforeMount, defineProps, computed, ref } from 'vue'
+import { onBeforeMount, defineProps, computed, ref, watch } from 'vue'
 
 const props = defineProps({
   tableNumber: Number,
@@ -39,6 +39,12 @@ onBeforeMount(async () => {
   await loadTable()
 })
 
+watch(() => props.table, (newTable, oldTable) => {
+  console.log('Table changed')
+  console.log(newTable)
+  loadTable()
+}, { deep: true })
+
 </script>
 <template>
   <div class="card w-[20rem] h-[8rem] overflow-hidden bg-primary text-primary-content my-2 mr-3">
@@ -54,4 +60,3 @@ onBeforeMount(async () => {
     </div>
   </div>
 </template>
-

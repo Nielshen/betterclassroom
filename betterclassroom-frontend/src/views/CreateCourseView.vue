@@ -3,9 +3,15 @@ import axios from 'axios'
 import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
+import { v4 as uuidv4 } from 'uuid'
+
 
 const route = useRoute()
 const router = useRouter()
+
+const api_url = import.meta.env.VITE_API_PROD_URL
+
+const courseId = route.params.courseId
 
 const loadOldCourse = async (id) => {
   try {
@@ -16,20 +22,35 @@ const loadOldCourse = async (id) => {
   }
 }
 
+const loadProfessorId = async (professorName) => {
+  try {
+    const response = await axios.get(`${api_url}/professor?name=${professorName}`)
+    if (response.data && response.data.length > 0) {
+      return response.data[0]._id
+    } else {
+      return null
+    }
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
 const title = ref('')
 const courseName = ref('')
 const courseDescription = ref('')
 const courseRoom = ref('')
 const createButton = ref('')
-
-const api_url = import.meta.env.VITE_API_PROD_URL
+const professorId = ref('') 
+const tasks = ref([])
 
 const pushCourse = async ({ oldId, description, professor, classroom }) => {
-  const id = oldId || courseName.value
+  const id = oldId || uuidv4()
+  const professorId = await loadProfessorId(professor)
   try {
     const result = await axios.post(`${api_url}/course`, {
       id,
-      professor,
+      professor: professorId,
       description,
       classroom
     })
@@ -39,19 +60,27 @@ const pushCourse = async ({ oldId, description, professor, classroom }) => {
   }
 }
 
-const save = () => {
-  if (courseName.value === '' || courseName.value === '') {
+const save = async () => {
+  if (courseName.value === '' || courseRoom.value === '') {
     alert('Bitte füllen Sie alle Felder aus')
     return
   }
+  const oldId = route.params.courseId || courseName.value
+  console.log(route.params.courseId)
+  console.log({ oldId })
+  if (!oldId) {
+    alert('Keine alte ID vorhanden')
+    return
+  }
   pushCourse({
-    oldId: route.params.id || null,
+    //oldId: route.params.id || courseName.value,
+    oldId,
     description: courseName.value,
-    professor: 'Prof. Dr. Max Mustermann',
+    professor: professorId.value,
     classroom: courseRoom.value
   })
     .then(() => {
-      alert('Sucess')
+      alert('Success')
       router.push('/courses')
     })
     .catch((err) => {
@@ -72,17 +101,19 @@ const deleteCourse = async (courseId) => {
 
 const remove = (courseId) => {
   if (!courseId) {
-    alert("No Course ID")
+    alert("Keine Kurs-ID")
     return
   }
-  deleteCourse(courseId)
-    .then(() => {
-      alert("Course deleted")
-      router.push('/courses')
-    })
-    .catch((err) => {
-      alert('Error', err)
-    })
+  try {
+    await axios.delete(`${api_url}/course/${courseId}`)
+      .then(() => {
+        alert('Kurs gelöscht')
+        router.push('/courses')
+      })
+  } catch (error) {
+    alert('Fehler', error)
+    console.log(error)
+  }
 }
 
 onBeforeMount(async () => {
@@ -97,6 +128,7 @@ onBeforeMount(async () => {
   } else {
     title.value = 'Kurs erstellen'
     createButton.value = 'Erstellen'
+    professorId.value = await loadProfessorId('Prof. Dr. Eiglsperger')
   }
 })
 
@@ -106,6 +138,12 @@ const createTask = (id) => {
   router.push(`/createTask/${courseId}`)
 }
 
+const editTask = (taskid) => {
+  const courseId = route.params.courseId
+  router.push(`/editTask/${courseId}/${taskid}`)
+
+}
+
 const startTask = (taskId) => {
   console.log('Start task', taskId)
   const courseId = route.params.courseId
@@ -113,7 +151,7 @@ const startTask = (taskId) => {
   alert(`Kurs gestartet: ${courseLink}`)
   router.push(`/dashboard/${courseId}/${taskId}`)
 }
-const tasks = ref([])
+
 </script>
 
 <template>

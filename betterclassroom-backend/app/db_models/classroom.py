@@ -1,5 +1,4 @@
 from typing import List
-
 from pydantic import BaseModel
 from pydantic_mongo import AbstractRepository
 

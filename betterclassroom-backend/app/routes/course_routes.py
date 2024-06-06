@@ -1,5 +1,5 @@
 from flask import Blueprint, request, Response, jsonify
-from app.db_models.course import Course, Exercise
+from app.db_models.course import Course, Exercise, SubExercise
 from app.utils.helpers import validate_request
 from app import course_repo, professor_repo, classroom_repo, students_repo
 
@@ -86,12 +86,100 @@ def handle_exercises(course_id, data):
         return Response("Exercise added successfully", 201)
 
 
-@course_bp.route("/api/course/<course_id>/exercise/<exercise_id>", methods=["DELETE"])
-def delete_exercise(course_id, exercise_id):
-    course = course_repo.get_collection().find_one({"_id": course_id})
+# add subexercise / delete exercise
+@course_bp.route(
+    "/api/course/<course_id>/exercise/<exercise_id>", methods=["POST", "DELETE", "PUT"]
+)
+@validate_request(SubExercise)
+def handle_exercises_two(course_id, exercise_id, data):
+    course = course_repo.find_one_by_id(course_id)
     if not course:
         return Response("Course not found", 404)
-    course_repo.get_collection().update_one(
-        {"_id": course_id}, {"$pull": {"exercises": {"id": exercise_id}}}
+
+    exercise = next((ex for ex in course.exercises if ex.id == exercise_id), None)
+    if not exercise:
+        return Response("Exercise not found", 404)
+
+    if request.method == "POST":
+        course_repo.get_collection().update_one(
+            {"_id": course_id, "exercises.id": exercise_id},
+            {"$push": {"exercises.$.exercises": data}},
+        )
+        return Response("Exercise added successfully", 201)
+    elif request.method == "DELETE":
+        course_repo.get_collection().update_one(
+            {"_id": course_id}, {"$pull": {"exercises": {"id": exercise_id}}}
+        )
+        return Response("Exercise deleted successfully", 200)
+    elif request.method == "PUT":
+        data = request.get_json()
+        if len(data) > 1:
+            return Response("Only description can be modified", 400)
+
+        if data.get("description") is None:
+            return Response("No description field provided", 400)
+
+        course_repo.get_collection().update_one(
+            {
+                "_id": course_id,
+                "exercises.id": exercise_id,
+            },
+            {"$set": {"exercises.$[exercise].description": data["description"]}},
+            array_filters=[{"exercise.id": exercise_id}],
+        )
+        return Response("Exercise updated successfully", 200)
+
+
+@course_bp.route(
+    "/api/course/<course_id>/exercise/<exercise_id>/<subexercise_id>",
+    methods=["DELETE", "PUT"],
+)
+def alter_subexercise(course_id, exercise_id, subexercise_id):
+    course = course_repo.find_one_by_id(course_id)
+    if not course:
+        return Response("Course not found", 404)
+
+    exercise = next((ex for ex in course.exercises if ex.id == exercise_id), None)
+    if not exercise:
+        return Response("Exercise not found", 404)
+
+    subexercise = next(
+        (subex for subex in exercise.exercises if subex.id == subexercise_id), None
     )
-    return Response("Exercise deleted successfully", 200)
+    if not subexercise:
+        return Response("Subexercise not found", 404)
+
+    if request.method == "DELETE":
+        course_repo.get_collection().update_one(
+            {"_id": course_id, "exercises.id": exercise_id},
+            {"$pull": {"exercises.$.exercises": {"id": subexercise_id}}},
+        )
+        return Response("SubExercise deleted successfully", 200)
+    elif request.method == "PUT":
+        data = request.get_json()
+
+        if len(data) > 1:
+            return Response("Only description can be modified", 400)
+
+        if data.get("description") is None:
+            return Response("No description field provided", 400)
+
+        course_repo.get_collection().update_one(
+            {
+                "_id": course_id,
+                "exercises.id": exercise_id,
+                "exercises.exercises.id": subexercise_id,
+            },
+            {
+                "$set": {
+                    "exercises.$[exercise].exercises.$[subexercise].description": data[
+                        "description"
+                    ]
+                }
+            },
+            array_filters=[
+                {"exercise.id": exercise_id},
+                {"subexercise.id": subexercise_id},
+            ],
+        )
+        return Response("SubExercise updated successfully", 200)
