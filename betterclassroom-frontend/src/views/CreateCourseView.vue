@@ -99,7 +99,7 @@ const deleteCourse = async (courseId) => {
   }
 }
 
-const remove = (courseId) => {
+const remove = async (courseId) => {
   if (!courseId) {
     alert("Keine Kurs-ID")
     return
