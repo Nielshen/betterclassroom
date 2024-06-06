@@ -10,7 +10,7 @@ const props = defineProps({
   }
 })
 
-console.log(props)
+//console.log(props.tableNumber)
 
 const student1_finishedTasks = ref(0)
 const student1_maxTasks = ref(0)
@@ -47,22 +47,14 @@ watch(() => props.table, (newTable, oldTable) => {
 
 </script>
 <template>
-  <!-- 30 -> Base / 8 -> Anzahl Karten -->
-  <!-- 20 -> Base / 5 -> Anzahl Karten -->
   <div class="card w-[20rem] h-[8rem] overflow-hidden bg-primary text-primary-content my-2 mr-3">
     <div class="p-3">
       <div class="flex flex-row justify-between">
         <div class="mt-0" v-if="props.table.student1 != null">
-          <DashboardPerson :finishedTasks="student1_finishedTasks" :maxTasks="student1_maxTasks"
-            :raisedHand="student1_raisedHand" />
-          <!-- Seat is hardcoded, because not saved in database 
-          :name="props.table.student1._id"
-          :name="props.table.student2._id"
-          -->
+          <DashboardPerson :name="props.table.student1._id" :finishedTasks="student1_finishedTasks" :maxTasks="student1_maxTasks" :raisedHand="student1_raisedHand"/>
         </div>
         <div class="mt-0" v-if="props.table.student2 != null">
-          <DashboardPerson :finishedTasks="student2_finishedTasks" :maxTasks="student2_maxTasks"
-            :raisedHand="student2_raisedHand" />
+          <DashboardPerson :name="props.table.student2._id" :finishedTasks="student2_finishedTasks" :maxTasks="student2_maxTasks" :raisedHand="student2_raisedHand"/>
         </div>
       </div>
     </div>

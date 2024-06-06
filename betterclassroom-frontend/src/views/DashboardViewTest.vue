@@ -99,7 +99,7 @@ const initSockets = () => {
     <div class="flex justify-end m-4">
       <button class="btn btn-warning">Beenden</button>
     </div>
-    <div class="flex flex-row ">
+    <div class="flex flex-row">
       <div class="flex flex-col justify-center m-4">
         <div class="flex flex-row flex-wrap justify-center">
           <DashboardTable v-for="table in tableOccupation" :tableNumber="table.id" :table="table" />

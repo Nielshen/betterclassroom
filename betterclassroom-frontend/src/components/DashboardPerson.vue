@@ -33,8 +33,11 @@ watch(() => props.finishedTasks, (newVal) => {
     <div>
         <p v-if="studentRaisedHand">👋</p>
         <p v-else>-</p>
-        <div :class="['radial-progress', studentRaisedHand ? 'text-error' : 'text-base-100']"
-            :style="`--value: ${progress}`" role="progressbar">{{ finishedTasks }} / {{ maxTasks }}</div>
+        <div :class="['radial-progress', studentRaisedHand? 'text-error' : 'text-base-100']" :style="`--value: ${progress}`" role="progressbar">
+            <div class="tooltip tooltip-secondary" :data-tip="`${studentName}`">
+                {{ finishedTasks }} / {{ maxTasks }}
+            </div>
+        </div>
         <!-- <p>{{studentName}}</p> -->
     </div>
 
