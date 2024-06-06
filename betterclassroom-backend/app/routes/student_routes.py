@@ -77,7 +77,7 @@ def handle_student_progress(student_id):
         if not isinstance(progress_data.get("current_exercise"), int):
             return Response("current_exercise must be an integer", 400)
 
-        logging.info(f"progress_data: {progress_data.get("current_exercise")}\n\n")
+        logging.info(f"progress_data: {progress_data.get('current_exercise')}\n\n")
 
         students_repo.get_collection().update_one(
             {"_id": student_id},
