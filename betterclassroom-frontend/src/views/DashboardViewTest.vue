@@ -61,7 +61,7 @@ onBeforeMount(async () => {
 
 
 const initSockets = () => {
-  const socket = io('ws://localhost:5000/student', {
+  const socket = io('ws://betterclassroom-cluster.in.htwg-konstanz.de/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student', {
     path: '/api/socket.io',
     transports: ['websocket']
   })
