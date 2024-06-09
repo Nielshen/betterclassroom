@@ -50,15 +50,16 @@ const participant2_help_requested = false
 
 const api_url = import.meta.env.VITE_API_PROD_URL
 
-const helloApi = () => {
-    axios.get(api_url)
-        .then(response => {
-            console.log(response.data)
-        })
-        .catch(error => {
-            console.log(error)
-        })
-}
+// path '/' does not exist anymore
+// const helloApi = () => {
+//     axios.get(api_url)
+//         .then(response => {
+//             console.log(response.data)
+//         })
+//         .catch(error => {
+//             console.log(error)
+//         })
+// }
 
 helloApi()
 
