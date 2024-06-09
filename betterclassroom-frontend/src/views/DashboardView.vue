@@ -61,7 +61,7 @@ const api_url = import.meta.env.VITE_API_PROD_URL
 //         })
 // }
 
-helloApi()
+// helloApi()
 
 
 </script>
