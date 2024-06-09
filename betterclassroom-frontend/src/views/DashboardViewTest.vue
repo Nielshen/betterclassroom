@@ -61,7 +61,7 @@ onBeforeMount(async () => {
 
 
 const initSockets = () => {
-  const socket = io('ws://better-classroom.com:8088', {
+  const socket = io('ws://better-classroom.com:8088/student', {
     path: '/api/socket.io/student',
     transports: ['websocket']
   })
