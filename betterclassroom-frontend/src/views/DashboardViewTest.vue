@@ -60,11 +60,23 @@ onBeforeMount(async () => {
 })
 
 
+
 const initSockets = () => {
-  const socket = io('ws://better-classroom.com:8088/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student', {
-    path: '/api/socket.io',
+  const socket = io('ws://localhost:5000/student', {
+    path: '/api/socket.io/student',
     transports: ['websocket']
   })
+
+
+  // const socket = io('ws://better-classroom.com:8088', {
+  //   path: '/api/socket.io/student',
+  //   transports: ['websocket']
+  // })
+
+  // const socket = io('ws://betterclassroom-cluster.in.htwg-konstanz.de', {
+  //   path: '/api/socket.io/student',
+  //   transports: ['websocket']
+  // })
 
   socket.on('connect', () => {
     console.log('Connected to server')
@@ -79,7 +91,13 @@ const initSockets = () => {
 
     // Update the tableOccupation based on the received data
     const studentIndex = data.data.table - 1
-    tableOccupation.value[studentIndex].student1.help_requested = data.data.help_requested;
+    if (tableOccupation.value[studentIndex].student1._id === data.data.id) {
+      tableOccupation.value[studentIndex].student1.help_requested = data.data.help_requested;
+    } else if (tableOccupation.value[studentIndex].student2._id === data.data.id) {
+      tableOccupation.value[studentIndex].student2.help_requested = data.data.help_requested;
+    } else {
+      console.error('Updating student help status failed: Student not found')
+    }
     console.log(tableOccupation.value[studentIndex].student1)
   })
 
