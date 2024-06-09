@@ -7,15 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 const route = useRoute()
 const router = useRouter()
 
-const loadOldTask = async (id) => {
-  try {
-    const result = await axios.get(`${api_url}/course`)
-    console.log(result.data)
-    return result.data.filter((course) => course._id === courseId)[0]
-  } catch (error) {
-    console.log(error)
-  }
-}
+
 
 const courseId = route.params.courseId
 const taskId = route.params.taskid // Verwende taskid statt taskId
@@ -35,19 +27,26 @@ let currentSubTaskId = null
 
 const api_url = import.meta.env.VITE_API_PROD_URL
 
-const createSubTask = () => {
-  const id = subtaskName.value || uuidv4()
-  subExercises.value.push({ id: id, description: subtask.value })
-  subtaskName.value = ''
-  subtask.value = ''
+// Alte Daten laden
+const loadOldTask = async (id) => {
+  try {
+    const result = await axios.get(`${api_url}/course`)
+    console.log(result.data)
+    return result.data.filter((course) => course._id === courseId)[0]
+  } catch (error) {
+    console.log(error)
+  }
 }
 
+
+
+// Aufgabenmethoden
 const createExercise = async () => {
   const id = taskName.value || uuidv4()
   try {
     const result = await axios.post(`${api_url}/course/${courseId}/exercise`, {
       id: id,
-      description: taskDescription.value.replace(/\n/g, '\\n'),
+      description: taskDescription.value,
       exercises: subExercises.value.map((e) => ({ ...e, id: e.id }))
     })
     console.log(result)
@@ -60,15 +59,14 @@ const createExercise = async () => {
 
 const editExercise = async () => {
   for (let subExercise of subExercises.value) {
-    // Zugriff auf die subTaskId
     const subTaskId = subExercise.id;
     const existingSubExercise = oldSubExercises.value.find(oldSubExercise => oldSubExercise.id === subTaskId)
     console.log(existingSubExercise)
-    if (!existingSubExercise) { // Entfernen Sie .data
+    if (!existingSubExercise) { 
       try {
         const result = await axios.post(`${api_url}/course/${courseId}/exercise/${taskId}`, {
           id: subExercise.id,
-          description: subExercise.description.replace(/\n/g, '\\n')
+          description: subExercise.description
         })
         console.log(result)
       } catch (error) {
@@ -78,7 +76,7 @@ const editExercise = async () => {
   }
   try {
     const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}`, {
-      description: taskDescription.value.replace(/\n/g, '\\n'),
+      description: taskDescription.value,
     })
     console.log(result)
     alert('Aufgabe bearbeitet')
@@ -86,6 +84,29 @@ const editExercise = async () => {
   } catch (error) {
     console.log(error)
   }
+}
+
+const deleteTask = async (taskId) => {
+  if (!taskId) {
+    alert("Keine Aufgaben-ID")
+    return
+  }
+  try {
+    const result = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}`)
+    alert("Aufgabe gelöscht")
+    router.push(`/createCourse/${courseId}`)
+  } catch (error) {
+    alert('Fehler', error)
+    subExercises.value.pop();
+  }
+}
+
+// Unteraufgabenmethoden
+const createSubTask = async () => {
+  const id = subtaskName.value || uuidv4()
+  subExercises.value.push({ id: id, description: subtask.value })
+  subtaskName.value = ''
+  subtask.value = ''
 }
 
 const editSubTask = async (subTaskId) => {
@@ -104,7 +125,7 @@ const saveChanges = async () => {
   isEditing.value = false
   try {
     const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}/${currentSubTaskId}`, {
-      description: subtask.value.replace(/\n/g, '\\n')
+      description: subtask.value
     })
     alert("Änderungen gespeichert")
     subExercises.value = subExercises.value.map(subTask => {
@@ -113,11 +134,15 @@ const saveChanges = async () => {
       }
       return subTask
     })
+    subtask.value = ''
+    subtaskName.value = ''
   } catch (error) {
     subExercises.value = subExercises.value.map(subTask => {
       if (subTask.id === currentSubTaskId) {
         return { id: subTask.id, description: subtask.value }
       }
+      subtask.value = ''
+      subtaskName.value = ''
       return subTask
     })
   }
@@ -128,6 +153,25 @@ const cancelChanges = async () => {
   subtask.value = ''
   subtaskName.value = ''
 }
+
+const deleteSubTask = async (subTaskId) => {
+  if (!subTaskId) {
+    alert("Keine Aufgaben-ID")
+    return
+  }
+  try {
+    try {
+      const result = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}/${subTaskId}`)
+      alert("Aufgabe gelöscht")
+      subExercises.value = subExercises.value.filter(subTask => subTask.id !== subTaskId)
+    } catch (error) {
+      subExercises.value.pop();
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 
 onBeforeMount(async () => {
   const oldTaskId = route.params.taskid
@@ -155,38 +199,9 @@ onBeforeMount(async () => {
   }
 })
 
-const deleteTask = async (taskId) => {
-  if (!taskId) {
-    alert("Keine Aufgaben-ID")
-    return
-  }
-  try {
-    const result = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}`)
-    alert("Aufgabe gelöscht")
-    router.push(`/createCourse/${courseId}`)
-  } catch (error) {
-    alert('Fehler', error)
-    subExercises.value.pop();
-  }
-}
 
-const deleteSubTask = async (subTaskId) => {
-  if (!subTaskId) {
-    alert("Keine Aufgaben-ID")
-    return
-  }
-  try {
-    try {
-      const result = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}/${subTaskId}`)
-      alert("Aufgabe gelöscht")
-      subExercises.value = subExercises.value.filter(subTask => subTask.id !== subTaskId)
-    } catch (error) {
-      subExercises.value.pop();
-    }
-  } catch (error) {
-    console.log(error)
-  }
-}
+
+
 </script>
 
 <template>
@@ -219,7 +234,7 @@ const deleteSubTask = async (subTaskId) => {
             <tr>
               <th>Titel</th>
               <th>Beschreibung</th>
-              <th>Aktionen</th>
+              <th style="text-align: right;">Aktionen</th>
             </tr>
           </thead>
           <tbody>
