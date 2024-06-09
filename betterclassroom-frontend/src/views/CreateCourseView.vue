@@ -9,7 +9,8 @@ import { v4 as uuidv4 } from 'uuid'
 const route = useRoute()
 const router = useRouter()
 
-const api_url = import.meta.env.VITE_API_PROD_URL
+//const api_url = import.meta.env.VITE_API_PROD_URL
+const api_url = import.meta.env.VITE_API_LOCAL_URL
 
 const courseId = route.params.courseId
 
@@ -144,13 +145,19 @@ const editTask = (taskid) => {
 
 }
 
-const startTask = (taskId) => {
+const startTask = async (taskId) => {
   console.log('Start task', taskId)
   const courseId = route.params.courseId
   const courseLink = `${window.location.host}/student/${courseId}/${taskId}`
-  alert(`Kurs gestartet: ${courseLink}`)
-  router.push(`/dashboard/${courseId}/${taskId}`)
+  try {
+    await axios.post(`${api_url}/course/${courseId}/start`)
+    alert(`Kurs gestartet: ${courseLink}`)
+    router.push(`/dashboard/${courseId}/${taskId}`)
+  } catch (error) {
+    console.error('Error starting the course:', error)
+  }
 }
+
 
 </script>
 

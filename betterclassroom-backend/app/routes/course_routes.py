@@ -90,6 +90,39 @@ def handle_exercises(course_id, data):
 @course_bp.route(
     "/api/course/<course_id>/exercise/<exercise_id>", methods=["POST", "DELETE", "PUT"]
 )
+
+
+@course_bp.route("/api/course/<course_id>/start", methods=["POST"])
+def start_course(course_id):
+    course = course_repo.get_collection().find_one({"_id": course_id})
+    if not course:
+        return Response("Course not found", 404)
+    
+    # Setze den Kursstatus auf 'aktiv'
+    course_repo.get_collection().update_one(
+        {"_id": course_id},
+        {"$set": {"is_active": True}}
+    )
+    
+    return Response("Course started successfully", 200)
+
+# Endpunkt zum Beenden des Kurses
+@course_bp.route("/api/course/<course_id>/close", methods=["POST"])
+def close_course(course_id):
+    course = course_repo.get_collection().find_one({"_id": course_id})
+    if not course:
+        return Response("Course not found", 404)
+    
+    # Setze den Kursstatus auf 'inaktiv'
+    course_repo.get_collection().update_one(
+        {"_id": course_id},
+        {"$set": {"is_active": False}}
+    )
+    
+    
+    return Response("Course closed successfully", 200)
+
+
 @validate_request(SubExercise)
 def handle_exercises_two(course_id, exercise_id, data):
     course = course_repo.find_one_by_id(course_id)
