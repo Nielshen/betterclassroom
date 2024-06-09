@@ -9,8 +9,8 @@ import { v4 as uuidv4 } from 'uuid'
 const route = useRoute()
 const router = useRouter()
 
-//const api_url = import.meta.env.VITE_API_PROD_URL
-const api_url = import.meta.env.VITE_API_LOCAL_URL
+const api_url = import.meta.env.VITE_API_PROD_URL
+// const api_url = import.meta.env.VITE_API_LOCAL_URL
 
 const courseId = route.params.courseId
 
@@ -42,7 +42,7 @@ const courseName = ref('')
 const courseDescription = ref('')
 const courseRoom = ref('')
 const createButton = ref('')
-const professorId = ref('') 
+const professorId = ref('')
 const tasks = ref([])
 
 const pushCourse = async ({ oldId, description, professor, classroom }) => {
