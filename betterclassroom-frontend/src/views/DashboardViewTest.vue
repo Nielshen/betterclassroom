@@ -175,14 +175,17 @@ const closeCourse = async () => {
         Kurslink für Student*innen:&nbsp;<a :href="courseLink">{{ courseLink }}</a>
         <button class="btn btn-danger ml-2" @click="copyLink">Kopieren</button>
         <button class="btn btn-danger ml-2" @click="generateQRCode">QR-Code</button>
+        <button class="btn btn-warning ml-2" @click="closeCourse">Beenden</button>
       </div>
-      <button class="btn btn-warning" @click="closeCourse">Beenden</button>
     </div>
     <div class="flex flex-row">
       <div class="flex flex-col justify-center m-4">
         <div class="flex flex-row flex-wrap justify-center">
           <DashboardTable v-for="table in tableOccupation" :tableNumber="table.id" :table="table"
             :exerciseCount="exerciseCount" />
+        </div>
+        <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white">
+          <p class="text-4xl">Tafel</p>
         </div>
       </div>
     </div>
