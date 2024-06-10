@@ -7,6 +7,9 @@ class SubExercise(BaseModel):
     id: str
     description: str
 
+    def to_dict(self):
+        return {"id": self.id, "description": self.description}
+
 
 class Exercise(BaseModel):
     id: str
