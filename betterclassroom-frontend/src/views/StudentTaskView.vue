@@ -25,17 +25,16 @@ const loadTasks = async () => {
   description.value = currentTask.description
   const exercises = currentTask.exercises.map((e) => e.description)
   //console.log(exercises)
+  tasks.id = currentTask.exercises.map((e) => e.id)
+  console.log(tasks.id)
   tasks.value = exercises
 }
 
 const changeIndex = async (index) => {
-  const data = {}
-  for (let i = 0; i < tasks.value.length; i++) {
-    data[`Aufgabe${i + 1}`] = i <= index
+  const data = {
+    current_exercise: index + 1
   }
-  const response = await axios.post(`${apiUrl}/students/${studentName.value}/progress`, {
-    ...data
-  })
+  const response = await axios.post(`${apiUrl}/students/${studentName.value}/progress`, data)
   console.log('Index changed', index + 1)
 }
 

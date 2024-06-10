@@ -41,7 +41,7 @@ const courseName = ref('')
 const courseDescription = ref('')
 const courseRoom = ref('')
 const createButton = ref('')
-const professorId = ref('') 
+const professorId = ref('')
 const tasks = ref([])
 
 const pushCourse = async ({ oldId, description, professor, classroom }) => {
@@ -148,6 +148,11 @@ const startTask = (taskId) => {
   console.log('Start task', taskId)
   const courseId = route.params.courseId
   const courseLink = `${window.location.host}/student/${courseId}/${taskId}`
+  navigator.clipboard.writeText(courseLink).then(() => {
+    console.log('Kurslink wurde in die Zwischenablage kopiert.');
+  }).catch(err => {
+    console.error('Fehler beim Kopieren des Kurslinks: ', err);
+  });
   alert(`Kurs gestartet: ${courseLink}`)
   router.push(`/dashboard/${courseId}/${taskId}`)
 }

@@ -165,7 +165,7 @@ const deleteSubTask = async (subTaskId) => {
       alert("Aufgabe gelöscht")
       subExercises.value = subExercises.value.filter(subTask => subTask.id !== subTaskId)
     } catch (error) {
-      subExercises.value.pop();
+      subExercises.value = subExercises.value.filter(subTask => subTask.id !== subTaskId)
     }
   } catch (error) {
     console.log(error)
