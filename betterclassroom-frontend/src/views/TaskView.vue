@@ -38,7 +38,7 @@ const toggleQuestion = () => {
           <div class="mx-20 w-2/3">
             <h1 class="text-2xl my-10">Aufgabe {{ index + 1 }} / {{ props.tasks.length }}</h1>
             <p>
-              {{ props.tasks[index] }}
+            <div v-html="props.tasks[index].replace(/\\n/g, '<br><br>')"></div>
             </p>
           </div>
           <button @click="toggleQuestion"
@@ -47,8 +47,9 @@ const toggleQuestion = () => {
           </button>
         </div>
         <div class="absolute flex justify-between transform -translate-y-1/2 left-1 right-1 top-1/2">
-          <a @click="previousTask" class="btn btn-circle btn-accent">❮</a>
-          <a @click="nextTask" class="btn btn-circle btn-accent">❯</a>
+          <a v-if="index > 0" @click="previousTask" class="btn btn-circle btn-accent ml-4">❮</a>
+          <a v-else class="btn btn-circle" style="visibility: hidden;">❮</a>
+          <a v-if="index < props.tasks.length - 1" @click="nextTask" class="btn btn-circle btn-accent mr-4">❯</a>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import DashboardTable from '../components/DashboardTable.vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import { io } from 'socket.io-client'
+import QRCode from 'qrcode'
 import { getApiUrl } from '@/utils/common'
 
 const route = useRoute()
@@ -13,6 +14,7 @@ const courseId = route.params.courseId
 const exerciseId = route.params.taskId /*Exercise ID*/
 
 let tableOccupation = ref([])
+const courseLink = ref('')
 
 
 const rawUrl = getApiUrl()
@@ -64,6 +66,7 @@ onBeforeMount(async () => {
   initSockets()
   console.log('test')
   console.log({ tableOccupation: tableOccupation.value })
+  courseLink.value = `${window.location.host}/student/${courseId}/${exerciseId}`
 })
 
 const initSockets = () => {
@@ -115,6 +118,32 @@ const initSockets = () => {
   // })
 }
 
+const copyLink = () => {
+  navigator.clipboard.writeText(courseLink.value).then(() => {
+    console.log('Kurslink wurde in die Zwischenablage kopiert.');
+  }).catch(err => {
+    console.error('Fehler beim Kopieren des Kurslinks: ', err);
+  });
+}
+
+const generateQRCode = async () => {
+  try {
+    const qrCodeDataURL = await QRCode.toDataURL(courseLink.value)
+    const qrCodeWindow = window.open()
+    qrCodeWindow.document.write(`
+      <html>
+        <head>
+          <title>${exerciseId}</title>
+        </head>
+        <body style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+          <img src="${qrCodeDataURL}" style="width: 250px; height: 250px;">
+        </body>
+      </html>
+    `)
+  } catch (err) {
+    console.error(err)
+  }
+}
 const closeCourse = async () => {
   try {
     await axios.post(`${apiUrl}/course/${courseId}/close`)
@@ -135,6 +164,11 @@ const closeCourse = async () => {
 <template>
   <div>
     <div class="flex justify-end m-4">
+      <div class="flex items-center">
+        Kurslink für Student*innen:&nbsp;<a :href="courseLink">{{ courseLink }}</a>
+        <button class="btn btn-danger ml-2" @click="copyLink">Kopieren</button>
+        <button class="btn btn-danger ml-2" @click="generateQRCode">QR-Code</button>
+      </div>
       <button class="btn btn-warning" @click="closeCourse">Beenden</button>
     </div>
     <div class="flex flex-row">

@@ -16,11 +16,13 @@
   },
   "dependencies": {
     "axios": "^1.6.8",
+    "mongodb": "6.7",
     "pinia": "^2.1.7",
     "socket.io-client": "^4.7.5",
     "uuid": "^9.0.1",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vue3-qrcode": "^0.0.2"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
@@ -32,6 +34,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-cypress": "^2.15.1",
     "eslint-plugin-vue": "^9.23.0",
+    "hotrun": "^2.3.1",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "start-server-and-test": "^2.0.3",
