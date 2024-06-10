@@ -60,6 +60,7 @@ onBeforeMount(async () => {
 })
 
 
+
 const initSockets = () => {
   const socket = io('ws://better-classroom.com:8088/student', {
     path: '/api/socket.io/student',
@@ -80,7 +81,13 @@ const initSockets = () => {
 
     // Update the tableOccupation based on the received data
     const studentIndex = data.data.table - 1
-    tableOccupation.value[studentIndex].student1.help_requested = data.data.help_requested;
+    if (tableOccupation.value[studentIndex].student1._id === data.data.id) {
+      tableOccupation.value[studentIndex].student1.help_requested = data.data.help_requested;
+    } else if (tableOccupation.value[studentIndex].student2._id === data.data.id) {
+      tableOccupation.value[studentIndex].student2.help_requested = data.data.help_requested;
+    } else {
+      console.error('Updating student help status failed: Student not found')
+    }
     console.log(tableOccupation.value[studentIndex].student1)
   })
 

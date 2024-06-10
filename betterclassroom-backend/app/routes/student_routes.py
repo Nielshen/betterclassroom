@@ -72,7 +72,38 @@ def handle_student_progress(student_id):
             return Response("No data provided", 400)
 
         if progress_data.get("current_exercise") is None:
-            return Response("No current_exercise provided", 400)
+            # No current_exercise provided -> try to validate progress data
+            try:
+                progress_data = {k: to_boolean(v) for k, v in progress_data.items()}
+                Student.__pydantic_validator__.validate_assignment(
+                    Student.model_construct(), "progress", progress_data
+                )
+            except ValidationError as e:
+                return Response(
+                    f"Using old progess data dict resulted in following error: {e}", 400
+                )
+
+            course_data = course_repo.find_one_by({"id": student.course})
+            exercise_ids = {exercise.id for exercise in course_data.exercises}
+
+            if not all(ex_id in exercise_ids for ex_id in progress_data.keys()):
+                return Response("Exercise not found in the course", 400)
+
+            students_repo.get_collection().update_one(
+                {"_id": student_id}, {"$set": {"progress": progress_data}}
+            )
+            socketio.emit(
+                "progress",
+                {
+                    "data": {
+                        "id": student_id,
+                        "progress": progress_data,
+                        "table": student.table,
+                    }
+                },
+                namespace="/student",
+            )
+            return Response("Progress updated successfully", 200)
 
         if not isinstance(progress_data.get("current_exercise"), int):
             return Response("current_exercise must be an integer", 400)
