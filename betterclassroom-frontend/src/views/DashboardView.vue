@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import DashboardTable from '../components/DashboardTable.vue'
 import axios from 'axios'
+import { getApiUrl } from '@/utils/common'
 
 const tableCount = ref(20)
 /*
@@ -48,33 +49,25 @@ const participant2_course = "Web-Technologien"
 const participant2_progress = ["100", true]
 const participant2_help_requested = false
 
-const api_url = import.meta.env.VITE_API_PROD_URL
+const rawUrl = getApiUrl()
+const api_url = `http://${rawUrl}/api`
 
-const helloApi = () => {
-    axios.get(api_url )
-    .then(response => {
-        console.log(response.data)
-    })
-    .catch(error => {
-        console.log(error)
-    })
-}
+// path '/' does not exist anymore
+// const helloApi = () => {
+//     axios.get(api_url)
+//         .then(response => {
+//             console.log(response.data)
+//         })
+//         .catch(error => {
+//             console.log(error)
+//         })
+// }
 
-helloApi()
+// helloApi()
 
 
 </script>
 <template>
-<div>
-<div class="flex justify-end m-4">
-    <button class="btn btn-warning">Beenden</button>
-    </div>
-    <div class="flex flex-row ">
-        <div class="flex flex-col justify-center m-4">
-            <div class="flex flex-row flex-wrap justify-center">
-                <DashboardTable v-for="e in tableCount" />
-            </div>
-        </div>
-    </div>
+    <div>
     </div>
 </template>
