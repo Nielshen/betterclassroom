@@ -62,21 +62,11 @@ onBeforeMount(async () => {
 
 
 const initSockets = () => {
-  const socket = io('ws://localhost:5000/student', {
+  const socket = io('ws://better-classroom.com:8088/student', {
     path: '/api/socket.io/student',
     transports: ['websocket']
   })
 
-
-  // const socket = io('ws://better-classroom.com:8088', {
-  //   path: '/api/socket.io/student',
-  //   transports: ['websocket']
-  // })
-
-  // const socket = io('ws://betterclassroom-cluster.in.htwg-konstanz.de', {
-  //   path: '/api/socket.io/student',
-  //   transports: ['websocket']
-  // })
 
   socket.on('connect', () => {
     console.log('Connected to server')
@@ -109,13 +99,34 @@ const initSockets = () => {
     tableOccupation.value[studentIndex].student1.progress = data.data.progress;
     console.log(tableOccupation.value[studentIndex].student1)
   })
+
+  // socket.on('course_closed', () => {
+  //   alert('Der Kurs wurde geschlossen. Sie wurden abgemeldet')
+  // })
+}
+
+const closeCourse = async () => {
+  try {
+    await axios.post(`${apiUrl}/course/${courseId}/close`)
+    alert('Kurs wurde geschlossen und alle Studenten wurden abgemeldet.')
+    router.push('/courses')
+
+    // const socket = io('ws://better-classroom.com:8088/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student', {
+    //   path: '/api/socket.io',
+    //   transports: ['websocket']
+    // })
+    // socket.emit('course_closed')
+
+  } catch (error) {
+    console.error('Error closing course:', error)
+  }
 }
 
 </script>
 <template>
   <div>
     <div class="flex justify-end m-4">
-      <button class="btn btn-warning">Beenden</button>
+      <button class="btn btn-warning" @click="closeCourse">Beenden</button>
     </div>
     <div class="flex flex-row">
       <div class="flex flex-col justify-center m-4">
