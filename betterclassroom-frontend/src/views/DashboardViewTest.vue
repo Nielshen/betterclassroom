@@ -15,12 +15,22 @@ const exerciseId = route.params.taskId /*Exercise ID*/
 
 let tableOccupation = ref([])
 const courseLink = ref('')
-
+const exerciseCount = ref(0)
 
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
 const wsUrl = `ws://${rawUrl}/student`
 
+const fetchExercisesCount = async () => {
+  try {
+    const response = await axios.get(`${api_url}/course/${courseId}/exercise/${exerciseId}`)
+    console.log('fetchExercises:', response.data)
+    exerciseCount.value = response.data.length
+    console.log('Exercises count:', exerciseCount.value)
+  } catch (error) {
+    console.error('Error fetching exercises count:', error)
+  }
+}
 
 const loadCourse = async () => {
   try {
@@ -61,6 +71,7 @@ const loadCourse = async () => {
 }
 
 onBeforeMount(async () => {
+  await fetchExercisesCount()
   await loadCourse()
   initSockets()
   console.log({ tableOccupation: tableOccupation.value })
@@ -90,6 +101,7 @@ const handleNewStudent = (data) => {
 };
 
 const updateStudentProperty = (data, property) => {
+  console.log('Updating student property:', data, property)
   const studentIndex = data.table - 1;
   if (studentIndex < 0 || studentIndex >= tableOccupation.value.length) {
     console.error('Invalid table index');
@@ -97,7 +109,7 @@ const updateStudentProperty = (data, property) => {
   }
 
   const table = tableOccupation.value[studentIndex]
-  const studentKey = ['student1', 'student2'].find(key => table[key]?._id === data.id)
+  const studentKey = ['student1', 'student2'].find(key => table[key] && table[key]._id === data._id)
   if (studentKey) {
     table[studentKey][property] = data[property]
   } else {
@@ -114,7 +126,8 @@ const initSockets = () => {
   socket.on('connect', () => console.log('Connected to server'));
   socket.on('disconnect', () => console.log('Disconnected from server'));
   socket.on('help', data => updateStudentProperty(data.data, 'help_requested'));
-  socket.on('progress', data => updateStudentProperty(data.data, 'progress'));
+  // TODO support also using progress dict?
+  socket.on('progress', data => updateStudentProperty(data.data, 'current_exercise'));
   socket.on('student', data => handleNewStudent(data.data));
 
 };
@@ -168,7 +181,8 @@ const closeCourse = async () => {
     <div class="flex flex-row">
       <div class="flex flex-col justify-center m-4">
         <div class="flex flex-row flex-wrap justify-center">
-          <DashboardTable v-for="table in tableOccupation" :tableNumber="table.id" :table="table" />
+          <DashboardTable v-for="table in tableOccupation" :tableNumber="table.id" :table="table"
+            :exerciseCount="exerciseCount" />
         </div>
       </div>
     </div>

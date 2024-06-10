@@ -120,7 +120,7 @@ def handle_student_progress(student_id):
             {
                 "data": {
                     "_id": student_id,
-                    "progress": progress_data,
+                    "current_exercise": progress_data.get("current_exercise"),
                     "table": student.table,
                 }
             },
@@ -149,7 +149,7 @@ def handle_help(student_id):
             "help",
             {
                 "data": {
-                    "id": student_id,
+                    "_id": student_id,
                     "help_requested": not student.help_requested,
                     "table": student.table,
                 }
