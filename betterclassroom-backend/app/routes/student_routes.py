@@ -33,6 +33,7 @@ def handle_students(data):
             {"_id": data["course"]},
             {"$addToSet": {"participants": data["id"]}},
         )
+        data["_id"] = data.pop("id")
         socketio.emit("student", {"data": data}, namespace="/student")
         return Response("Student inserted successfully", status=201)
     elif request.method == "DELETE":
@@ -96,7 +97,7 @@ def handle_student_progress(student_id):
                 "progress",
                 {
                     "data": {
-                        "id": student_id,
+                        "_id": student_id,
                         "progress": progress_data,
                         "table": student.table,
                     }
@@ -118,7 +119,7 @@ def handle_student_progress(student_id):
             "progress",
             {
                 "data": {
-                    "id": student_id,
+                    "_id": student_id,
                     "progress": progress_data,
                     "table": student.table,
                 }
