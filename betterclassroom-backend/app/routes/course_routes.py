@@ -113,7 +113,8 @@ def close_course(course_id):
 
 # add subexercise / delete exercise
 @course_bp.route(
-    "/api/course/<course_id>/exercise/<exercise_id>", methods=["POST", "DELETE", "PUT"]
+    "/api/course/<course_id>/exercise/<exercise_id>",
+    methods=["POST", "GET", "DELETE", "PUT"],
 )
 @validate_request(SubExercise)
 def handle_exercises_two(course_id, exercise_id, data):
@@ -125,7 +126,11 @@ def handle_exercises_two(course_id, exercise_id, data):
     if not exercise:
         return Response("Exercise not found", 404)
 
-    if request.method == "POST":
+    if request.method == "GET":
+        sub_exercises = [sub.to_dict() for sub in exercise.exercises]
+        return sub_exercises
+
+    elif request.method == "POST":
         course_repo.get_collection().update_one(
             {"_id": course_id, "exercises.id": exercise_id},
             {"$push": {"exercises.$.exercises": data}},

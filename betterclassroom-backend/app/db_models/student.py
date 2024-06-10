@@ -8,7 +8,7 @@ class Student(BaseModel):
     table: int
     course: str
     progress: Dict[str, bool] = Field(default_factory=dict)  # str ist exercise_id
-    current_exercise: int = 0
+    current_exercise: int = 1
     help_requested: bool = False
 
 

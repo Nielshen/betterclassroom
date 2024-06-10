@@ -15,12 +15,22 @@ const exerciseId = route.params.taskId /*Exercise ID*/
 
 let tableOccupation = ref([])
 const courseLink = ref('')
-
+const exerciseCount = ref(0)
 
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
 const wsUrl = `ws://${rawUrl}/student`
 
+const fetchExercisesCount = async () => {
+  try {
+    const response = await axios.get(`${api_url}/course/${courseId}/exercise/${exerciseId}`)
+    console.log('fetchExercises:', response.data)
+    exerciseCount.value = response.data.length
+    console.log('Exercises count:', exerciseCount.value)
+  } catch (error) {
+    console.error('Error fetching exercises count:', error)
+  }
+}
 
 const loadCourse = async () => {
   try {
@@ -41,7 +51,6 @@ const loadCourse = async () => {
 
     courseStudents.forEach((student) => {
       const tableIndex = student.table - 1
-      console.log({ tableIndex: tableIndex })
       if (tableIndex >= 0 && tableIndex < tableOccupancy.length) {
         const table = tableOccupancy[tableIndex]
 
@@ -62,61 +71,66 @@ const loadCourse = async () => {
 }
 
 onBeforeMount(async () => {
+  await fetchExercisesCount()
   await loadCourse()
   initSockets()
-  console.log('test')
   console.log({ tableOccupation: tableOccupation.value })
   courseLink.value = `${window.location.host}/student/${courseId}/${exerciseId}`
 })
+
+const handleNewStudent = (data) => {
+  const studentIndex = data.table - 1;
+  if (studentIndex < 0 || studentIndex >= tableOccupation.value.length) {
+    console.error('Invalid table index');
+    return;
+  }
+
+  const table = tableOccupation.value[studentIndex]
+  const studentKey = ['student1', 'student2'].find(key => table[key]?._id === data.id)
+
+  if (studentKey) {
+    table[studentKey] = data;
+  } else {
+    const emptyKey = ['student1', 'student2'].find(key => !table[key])
+    if (emptyKey) {
+      table[emptyKey] = data;
+    } else {
+      console.error('All slots at table are full. Cannot add student:', data)
+    }
+  }
+};
+
+const updateStudentProperty = (data, property) => {
+  console.log('Updating student property:', data, property)
+  const studentIndex = data.table - 1;
+  if (studentIndex < 0 || studentIndex >= tableOccupation.value.length) {
+    console.error('Invalid table index');
+    return;
+  }
+
+  const table = tableOccupation.value[studentIndex]
+  const studentKey = ['student1', 'student2'].find(key => table[key] && table[key]._id === data._id)
+  if (studentKey) {
+    table[studentKey][property] = data[property]
+  } else {
+    console.error(`Updating student failed: Student not found for property ${property}`)
+  }
+};
 
 const initSockets = () => {
   const socket = io(wsUrl, {
     path: '/api/socket.io/student',
     transports: ['websocket']
-  })
+  });
 
-  socket.on('connect', () => {
-    console.log('Connected to server')
-  })
+  socket.on('connect', () => console.log('Connected to server'));
+  socket.on('disconnect', () => console.log('Disconnected from server'));
+  socket.on('help', data => updateStudentProperty(data.data, 'help_requested'));
+  // TODO support also using progress dict?
+  socket.on('progress', data => updateStudentProperty(data.data, 'current_exercise'));
+  socket.on('student', data => handleNewStudent(data.data));
 
-  socket.on('disconnect', () => {
-    console.log('Disconnected from server')
-  })
-
-  socket.on('help', (data) => {
-    console.log('Help requested', data.data)
-
-    // Update the tableOccupation based on the received data
-    const studentIndex = data.data.table - 1
-    if (tableOccupation.value[studentIndex]?.student1._id === data.data.id) {
-      tableOccupation.value[studentIndex].student1.help_requested = data.data.help_requested
-    } else if (tableOccupation.value[studentIndex]?.student2._id === data.data.id) {
-      tableOccupation.value[studentIndex].student2.help_requested = data.data.help_requested
-    } else {
-      console.error('Updating student help status failed: Student not found')
-    }
-  })
-
-  socket.on('progress', (data) => {
-    console.log('Progress updated', data.data)
-
-    // Update the tableOccupation based on the received data
-    const studentIndex = data.data.table - 1
-    // tableOccupation.value[studentIndex].student1.progress = data.data.progress
-    if (tableOccupation.value[studentIndex]?.student1._id === data.data.progress) {
-      tableOccupation.value[studentIndex].student1.progress = data.data.progress
-    } else if (tableOccupation.value[studentIndex]?.student2._id === data.data.progress) {
-      tableOccupation.value[studentIndex].student2.progress = data.data.progress
-    } else {
-      console.error('Updating student progress failed: Student not found')
-    }
-
-  })
-
-  // socket.on('course_closed', () => {
-  //   alert('Der Kurs wurde geschlossen. Sie wurden abgemeldet')
-  // })
-}
+};
 
 const copyLink = () => {
   navigator.clipboard.writeText(courseLink.value).then(() => {
@@ -146,16 +160,9 @@ const generateQRCode = async () => {
 }
 const closeCourse = async () => {
   try {
-    await axios.post(`${apiUrl}/course/${courseId}/close`)
+    await axios.post(`${api_url}/course/${courseId}/close`)
     alert('Kurs wurde geschlossen und alle Studenten wurden abgemeldet.')
     router.push('/courses')
-
-    // const socket = io('ws://better-classroom.com:8088/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student', {
-    //   path: '/api/socket.io',
-    //   transports: ['websocket']
-    // })
-    // socket.emit('course_closed')
-
   } catch (error) {
     console.error('Error closing course:', error)
   }
@@ -174,7 +181,8 @@ const closeCourse = async () => {
     <div class="flex flex-row">
       <div class="flex flex-col justify-center m-4">
         <div class="flex flex-row flex-wrap justify-center">
-          <DashboardTable v-for="table in tableOccupation" :tableNumber="table.id" :table="table" />
+          <DashboardTable v-for="table in tableOccupation" :tableNumber="table.id" :table="table"
+            :exerciseCount="exerciseCount" />
         </div>
       </div>
     </div>
