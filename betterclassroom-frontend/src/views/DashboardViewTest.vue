@@ -5,6 +5,7 @@ import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import { io } from 'socket.io-client'
 import QRCode from 'qrcode'
+import { getApiUrl } from '@/utils/common'
 
 const route = useRoute()
 const router = useRouter()
@@ -15,26 +16,31 @@ const exerciseId = route.params.taskId /*Exercise ID*/
 let tableOccupation = ref([])
 const courseLink = ref('')
 
-const apiUrl = import.meta.env.VITE_API_PROD_URL
+const rawUrl = getApiUrl()
+const api_url = `http://${rawUrl}/api`
+const wsUrl = `ws://${rawUrl}/student`
+
 
 const loadCourse = async () => {
   try {
-    const courseResponse = await axios.get(`${apiUrl}/course/${courseId}`)
+    const courseResponse = await axios.get(`${api_url}/course/${courseId}`)
     const currentCourse = courseResponse.data
 
-    const courseStudentsResponse = await axios.get(`${apiUrl}/course/${courseId}/students`)
+    const courseStudentsResponse = await axios.get(`${api_url}/course/${courseId}/students`)
     const courseStudents = courseStudentsResponse.data
 
-    const classroomResponse = await axios.get(`${apiUrl}/classroom/${currentCourse.classroom}`)
+    const classroomResponse = await axios.get(`${api_url}/classroom/${currentCourse.classroom}`)
     const classroom = classroomResponse.data
 
     const tableCount = classroom.rows * classroom.tablesPerRow
 
-    const tableOccupancy = Array(tableCount).fill().map(() => ({ student1: null, student2: null }))
+    const tableOccupancy = Array(tableCount)
+      .fill()
+      .map(() => ({ student1: null, student2: null }))
 
     courseStudents.forEach((student) => {
       const tableIndex = student.table - 1
-      console.log({ "tableIndex": tableIndex })
+      console.log({ tableIndex: tableIndex })
       if (tableIndex >= 0 && tableIndex < tableOccupancy.length) {
         const table = tableOccupancy[tableIndex]
 
@@ -43,7 +49,7 @@ const loadCourse = async () => {
         } else if (!table.student2) {
           table.student2 = student
         } else {
-          console.error('Table is full')
+          console.error('Table is full. Student cannot be added:', table, student)
         }
       }
     })
@@ -57,29 +63,16 @@ const loadCourse = async () => {
 onBeforeMount(async () => {
   await loadCourse()
   initSockets()
-  console.log("test")
+  console.log('test')
   console.log({ tableOccupation: tableOccupation.value })
   courseLink.value = `${window.location.host}/student/${courseId}/${exerciseId}`
 })
 
-
-
 const initSockets = () => {
-  const socket = io('ws://localhost:5000/student', {
+  const socket = io(wsUrl, {
     path: '/api/socket.io/student',
     transports: ['websocket']
   })
-
-
-  // const socket = io('ws://better-classroom.com:8088', {
-  //   path: '/api/socket.io/student',
-  //   transports: ['websocket']
-  // })
-
-  // const socket = io('ws://betterclassroom-cluster.in.htwg-konstanz.de', {
-  //   path: '/api/socket.io/student',
-  //   transports: ['websocket']
-  // })
 
   socket.on('connect', () => {
     console.log('Connected to server')
@@ -94,14 +87,13 @@ const initSockets = () => {
 
     // Update the tableOccupation based on the received data
     const studentIndex = data.data.table - 1
-    if (tableOccupation.value[studentIndex].student1._id === data.data.id) {
-      tableOccupation.value[studentIndex].student1.help_requested = data.data.help_requested;
-    } else if (tableOccupation.value[studentIndex].student2._id === data.data.id) {
-      tableOccupation.value[studentIndex].student2.help_requested = data.data.help_requested;
+    if (tableOccupation.value[studentIndex]?.student1._id === data.data.id) {
+      tableOccupation.value[studentIndex].student1.help_requested = data.data.help_requested
+    } else if (tableOccupation.value[studentIndex]?.student2._id === data.data.id) {
+      tableOccupation.value[studentIndex].student2.help_requested = data.data.help_requested
     } else {
       console.error('Updating student help status failed: Student not found')
     }
-    console.log(tableOccupation.value[studentIndex].student1)
   })
 
   socket.on('progress', (data) => {
@@ -109,6 +101,38 @@ const initSockets = () => {
 
     // Update the tableOccupation based on the received data
     const studentIndex = data.data.table - 1
+    // tableOccupation.value[studentIndex].student1.progress = data.data.progress
+    if (tableOccupation.value[studentIndex]?.student1._id === data.data.progress) {
+      tableOccupation.value[studentIndex].student1.progress = data.data.progress
+    } else if (tableOccupation.value[studentIndex]?.student2._id === data.data.progress) {
+      tableOccupation.value[studentIndex].student2.progress = data.data.progress
+    } else {
+      console.error('Updating student progress failed: Student not found')
+    }
+
+  })
+
+  // socket.on('course_closed', () => {
+  //   alert('Der Kurs wurde geschlossen. Sie wurden abgemeldet')
+  // })
+}
+
+const closeCourse = async () => {
+  try {
+    await axios.post(`${apiUrl}/course/${courseId}/close`)
+    alert('Kurs wurde geschlossen und alle Studenten wurden abgemeldet.')
+    router.push('/courses')
+
+    // const socket = io('ws://better-classroom.com:8088/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student', {
+    //   path: '/api/socket.io',
+    //   transports: ['websocket']
+    // })
+    // socket.emit('course_closed')
+
+  } catch (error) {
+    console.error('Error closing course:', error)
+  }
+}
     tableOccupation.value[studentIndex].student1.progress = data.data.progress;
     console.log(tableOccupation.value[studentIndex].student1)
   })
@@ -151,7 +175,7 @@ const generateQRCode = async () => {
         <button class="btn btn-danger ml-2" @click="generateQRCode">QR-Code</button>
       </div>
       <div>
-        <button class="btn btn-warning">Beenden</button>
+        <button class="btn btn-warning" @click="closeCourse">Beenden</button>
       </div>
     </div>
     <div class="flex flex-row">

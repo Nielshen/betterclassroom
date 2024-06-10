@@ -5,6 +5,8 @@ import { useRoute } from 'vue-router'
 import TaskView from './TaskView.vue'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
+import { getApiUrl } from '@/utils/common'
+
 
 const route = useRoute()
 
@@ -14,9 +16,11 @@ const exerciseId = route.params.taskId
 const description = ref('')
 const tasks = ref([])
 
-const apiUrl = import.meta.env.VITE_API_PROD_URL
+const rawUrl = getApiUrl()
+const api_url = `http://${rawUrl}/api`
+
 const loadTasks = async () => {
-  const response = await axios.get(`${apiUrl}/course/${courseId}/exercise`)
+  const response = await axios.get(`${api_url}/course/${courseId}/exercise`)
   const _tasks = response.data
   //console.log({ t: _tasks, exerciseId })
   const currentTask = _tasks.find((task) => task.id === exerciseId)
@@ -34,13 +38,15 @@ const changeIndex = async (index) => {
   const data = {
     current_exercise: index + 1
   }
-  const response = await axios.post(`${apiUrl}/students/${studentName.value}/progress`, data)
+  const response = await axios.post(`${api_url}/students/${studentName.value}/progress`, {
+    ...data
+  })
   console.log('Index changed', index + 1)
 }
 
 const raisedHand = async (value) => {
   console.log('Hand raised', value)
-  const response = await axios.post(`${apiUrl}/students/${studentName.value}/help`, {})
+  const response = await axios.post(`${api_url}/students/${studentName.value}/help`, {})
   console.log(response)
 }
 
@@ -52,7 +58,7 @@ const studentName = ref('')
 const studentAuth = async () => {
   const course = courseId
   try {
-    const result = await axios.post(`${apiUrl}/students`, {
+    const result = await axios.post(`${api_url}/students`, {
       course,
       id: studentName.value,
       table: seat.value
@@ -74,9 +80,9 @@ const width = ref(-1)
 const height = ref(-1)
 
 const loadClassroom = async () => {
-  const { data } = await axios.get(`${apiUrl}/classroom`)
+  const { data } = await axios.get(`${api_url}/classroom`)
   //console.log({ classroomData: data })
-  const course = await axios.get(`${apiUrl}/course`)
+  const course = await axios.get(`${api_url}/course`)
   const { classroom } = course.data.find((c) => c._id === courseId)
   const currentRoom = data.find((room) => room._id === classroom) || {}
   width.value = currentRoom.tablesPerRow * 2 || 8
