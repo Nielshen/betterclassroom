@@ -4,12 +4,14 @@ import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import { v4 as uuidv4 } from 'uuid'
+import { getApiUrl } from '@/utils/common'
 
 
 const route = useRoute()
 const router = useRouter()
 
-const api_url = import.meta.env.VITE_API_PROD_URL
+const rawUrl = getApiUrl()
+const api_url = `http://${rawUrl}/api`
 
 const courseId = route.params.courseId
 

@@ -3,6 +3,7 @@ import axios from 'axios'
 import { onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { v4 as uuidv4 } from 'uuid'
+import { getApiUrl } from '@/utils/common'
 
 const route = useRoute()
 const router = useRouter()
@@ -27,7 +28,8 @@ const subExercises = ref([])
 const createButton = ref('Erstellen')
 const exerciseButtonMethod = ref('')
 
-const api_url = import.meta.env.VITE_API_PROD_URL
+const rawUrl = getApiUrl()
+const api_url = `http://${rawUrl}/api`
 
 const createSubTask = () => {
   const id = uuidv4()
