@@ -44,7 +44,6 @@ const courseDescription = ref('')
 const courseRoom = ref('')
 const createButton = ref('')
 const professorId = ref('')
-const professorId = ref('')
 const tasks = ref([])
 
 const pushCourse = async ({ oldId, description, professor, classroom }) => {
