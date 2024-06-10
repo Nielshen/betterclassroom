@@ -52,15 +52,16 @@ const participant2_help_requested = false
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
 
-const helloApi = () => {
-    axios.get(api_url)
-        .then(response => {
-            console.log(response.data)
-        })
-        .catch(error => {
-            console.log(error)
-        })
-}
+// path '/' does not exist anymore
+// const helloApi = () => {
+//     axios.get(api_url)
+//         .then(response => {
+//             console.log(response.data)
+//         })
+//         .catch(error => {
+//             console.log(error)
+//         })
+// }
 
 // helloApi()
 
