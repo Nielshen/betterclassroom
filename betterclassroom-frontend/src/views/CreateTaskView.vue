@@ -151,14 +151,7 @@ const saveChanges = async () => {
     subtask.value = ''
     subtaskName.value = ''
   } catch (error) {
-    subExercises.value = subExercises.value.map(subTask => {
-      if (subTask.id === currentSubTaskId) {
-        return { id: subTask.id, description: subtask.value }
-      }
-      subtask.value = ''
-      subtaskName.value = ''
-      return subTask
-    })
+    console.error(error);
   }
 }
 
