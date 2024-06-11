@@ -58,20 +58,11 @@ const seat = ref('')
 const studentName = ref('')
 
 const studentAuth = async () => {
-  const course = courseId
-  try {
-    const result = await axios.post(`${api_url}/students`, {
-      course,
-      id: studentName.value,
-      table: seat.value
-    })
-    console.log(result)
-    //localStorage.setItem('studentId', studentName.value)
-    dataStore.saveStudent({ id: studentName.value, table: seat.value })
-  } catch (error) {
-    console.log(error)
-  }
-  isAuth.value = true
+    if (await dataStore.saveStudent({ id: studentName.value, table: seat.value, courseId })){
+      isAuth.value = true
+    } else {
+      isAuth.value = false
+    }
 }
 
 const deleteStudent = () => {
