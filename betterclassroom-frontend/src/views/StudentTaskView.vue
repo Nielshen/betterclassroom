@@ -172,10 +172,10 @@ const initSockets = () => {
       </div>
     </div>
     <div v-else class="h-full">
-      <div class="flex flex-row justify-evenly my-2">
-        <h1 class="">{{ dataStore.user.id }}</h1>
-        <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary">Abmelden</button>
-      </div>
+        <div class="flex flex-row justify-between items-start my-2">
+            <h1 class="ml-4">{{ dataStore.user.id }}</h1>
+            <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary mr-4">Abmelden</button>
+        </div>
       <TaskView :key="help_requested" :help_requested="help_requested" :tasks="tasks" @idxChange="changeIndex" @raisedHand="raisedHand" />
     </div>
   </div>
