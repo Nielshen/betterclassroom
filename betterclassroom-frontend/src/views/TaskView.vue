@@ -32,9 +32,9 @@ const toggleQuestion = () => {
 
 <template>
   <div class="w-full h-full">
-    <div class="carousel w-full h-full">
-      <div id="slide1" class="carousel-item relative justify-center item-center w-full h-full">
-        <div class="flex w-2/3">
+    <div class="carousel h-full w-full">
+      <div id="slide1" class="carousel-item relative justify-center item-center w-full h-full ">
+        <div class="flex w-2/3 h-[580px] w-[850px]">
           <div class="mx-20 w-2/3">
             <h1 class="text-2xl my-10">Aufgabe {{ index + 1 }} / {{ props.tasks.length }}</h1>
             <p>

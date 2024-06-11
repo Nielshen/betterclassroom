@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref, computed } from 'vue'
+import { onBeforeMount, ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import TaskView from './TaskView.vue'
@@ -53,25 +53,19 @@ const raisedHand = async (value) => {
 }
 
 const isAuth = ref(false)
+watch(dataStore.isStudent, (value) => {
+  isAuth.value = value
+})
 
 const seat = ref('')
 const studentName = ref('')
 
 const studentAuth = async () => {
-  const course = courseId
-  try {
-    const result = await axios.post(`${api_url}/students`, {
-      course,
-      id: studentName.value,
-      table: seat.value
-    })
-    console.log(result)
-    //localStorage.setItem('studentId', studentName.value)
-    dataStore.saveStudent({ id: studentName.value, table: seat.value })
-  } catch (error) {
-    console.log(error)
-  }
-  isAuth.value = true
+    if (await dataStore.saveStudent({ id: studentName.value, table: seat.value, courseId })){
+      isAuth.value = true
+    } else {
+      isAuth.value = false
+    }
 }
 
 const deleteStudent = () => {
