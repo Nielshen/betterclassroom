@@ -136,18 +136,18 @@ const saveChanges = async () => {
   isEditing.value = false
   try {
     const subTaskExists = oldSubExercises.value.find(subExercise => subExercise.id === currentSubTaskId);
-    if (subTaskExists) {
-      const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}/${currentSubTaskId}`, {
-        description: subtask.value
-      })
-      alert("Änderungen gespeichert")
-    }
     subExercises.value = subExercises.value.map(subTask => {
       if (subTask.id === currentSubTaskId) {
         return { id: subTask.id, description: subtask.value }
       }
       return subTask
     })
+    if (subTaskExists) {
+      const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}/${currentSubTaskId}`, {
+        description: subtask.value
+      })
+      alert("Änderungen gespeichert")
+    }
     subtask.value = ''
     subtaskName.value = ''
   } catch (error) {
