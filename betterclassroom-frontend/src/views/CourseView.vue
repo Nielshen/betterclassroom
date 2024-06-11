@@ -2,10 +2,13 @@
 import { onBeforeMount, ref } from "vue"
 import { useRouter } from "vue-router"
 import axios from "axios"
+import { getApiUrl } from '@/utils/common'
 
 const router = useRouter()
 
-const api_url = import.meta.env.VITE_API_PROD_URL
+const rawUrl = getApiUrl()
+const api_url = `http://${rawUrl}/api`
+
 
 const courseData = ref([])
 

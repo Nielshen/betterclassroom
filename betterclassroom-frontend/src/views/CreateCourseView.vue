@@ -4,13 +4,14 @@ import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import { v4 as uuidv4 } from 'uuid'
+import { getApiUrl } from '@/utils/common'
 
 
 const route = useRoute()
 const router = useRouter()
 
-const api_url = import.meta.env.VITE_API_PROD_URL
-//const api_url = import.meta.env.VITE_API_LOCAL_URL
+const rawUrl = getApiUrl()
+const api_url = `http://${rawUrl}/api`
 
 const courseId = route.params.courseId
 
@@ -154,6 +155,11 @@ const startTask = async (taskId) => {
     await axios.post(`${api_url}/course/${courseId}/start`)
     alert(`Kurs gestartet: ${courseLink}`)
     router.push(`/dashboard/${courseId}/${taskId}`)
+    navigator.clipboard.writeText(courseLink).then(() => {
+      console.log('Kurslink wurde in die Zwischenablage kopiert.');
+    }).catch(err => {
+      console.error('Fehler beim Kopieren des Kurslinks: ', err);
+    });
   } catch (error) {
     console.error('Error starting the course:', error)
     alert('Fehler beim Starten des Kurses')
