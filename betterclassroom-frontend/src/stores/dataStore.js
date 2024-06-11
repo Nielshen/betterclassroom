@@ -30,15 +30,17 @@ export const useDataStore = defineStore('dataStore', () => {
         user.value = { role: 'student' }
     }
 
-    const deleteStudent = () => {
+    const deleteStudent = async () => {
         const oldId = user.value.id
         user.value = {}
         localStorage.removeItem('user')
         try{
             //const result = axios.delete(`${api_url}/students/${oldId}`)
+        console.log({ user: !!user.value })
             return true
         } catch(e){
             console.error(e)
+        console.log({ user: user.value })
             return false
         }
     }

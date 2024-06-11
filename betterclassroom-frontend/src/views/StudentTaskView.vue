@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref, computed } from 'vue'
+import { onBeforeMount, ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import TaskView from './TaskView.vue'
@@ -53,6 +53,9 @@ const raisedHand = async (value) => {
 }
 
 const isAuth = ref(false)
+watch(dataStore.isStudent, (value) => {
+  isAuth.value = value
+})
 
 const seat = ref('')
 const studentName = ref('')
