@@ -43,7 +43,7 @@ const courseName = ref('')
 const courseDescription = ref('')
 const courseRoom = ref('')
 const createButton = ref('')
-const professorId = ref('')
+const professorId = ref('') 
 const tasks = ref([])
 
 const pushCourse = async ({ oldId, description, professor, classroom }) => {
@@ -150,6 +150,7 @@ const startTask = async (taskId) => {
   console.log('Start task', taskId)
   const courseId = route.params.courseId
   const courseLink = `${window.location.host}/student/${courseId}/${taskId}`
+  
   try {
     await axios.post(`${api_url}/course/${courseId}/start`)
     alert(`Kurs gestartet: ${courseLink}`)
@@ -161,9 +162,9 @@ const startTask = async (taskId) => {
     });
   } catch (error) {
     console.error('Error starting the course:', error)
+    alert('Fehler beim Starten des Kurses')
   }
 }
-
 
 </script>
 
