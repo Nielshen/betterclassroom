@@ -135,15 +135,15 @@ const editSubTask = async (subTaskId) => {
 const saveChanges = async () => {
   isEditing.value = false
   try {
-    const subTaskExists = oldSubExercises.value.find(subExercise => subExercise.id === currentSubTaskId);
+    const subTaskExists = oldSubExercises.value.find(subExercise => subExercise.id === currentSubTaskId.value);
     subExercises.value = subExercises.value.map(subTask => {
-      if (subTask.id === currentSubTaskId) {
+      if (subTask.id === currentSubTaskId.value) {
         return { id: subTask.id, description: subtask.value }
       }
       return subTask
     })
     if (subTaskExists) {
-      const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}/${currentSubTaskId}`, {
+      const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}/${currentSubTaskId.value}`, {
         description: subtask.value
       })
       alert("Änderungen gespeichert")
