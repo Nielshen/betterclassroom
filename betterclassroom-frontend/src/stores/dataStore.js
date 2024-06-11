@@ -33,7 +33,6 @@ export const useDataStore = defineStore('dataStore', () => {
     const deleteStudent = () => {
         const oldId = user.value.id
         user.value = {}
-        //  DELETE /api/students/<studentId> 
         localStorage.removeItem('user')
         try{
             //const result = axios.delete(`${api_url}/students/${oldId}`)
