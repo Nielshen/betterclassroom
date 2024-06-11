@@ -155,11 +155,6 @@ const startTask = async (taskId) => {
     await axios.post(`${api_url}/course/${courseId}/start`)
     alert(`Kurs gestartet: ${courseLink}`)
     router.push(`/dashboard/${courseId}/${taskId}`)
-    navigator.clipboard.writeText(courseLink).then(() => {
-      console.log('Kurslink wurde in die Zwischenablage kopiert.');
-    }).catch(err => {
-      console.error('Fehler beim Kopieren des Kurslinks: ', err);
-    });
   } catch (error) {
     console.error('Error starting the course:', error)
     alert('Fehler beim Starten des Kurses')

@@ -132,14 +132,6 @@ const initSockets = () => {
 
 };
 
-const copyLink = () => {
-  navigator.clipboard.writeText(courseLink.value).then(() => {
-    console.log('Kurslink wurde in die Zwischenablage kopiert.');
-  }).catch(err => {
-    console.error('Fehler beim Kopieren des Kurslinks: ', err);
-  });
-}
-
 const generateQRCode = async () => {
   try {
     const qrCodeDataURL = await QRCode.toDataURL(courseLink.value)
@@ -170,13 +162,12 @@ const closeCourse = async () => {
 </script>
 <template>
   <div>
-    <div class="flex justify-end m-4">
+    <div class="flex m-4 justify-between">
       <div class="flex items-center">
         Kurslink für Student*innen:&nbsp;<a :href="courseLink">{{ courseLink }}</a>
-        <button class="btn btn-danger ml-2" @click="copyLink">Kopieren</button>
         <button class="btn btn-danger ml-2" @click="generateQRCode">QR-Code</button>
-        <button class="btn btn-warning ml-2" @click="closeCourse">Beenden</button>
       </div>
+      <button class="btn btn-warning" @click="closeCourse">Beenden</button>
     </div>
     <div class="flex flex-row">
       <div class="flex flex-col justify-center m-4">
