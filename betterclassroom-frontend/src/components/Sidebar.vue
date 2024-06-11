@@ -1,15 +1,18 @@
 <script setup>
-import { useRouter } from 'vue-router';
-const router = useRouter();
+import { useRouter } from 'vue-router'
+import { useDataStore } from '../stores/dataStore'
+const dataStore = useDataStore()
 
-const toCourses = () => router.push('/courses');
-const toTasks = () => router.push('/tasks');
-const toDashboard = () => router.push("/");
+const router = useRouter()
 
+const toCourses = () => router.push('/courses')
+const toTasks = () => router.push('/tasks')
+const toDashboard = () => router.push('/')
 </script>
 
 <template>
-    <div class="drawer lg:drawer-open">
+<div>
+    <div v-if="!dataStore.isStudent" class="drawer lg:drawer-open">
         <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
         <div class="drawer-content">
             <label for="my-drawer-2" class="btn btn-primary drawer-button lg:hidden">Open drawer</label>
@@ -23,4 +26,8 @@ const toDashboard = () => router.push("/");
             </ul>
         </div>
     </div>
+    <div v-else>
+    <router-view></router-view>
+    </div>
+</div>
 </template>

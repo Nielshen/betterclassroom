@@ -6,7 +6,9 @@ import TaskView from './TaskView.vue'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import { getApiUrl } from '@/utils/common'
+import { useDataStore } from '../stores/dataStore'
 
+const dataStore = useDataStore()
 
 const route = useRoute()
 
@@ -64,16 +66,24 @@ const studentAuth = async () => {
       table: seat.value
     })
     console.log(result)
-    localStorage.setItem('studentId', studentName.value)
+    //localStorage.setItem('studentId', studentName.value)
+    dataStore.saveStudent({ id: studentName.value, table: seat.value })
   } catch (error) {
     console.log(error)
   }
   isAuth.value = true
 }
 
+const deleteStudent = () => {
+  dataStore.deleteStudent()
+  isAuth.value = false
+}
+
 const loadUser = () => {
-  localStorage.getItem('studentId') ? (isAuth.value = true) : (isAuth.value = false)
-  studentName.value = localStorage.getItem('studentId') || null
+  if (dataStore.checkUser()){
+    isAuth.value = true
+  }
+  dataStore.initStudent()
 }
 
 const width = ref(-1)
@@ -134,6 +144,10 @@ onBeforeMount(async () => {
       </div>
     </div>
     <div v-else class="h-full">
+    <div class="flex flex-row justify-evenly my-2">
+    <h1 class="">{{ dataStore.user.id }}</h1>
+    <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary">Abmelden</button>
+    </div>
       <TaskView :tasks="tasks" @idxChange="changeIndex" @raisedHand="raisedHand" />
     </div>
   </div>
