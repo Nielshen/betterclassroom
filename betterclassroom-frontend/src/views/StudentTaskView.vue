@@ -111,11 +111,16 @@ onBeforeMount(async () => {
 <template>
   <div class="h-full">
     <div v-if="!isAuth">
-      <div>
-        <input type="text" v-model="studentName" placeholder="Name" class="input input-bordered m-2 max-w-xs" />
-        <input type="text" v-model="seat" placeholder="Sitzplatz" class="input input-bordered m-2 max-w-xs" />
+      <div class="flex flex-col justify-center items-center mt-5">
+        <div>
+          <input type="text" v-model="studentName" placeholder="Name" class="input input-bordered m-2 max-w-xs" />
+          <input type="text" v-model="seat" placeholder="Sitzplatz" class="input input-bordered m-2 max-w-xs" />
+        </div>
         <div class="border">
           <div class="flex flex-col justify-center items-center">
+            <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white">
+              <p class="text-xl">Tafel</p>
+            </div>
             <div v-for="n in h_" :key="n" class="flex flex-row justify-center">
               <div :id="getSeat(n, m, width, false)" v-for="m in w_" :key="m"
                 class="rounded-lg w-[75px] h-[55px] bg-primary m-1 hover:bg-secondary hover:text-black text-l text-center text-white"
