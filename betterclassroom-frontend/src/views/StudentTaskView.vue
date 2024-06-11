@@ -6,6 +6,7 @@ import TaskView from './TaskView.vue'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import { getApiUrl } from '@/utils/common'
+import { io } from 'socket.io-client'
 import { useDataStore } from '../stores/dataStore'
 
 const dataStore = useDataStore()
@@ -20,6 +21,8 @@ const tasks = ref([])
 
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
+const wsUrl = `ws://${rawUrl}/student`
+
 
 const loadTasks = async () => {
   const response = await axios.get(`${api_url}/course/${courseId}/exercise`)
@@ -108,10 +111,26 @@ const w_ = computed(() => Array.from({ length: width.value }, (_, i) => i))
 const h_ = computed(() => Array.from({ length: height.value }, (_, i) => i))
 
 onBeforeMount(async () => {
+  initSockets()
   loadUser()
   await loadTasks()
   await loadClassroom()
 })
+
+const help_requested = ref(false)
+
+const initSockets = () => {
+  const socket = io(wsUrl, {
+    path: '/api/socket.io/student',
+    transports: ['websocket']
+  });
+
+  socket.on('help', data => {
+    console.log('Socket Event: Help requested', data.data.help_requested)
+    help_requested.value = data.data.help_requested
+  });
+}
+
 </script>
 <template>
   <div class="h-full">
@@ -157,7 +176,7 @@ onBeforeMount(async () => {
         <h1 class="">{{ dataStore.user.id }}</h1>
         <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary">Abmelden</button>
       </div>
-      <TaskView :tasks="tasks" @idxChange="changeIndex" @raisedHand="raisedHand" />
+      <TaskView :key="help_requested" :help_requested="help_requested" :tasks="tasks" @idxChange="changeIndex" @raisedHand="raisedHand" />
     </div>
   </div>
 </template>

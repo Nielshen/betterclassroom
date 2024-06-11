@@ -181,8 +181,8 @@ const closeCourse = async () => {
     <div class="flex flex-row">
       <div class="flex flex-col justify-center m-4">
         <div class="flex flex-row flex-wrap justify-center">
-          <DashboardTable v-for="table in tableOccupation" :tableNumber="table.id" :table="table"
-            :exerciseCount="exerciseCount" />
+          <DashboardTable v-for="table in tableOccupation" :key="table.id" :tableNumber="table.id" :table="table"
+                :exerciseCount="exerciseCount" />
         </div>
         <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white">
           <p class="text-4xl">Tafel</p>

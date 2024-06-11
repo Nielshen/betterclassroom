@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 
 const props = defineProps({
+  help_requested: Boolean,
   tasks: {
     type: Array,
     required: true
@@ -22,12 +23,22 @@ const previousTask = () => {
   emits('idxChange', index.value)
 }
 
-const questionAsked = ref(false)
+const questionAsked = ref(props.help_requested)
 
 const toggleQuestion = () => {
   questionAsked.value = !questionAsked.value
   emits('raisedHand', questionAsked.value)
 }
+
+watch(
+  () => props.help_requested,
+  console.log('Property help changed:', props.help_requested),
+  (newVal) => {
+    questionAsked.value = newVal
+  }
+)
+
+
 </script>
 
 <template>
