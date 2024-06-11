@@ -6,7 +6,7 @@ const getApiUrl = (logging = false) => {
     const hostname = window.location.hostname
     logging ? console.log(window.location.hostname) : null
     if (hostname === 'localhost' || hostname.startsWith("127.")) {
-        return prodUrl // localhost:5000
+        return testUrl // localhost:5000
     } else if (hostname === 'better-classrooom.com') {
         return localClusterUrl
     } else {
