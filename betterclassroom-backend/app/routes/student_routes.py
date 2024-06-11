@@ -52,6 +52,10 @@ def handle_student(student_id):
         student = students_repo.find_one_by_id(student_id)
         if not student:
             return Response("Student not found", 404)
+        course_repo.get_collection().update_one(
+            {"_id": student.course},
+            {"$pull": {"participants": student.id}},
+        )
         students_repo.delete_by_id(student.id)
         return Response("Student deleted successfully", 200)
 
