@@ -21,8 +21,8 @@ const oldSubExercises = ref([])
 const createButton = ref('Erstellen')
 const exerciseButtonMethod = ref('')
 const isEditing = ref(false)
+const currentSubTaskId = ref('') 
 
-let currentSubTaskId = null
 let subTasksToDelete = [];
 
 const rawUrl = getApiUrl()
@@ -129,16 +129,19 @@ const editSubTask = async (subTaskId) => {
   subtaskName.value = task.id
   subtask.value = task.description.replace(/\\n/g, '\n')
   isEditing.value = true
-  currentSubTaskId = subTaskId
+  currentSubTaskId.value = subTaskId
 }
 
 const saveChanges = async () => {
   isEditing.value = false
   try {
-    const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}/${currentSubTaskId}`, {
-      description: subtask.value
-    })
-    alert("Änderungen gespeichert")
+    const subTaskExists = oldSubExercises.value.find(subExercise => subExercise.id === currentSubTaskId);
+    if (subTaskExists) {
+      const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}/${currentSubTaskId}`, {
+        description: subtask.value
+      })
+      alert("Änderungen gespeichert")
+    }
     subExercises.value = subExercises.value.map(subTask => {
       if (subTask.id === currentSubTaskId) {
         return { id: subTask.id, description: subtask.value }
