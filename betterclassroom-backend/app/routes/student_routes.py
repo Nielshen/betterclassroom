@@ -38,6 +38,7 @@ def handle_students(data):
         return Response("Student inserted successfully", status=201)
     elif request.method == "DELETE":
         students_repo.get_collection().delete_many({})
+        course_repo.get_collection().update_many({}, {"$set": {"participants": []}})
         return Response("All students deleted successfully", 200)
 
 
