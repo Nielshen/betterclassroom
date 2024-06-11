@@ -8,8 +8,6 @@ import { getApiUrl } from '@/utils/common'
 const route = useRoute()
 const router = useRouter()
 
-
-
 const courseId = route.params.courseId
 const taskId = route.params.taskid // Verwende taskid statt taskId
 
@@ -25,6 +23,7 @@ const exerciseButtonMethod = ref('')
 const isEditing = ref(false)
 
 let currentSubTaskId = null
+let subTasksToDelete = [];
 
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
@@ -60,11 +59,19 @@ const createExercise = async () => {
 }
 
 const editExercise = async () => {
+  for (let subTaskId of subTasksToDelete) {
+    try {
+      const result = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}/${subTaskId}`);
+      console.log(result);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   for (let subExercise of subExercises.value) {
     const subTaskId = subExercise.id;
     const existingSubExercise = oldSubExercises.value.find(oldSubExercise => oldSubExercise.id === subTaskId)
     console.log(existingSubExercise)
-    if (!existingSubExercise) { 
+    if (!existingSubExercise) {
       try {
         const result = await axios.post(`${api_url}/course/${courseId}/exercise/${taskId}`, {
           id: subExercise.id,
@@ -106,7 +113,9 @@ const deleteTask = async (taskId) => {
 // Unteraufgabenmethoden
 const createSubTask = async () => {
   const id = subtaskName.value || uuidv4()
-  subExercises.value.push({ id: id, description: subtask.value })
+  const description = subtask.value.replace(/\r?\n/g, '\\n')
+
+  subExercises.value.push({ id: id, description: description })
   subtaskName.value = ''
   subtask.value = ''
 }
@@ -118,7 +127,7 @@ const editSubTask = async (subTaskId) => {
   }
   const task = subExercises.value.find(subTask => subTask.id === subTaskId)
   subtaskName.value = task.id
-  subtask.value = task.description
+  subtask.value = task.description.replace(/\\n/g, '\n')
   isEditing.value = true
   currentSubTaskId = subTaskId
 }
@@ -161,19 +170,15 @@ const deleteSubTask = async (subTaskId) => {
     alert("Keine Aufgaben-ID")
     return
   }
-  try {
-    try {
-      const result = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}/${subTaskId}`)
-      alert("Aufgabe gelöscht")
-      subExercises.value = subExercises.value.filter(subTask => subTask.id !== subTaskId)
-    } catch (error) {
-      subExercises.value = subExercises.value.filter(subTask => subTask.id !== subTaskId)
-    }
-  } catch (error) {
-    console.log(error)
-  }
-}
 
+  const subTaskExists = oldSubExercises.value.find(subExercise => subExercise.id === subTaskId);
+
+  if (subTaskExists) {
+    subTasksToDelete.push(subTaskId);
+  }
+
+  subExercises.value = subExercises.value.filter(subTask => subTask.id !== subTaskId)
+}
 
 onBeforeMount(async () => {
   const oldTaskId = route.params.taskid
@@ -236,18 +241,17 @@ onBeforeMount(async () => {
             <tr>
               <th>Titel</th>
               <th>Beschreibung</th>
-              <th style="text-align: right;">Aktionen</th>
+              <th style="width: fit-content;">Aktionen</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="s in subExercises" :key="s.id">
-              <td class="font-bold">{{ s.id }}</td>
-              <td>{{ s.description }} </td>
-              <td style="text-align: right;">
-                <div class="flex justify-end">
-                  <button class="btn btn-xs btn-primary btn-square mt-2 mr-2"
-                    @click="() => editSubTask(s.id)">✏️</button>
-                  <button class="btn btn-xs btn-primary btn-square mt-2" @click="() => deleteSubTask(s.id)">🗑️</button>
+              <td class="font-bold" style="width: 1%; white-space: nowrap;">{{ s.id }}</td>
+              <td style="white-space: pre-line;">{{ s.description }}</td>
+              <td style="text-align: right; width: 1%; white-space: nowrap;">
+                <div class="inline-flex justify-end">
+                  <button class="btn btn-xs btn-primary btn-square m-2" @click="() => editSubTask(s.id)">✏️</button>
+                  <button class="btn btn-xs btn-primary btn-square m-2" @click="() => deleteSubTask(s.id)">🗑️</button>
                 </div>
               </td>
             </tr>
