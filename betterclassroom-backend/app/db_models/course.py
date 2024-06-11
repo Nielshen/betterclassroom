@@ -24,6 +24,8 @@ class Course(BaseModel):
     description: str
     exercises: List[Exercise] = Field(default_factory=list)
     participants: List[str] = Field(default_factory=list)  # str ist student id
+    # Participants in Exercise ? 
+    # Wie studenten aus liste löschen by ref?
     classroom: str
     professor: int
 
