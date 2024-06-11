@@ -46,6 +46,7 @@ export const useDataStore = defineStore('dataStore', () => {
     }
 
     const checkUser = () => {
+        console.log('checkUser')
         const userString = localStorage.getItem('user')
         if (userString) {
             user.value = JSON.parse(userString)

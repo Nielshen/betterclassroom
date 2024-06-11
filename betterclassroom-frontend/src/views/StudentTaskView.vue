@@ -61,11 +61,11 @@ const seat = ref('')
 const studentName = ref('')
 
 const studentAuth = async () => {
-    if (await dataStore.saveStudent({ id: studentName.value, table: seat.value, courseId })){
-      isAuth.value = true
-    } else {
-      isAuth.value = false
-    }
+  if (await dataStore.saveStudent({ id: studentName.value, table: seat.value, courseId })) {
+    isAuth.value = true
+  } else {
+    isAuth.value = false
+  }
 }
 
 const deleteStudent = () => {
@@ -74,10 +74,12 @@ const deleteStudent = () => {
 }
 
 const loadUser = () => {
-  if (dataStore.checkUser()){
+  if (dataStore.checkUser()) {
+    console.log('User is authenticated')
     isAuth.value = true
+  } else {
+    dataStore.initStudent()
   }
-  dataStore.initStudent()
 }
 
 const width = ref(-1)
@@ -99,12 +101,11 @@ const clickOnSeat = (event) => {
 }
 
 const getSeat = (n, m, width, print = true) => {
-  return (n * width + m) + 1
+  return n * width + m + 1
 }
 
 const w_ = computed(() => Array.from({ length: width.value }, (_, i) => i))
 const h_ = computed(() => Array.from({ length: height.value }, (_, i) => i))
-
 
 onBeforeMount(async () => {
   loadUser()
@@ -117,8 +118,18 @@ onBeforeMount(async () => {
     <div v-if="!isAuth">
       <div class="flex flex-col justify-center items-center mt-5">
         <div>
-          <input type="text" v-model="studentName" placeholder="Name" class="input input-bordered m-2 max-w-xs" />
-          <input type="text" v-model="seat" placeholder="Sitzplatz" class="input input-bordered m-2 max-w-xs" />
+          <input
+            type="text"
+            v-model="studentName"
+            placeholder="Name"
+            class="input input-bordered m-2 max-w-xs"
+          />
+          <input
+            type="text"
+            v-model="seat"
+            placeholder="Sitzplatz"
+            class="input input-bordered m-2 max-w-xs"
+          />
         </div>
         <div class="border">
           <div class="flex flex-col justify-center items-center">
@@ -126,9 +137,13 @@ onBeforeMount(async () => {
               <p class="text-xl">Tafel</p>
             </div>
             <div v-for="n in h_" :key="n" class="flex flex-row justify-center">
-              <div :id="getSeat(n, m, width, false)" v-for="m in w_" :key="m"
-                class="rounded-lg w-[75px] h-[55px] bg-primary m-1 hover:bg-secondary hover:text-black text-l text-center text-white"
-                @click="clickOnSeat">
+              <div
+                :id="getSeat(n, m, width, false)"
+                v-for="m in w_"
+                :key="m"
+                class="rounded-lg w-[75px] h-[55px] cursor-pointer bg-primary m-1 hover:bg-secondary hover:text-black text-l text-center text-white"
+                @click="clickOnSeat"
+              >
                 {{ getSeat(n, m, width) }}
               </div>
             </div>
@@ -138,10 +153,10 @@ onBeforeMount(async () => {
       </div>
     </div>
     <div v-else class="h-full">
-    <div class="flex flex-row justify-evenly my-2">
-    <h1 class="">{{ dataStore.user.id }}</h1>
-    <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary">Abmelden</button>
-    </div>
+      <div class="flex flex-row justify-evenly my-2">
+        <h1 class="">{{ dataStore.user.id }}</h1>
+        <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary">Abmelden</button>
+      </div>
       <TaskView :tasks="tasks" @idxChange="changeIndex" @raisedHand="raisedHand" />
     </div>
   </div>
