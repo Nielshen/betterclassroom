@@ -55,7 +55,6 @@ const loadCourse = async () => {
 onBeforeMount(async () => {
   await loadCourse()
   initSockets()
-  console.log("test")
   console.log({ tableOccupation: tableOccupation.value })
 })
 
