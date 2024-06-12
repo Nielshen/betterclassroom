@@ -174,7 +174,7 @@ const closeCourse = async () => {
   <div>
     <div class="flex m-4 justify-between">
       <div class="flex items-center">
-        Kurslink für Student*innen:&nbsp;<a :href="courseLink">{{ courseLink }}</a>
+        Kurslink für Student*innen:&nbsp;<a :href="'http://' + courseLink">{{ 'http://' + courseLink }}</a>
         <button class="btn btn-danger ml-2" @click="generateQRCode">QR-Code</button>
       </div>
       <button class="btn btn-warning" @click="closeCourse">Beenden</button>
