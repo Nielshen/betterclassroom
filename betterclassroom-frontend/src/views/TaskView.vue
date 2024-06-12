@@ -1,7 +1,11 @@
 <script setup>
 import { ref, watch } from 'vue'
+import { useDataStore } from '../stores/dataStore'
+
+const dataStore = useDataStore()
 
 const props = defineProps({
+  student_id: String,
   help_requested: Boolean,
   tasks: {
     type: Array,
@@ -25,19 +29,14 @@ const previousTask = () => {
 
 const questionAsked = ref(props.help_requested)
 
+watch(() => props.help_requested, (newVal) => {
+  questionAsked.value = newVal
+})
+
 const toggleQuestion = () => {
   questionAsked.value = !questionAsked.value
-  emits('raisedHand', questionAsked.value)
+  emits('raisedHand', { student_id: props.student_id, help_requested: questionAsked.value })
 }
-
-watch(
-  () => props.help_requested,
-  console.log('Property help changed:', props.help_requested),
-  (newVal) => {
-    questionAsked.value = newVal
-  }
-)
-
 
 </script>
 
@@ -52,9 +51,8 @@ watch(
               <div v-html="props.tasks[index].replace(/\\n/g, '<br><br>')"></div>
             </p>
           </div>
-        </div> <!-- Add closing div tag here -->
-        <button @click="toggleQuestion"
-          :class="['btn', 'btn-accent', 'text-2xl', !questionAsked && 'btn-outline']">
+        </div>
+        <button @click="toggleQuestion" :class="['btn', 'btn-accent', 'text-2xl', !questionAsked && 'btn-outline']">
           ✋🏼
         </button>
       </div>

@@ -26,15 +26,10 @@ const wsUrl = `ws://${rawUrl}/student`
 const loadTasks = async () => {
   const response = await axios.get(`${api_url}/course/${courseId}/exercise`)
   const _tasks = response.data
-  //console.log({ t: _tasks, exerciseId })
   const currentTask = _tasks.find((task) => task.id === exerciseId)
-  //console.log({ currentTask })
-
   description.value = currentTask.description
   const exercises = currentTask.exercises.map((e) => e.description)
-  //console.log(exercises)
   tasks.id = currentTask.exercises.map((e) => e.id)
-  console.log(tasks.id)
   tasks.value = exercises
 }
 
@@ -42,16 +37,16 @@ const changeIndex = async (index) => {
   const data = {
     current_exercise: index + 1
   }
-  const response = await axios.post(`${api_url}/students/${dataStore.user.id}/progress`, {
+  await axios.post(`${api_url}/students/${dataStore.user.id}/progress`, {
     ...data
   })
-  console.log('Index changed', index + 1)
 }
 
-const raisedHand = async (value) => {
-  console.log('Hand raised', value)
-  const response = await axios.post(`${api_url}/students/${dataStore.user.id}/help`, {})
-  console.log(response)
+const raisedHand = async ({ student_id, help_requested }) => {
+  if (dataStore.user.id === student_id) {
+    console.log('Hand raised', help_requested)
+    await axios.post(`${api_url}/students/${student_id}/help`, { help_requested })
+  }
 }
 
 const isAuth = ref(false)
@@ -89,11 +84,10 @@ const height = ref(-1)
 
 const loadClassroom = async () => {
   const { data } = await axios.get(`${api_url}/classroom`)
-  //console.log({ classroomData: data })
   const course = await axios.get(`${api_url}/course`)
   const { classroom } = course.data.find((c) => c._id === courseId)
   const currentRoom = data.find((room) => room._id === classroom) || {}
-  width.value = currentRoom.tablesPerRow * 2 || 8
+  width.value = currentRoom.tablesPerRow || 4
   height.value = currentRoom.rows || 5
 }
 
@@ -117,6 +111,7 @@ onBeforeMount(async () => {
 })
 
 const help_requested = ref(false)
+const student_id = ref('')
 
 const initSockets = () => {
   const socket = io(wsUrl, {
@@ -125,8 +120,11 @@ const initSockets = () => {
   })
 
   socket.on('help', (data) => {
-    console.log('Socket Event: Help requested', data.data.help_requested)
-    help_requested.value = data.data.help_requested
+    console.log('Socket Event: Help requested', data.data.help_requested, data.data._id)
+    if (data.data._id === dataStore.user.id) {
+      help_requested.value = data.data.help_requested
+    }
+    student_id.value = data.data._id
   })
 }
 </script>
@@ -145,7 +143,7 @@ const initSockets = () => {
             </div>
             <div v-for="n in h_" :key="n" class="flex flex-row justify-center">
               <div :id="getSeat(n, m, width, false)" v-for="m in w_" :key="m"
-                class="rounded-lg w-[75px] h-[55px] cursor-pointer bg-primary m-1 hover:bg-secondary hover:text-black text-l text-center text-white"
+                class="rounded-lg w-[200px] h-[55px] cursor-pointer bg-primary m-1 hover:bg-secondary hover:text-black text-l text-center text-white"
                 @click="clickOnSeat">
                 {{ getSeat(n, m, width) }}
               </div>
@@ -160,7 +158,7 @@ const initSockets = () => {
         <h1 class="ml-4">{{ dataStore.user.id }}</h1>
         <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary mr-4">Abmelden</button>
       </div>
-      <TaskView :key="help_requested" :help_requested="help_requested" :tasks="tasks" @idxChange="changeIndex"
+      <TaskView :key="help_requested" :student_id="dataStore.user.id" :help_requested="help_requested" :tasks="tasks" @idxChange="changeIndex"
         @raisedHand="raisedHand" />
     </div>
   </div>
