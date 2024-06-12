@@ -158,7 +158,7 @@ const initSockets = () => {
         <h1 class="ml-4">{{ dataStore.user.id }}</h1>
         <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary mr-4">Abmelden</button>
       </div>
-      <TaskView :key="help_requested" :student_id="dataStore.user.id" :help_requested="help_requested" :tasks="tasks" @idxChange="changeIndex"
+      <TaskView :key="studend_id" :student_id="dataStore.user.id" :help_requested="help_requested" :tasks="tasks" @idxChange="changeIndex"
         @raisedHand="raisedHand" />
     </div>
   </div>
