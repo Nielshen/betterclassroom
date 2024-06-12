@@ -48,13 +48,22 @@ def handle_course(course_id):
         return Response("Course deleted successfully", 200)
 
 
-@course_bp.route("/api/course/<course_id>/students", methods=["GET"])
+@course_bp.route("/api/course/<course_id>/students", methods=["GET", "DELETE"])
 def get_students(course_id):
     course = course_repo.get_collection().find_one({"_id": course_id})
     if not course:
         return Response("Course not found", 404)
-    students = list(students_repo.get_collection().find({"course": course_id}))
-    return students
+
+    if request.method == "GET":
+        students = list(students_repo.get_collection().find({"course": course_id}))
+        return students
+
+    elif request.method == "DELETE":
+        students_repo.get_collection().delete_many({"course": course_id})
+        course_repo.get_collection().update_one(
+            {"_id": course_id}, {"$set": {"participants": []}}
+        )
+        return Response("Students in course deleted successfully", 200)
 
 
 # returns all exercises / creates new exercise
