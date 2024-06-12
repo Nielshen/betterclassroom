@@ -152,13 +152,16 @@ const generateQRCode = async () => {
 }
 const closeCourse = async () => {
   try {
-    await axios.post(`${api_url}/course/${courseId}/close`)
+    await axios.delete(`${api_url}/course/${courseId}/students`)
+    // Leeren der Studentenliste im Frontend
+    tableOccupation.value = []
     alert('Kurs wurde geschlossen und alle Studenten wurden abgemeldet.')
     router.push('/courses')
   } catch (error) {
     console.error('Error closing course:', error)
   }
 }
+
 </script>
 <template>
   <div>
