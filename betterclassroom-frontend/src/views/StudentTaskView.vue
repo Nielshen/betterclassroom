@@ -23,7 +23,6 @@ const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
 const wsUrl = `ws://${rawUrl}/student`
 
-
 const loadTasks = async () => {
   const response = await axios.get(`${api_url}/course/${courseId}/exercise`)
   const _tasks = response.data
@@ -43,7 +42,7 @@ const changeIndex = async (index) => {
   const data = {
     current_exercise: index + 1
   }
-  const response = await axios.post(`${api_url}/students/${studentName.value}/progress`, {
+  const response = await axios.post(`${api_url}/students/${dataStore.user.id}/progress`, {
     ...data
   })
   console.log('Index changed', index + 1)
@@ -51,7 +50,7 @@ const changeIndex = async (index) => {
 
 const raisedHand = async (value) => {
   console.log('Hand raised', value)
-  const response = await axios.post(`${api_url}/students/${studentName.value}/help`, {})
+  const response = await axios.post(`${api_url}/students/${dataStore.user.id}/help`, {})
   console.log(response)
 }
 
@@ -123,32 +122,21 @@ const initSockets = () => {
   const socket = io(wsUrl, {
     path: '/api/socket.io/student',
     transports: ['websocket']
-  });
+  })
 
-  socket.on('help', data => {
+  socket.on('help', (data) => {
     console.log('Socket Event: Help requested', data.data.help_requested)
     help_requested.value = data.data.help_requested
-  });
+  })
 }
-
 </script>
 <template>
   <div class="h-full">
     <div v-if="!isAuth">
       <div class="flex flex-col justify-center items-center mt-5">
         <div>
-          <input
-            type="text"
-            v-model="studentName"
-            placeholder="Name"
-            class="input input-bordered m-2 max-w-xs"
-          />
-          <input
-            type="text"
-            v-model="seat"
-            placeholder="Sitzplatz"
-            class="input input-bordered m-2 max-w-xs"
-          />
+          <input type="text" v-model="studentName" placeholder="Name" class="input input-bordered m-2 max-w-xs" />
+          <input type="text" v-model="seat" placeholder="Sitzplatz" class="input input-bordered m-2 max-w-xs" />
         </div>
         <div class="border">
           <div class="flex flex-col justify-center items-center">
@@ -156,13 +144,9 @@ const initSockets = () => {
               <p class="text-xl">Tafel</p>
             </div>
             <div v-for="n in h_" :key="n" class="flex flex-row justify-center">
-              <div
-                :id="getSeat(n, m, width, false)"
-                v-for="m in w_"
-                :key="m"
+              <div :id="getSeat(n, m, width, false)" v-for="m in w_" :key="m"
                 class="rounded-lg w-[75px] h-[55px] cursor-pointer bg-primary m-1 hover:bg-secondary hover:text-black text-l text-center text-white"
-                @click="clickOnSeat"
-              >
+                @click="clickOnSeat">
                 {{ getSeat(n, m, width) }}
               </div>
             </div>
@@ -172,11 +156,12 @@ const initSockets = () => {
       </div>
     </div>
     <div v-else class="h-full">
-        <div class="flex flex-row justify-between items-start my-2">
-            <h1 class="ml-4">{{ dataStore.user.id }}</h1>
-            <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary mr-4">Abmelden</button>
-        </div>
-      <TaskView :key="help_requested" :help_requested="help_requested" :tasks="tasks" @idxChange="changeIndex" @raisedHand="raisedHand" />
+      <div class="flex flex-row justify-between items-start my-2">
+        <h1 class="ml-4">{{ dataStore.user.id }}</h1>
+        <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary mr-4">Abmelden</button>
+      </div>
+      <TaskView :key="help_requested" :help_requested="help_requested" :tasks="tasks" @idxChange="changeIndex"
+        @raisedHand="raisedHand" />
     </div>
   </div>
 </template>

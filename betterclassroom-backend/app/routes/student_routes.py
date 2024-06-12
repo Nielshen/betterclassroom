@@ -34,6 +34,7 @@ def handle_students(data):
             {"$addToSet": {"participants": data["id"]}},
         )
         data["_id"] = data.pop("id")
+        data["action"] = "add"
         socketio.emit("student", {"data": data}, namespace="/student")
         return Response("Student inserted successfully", status=201)
     elif request.method == "DELETE":
@@ -58,6 +59,19 @@ def handle_student(student_id):
             {"$pull": {"participants": student.id}},
         )
         students_repo.delete_by_id(student.id)
+
+        socketio.emit(
+            "student",
+            {
+                "data": {
+                    "action": "delete",
+                    "_id": student.id,
+                    "table": student.table,
+                }
+            },
+            namespace="/student",
+        )
+
         return Response("Student deleted successfully", 200)
 
 

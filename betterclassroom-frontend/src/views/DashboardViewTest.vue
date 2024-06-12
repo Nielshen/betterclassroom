@@ -78,59 +78,66 @@ onBeforeMount(async () => {
   courseLink.value = `${window.location.host}/student/${courseId}/${exerciseId}`
 })
 
-const handleNewStudent = (data) => {
-  const studentIndex = data.table - 1;
+const handleStudentUpdate = (data) => {
+  const studentIndex = data.table - 1
   if (studentIndex < 0 || studentIndex >= tableOccupation.value.length) {
-    console.error('Invalid table index');
-    return;
+    console.error('Invalid table index')
+    return
   }
 
   const table = tableOccupation.value[studentIndex]
-  const studentKey = ['student1', 'student2'].find(key => table[key]?._id === data.id)
 
-  if (studentKey) {
-    table[studentKey] = data;
-  } else {
-    const emptyKey = ['student1', 'student2'].find(key => !table[key])
-    if (emptyKey) {
-      table[emptyKey] = data;
+  if (data.action === 'add') {
+    const studentKey = ['student1', 'student2'].find(
+      (key) => !table[key] || table[key]._id === data._id
+    )
+
+    if (studentKey) {
+      table[studentKey] = data
     } else {
       console.error('All slots at table are full. Cannot add student:', data)
     }
+  } else if (data.action === 'delete') {
+    const studentKey = ['student1', 'student2'].find((key) => table[key]?._id === data._id)
+    if (studentKey) {
+      table[studentKey] = null
+    } else {
+      console.error('Student not found at table:', data)
+    }
   }
-};
+}
 
 const updateStudentProperty = (data, property) => {
   console.log('Updating student property:', data, property)
-  const studentIndex = data.table - 1;
+  const studentIndex = data.table - 1
   if (studentIndex < 0 || studentIndex >= tableOccupation.value.length) {
-    console.error('Invalid table index');
-    return;
+    console.error('Invalid table index')
+    return
   }
 
   const table = tableOccupation.value[studentIndex]
-  const studentKey = ['student1', 'student2'].find(key => table[key] && table[key]._id === data._id)
+  const studentKey = ['student1', 'student2'].find(
+    (key) => table[key] && table[key]._id === data._id
+  )
   if (studentKey) {
     table[studentKey][property] = data[property]
   } else {
     console.error(`Updating student failed: Student not found for property ${property}`)
   }
-};
+}
 
 const initSockets = () => {
   const socket = io(wsUrl, {
     path: '/api/socket.io/student',
     transports: ['websocket']
-  });
+  })
 
-  socket.on('connect', () => console.log('Connected to server'));
-  socket.on('disconnect', () => console.log('Disconnected from server'));
-  socket.on('help', data => updateStudentProperty(data.data, 'help_requested'));
-  // TODO support also using progress dict?
-  socket.on('progress', data => updateStudentProperty(data.data, 'current_exercise'));
-  socket.on('student', data => handleNewStudent(data.data));
-
-};
+  socket.on('connect', () => console.log('Connected to server'))
+  socket.on('disconnect', () => console.log('Disconnected from server'))
+  socket.on('help', (data) => updateStudentProperty(data.data, 'help_requested'))
+  socket.on('progress', (data) => updateStudentProperty(data.data, 'current_exercise'))
+  socket.on('student', (data) => handleStudentUpdate(data.data))
+}
 
 const generateQRCode = async () => {
   try {
@@ -176,7 +183,7 @@ const closeCourse = async () => {
       <div class="flex flex-col justify-center m-4">
         <div class="flex flex-row flex-wrap justify-center">
           <DashboardTable v-for="table in tableOccupation" :key="table.id" :tableNumber="table.id" :table="table"
-                :exerciseCount="exerciseCount" />
+            :exerciseCount="exerciseCount" />
         </div>
         <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white">
           <p class="text-4xl">Tafel</p>
