@@ -45,7 +45,7 @@ const changeIndex = async (index) => {
 const raisedHand = async ({ student_id, help_requested }) => {
   if (dataStore.user.id === student_id) {
     console.log('Hand raised', help_requested)
-    await axios.post(`${api_url}/students/${student_id}/help`, { help_requested })
+    await axios.post(`${api_url}/students/${dataStore.user.id}/help`, { help_requested })
   }
 }
 
