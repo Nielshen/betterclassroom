@@ -68,27 +68,32 @@ const save = async () => {
     alert('Bitte füllen Sie alle Felder aus')
     return
   }
-  const oldId = route.params.courseId || courseName.value
   console.log(route.params.courseId)
-  console.log({ oldId })
-  if (!oldId) {
-    alert('Keine alte ID vorhanden')
-    return
+  if (!route.params.courseId) { // Kurs existiert noch nicht
+    pushCourse({
+      oldId: courseName.value, // Kurs Name aus Input
+      description: courseDescription.value,
+      professor: professorId.value,
+      classroom: courseRoom.value
+    })
+      .then(() => {
+        alert('Success')
+        router.push('/courses')
+      })
+      .catch((err) => {
+        alert('Error', err)
+      })
   }
-  pushCourse({
-    //oldId: route.params.id || courseName.value,
-    oldId,
-    description: courseDescription.value,
-    professor: professorId.value,
-    classroom: courseRoom.value
-  })
-    .then(() => {
-      alert('Success')
-      router.push('/courses')
+  // course exists do put
+  try {
+    await axios.put(`${api_url}/course/${courseName.value}`, {
+      description: courseDescription.value,
+      classroom: courseRoom.value
     })
-    .catch((err) => {
-      alert('Error', err)
-    })
+  } catch (error) {
+    console.log(error)
+  }
+  router.push('/courses')
 }
 
 const deleteCourse = async (courseId) => {
@@ -190,10 +195,10 @@ const startTask = async (taskId) => {
             <option>O-301</option>
           </select>
         </div>
-        
+
       </div>
       <textarea placeholder="Kursbeschreibung" class="textarea textarea-bordered w-full my-5 h-32"
-          v-model="courseDescription"></textarea>
+        v-model="courseDescription"></textarea>
       <div class="flex w-full justify-start">
         <button class="btn btn-primary mr-4" @click="save">{{ createButton }} </button>
         <button class="btn btn-danger" @click="router.push('/courses')">Abbrechen</button>
