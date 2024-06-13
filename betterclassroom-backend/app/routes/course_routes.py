@@ -33,19 +33,51 @@ def handle_courses(data):
         return Response("Inserted course successfully", status=201)
 
 
-@course_bp.route("/api/course/<course_id>", methods=["GET", "DELETE"])
+@course_bp.route("/api/course/<course_id>", methods=["GET", "DELETE", "PUT"])
 def handle_course(course_id):
+    course = course_repo.get_collection().find_one({"_id": course_id})
+    if not course:
+        return Response("Course not found", 404)
     if request.method == "GET":
-        course = course_repo.get_collection().find_one({"_id": course_id})
-        if not course:
-            return Response("Course not found", 404)
         return course
     elif request.method == "DELETE":
-        course = course_repo.get_collection().find_one({"_id": course_id})
-        if not course:
-            return Response("Course not found", 404)
         course_repo.get_collection().delete_one({"_id": course_id})
         return Response("Course deleted successfully", 200)
+    elif request.method == "PUT":
+        data = request.get_json()
+        if len(data) > 2:
+            return Response("Only description and classroom can be modified", 400)
+
+        description = data.get("description")
+        classroom = data.get("classroom")
+
+        if description and classroom:
+            course_repo.get_collection().update_one(
+                {"_id": course_id},
+                {
+                    "$set": {"classroom": classroom, "description": description},
+                },
+            )
+            course_repo.get_collection().update_one(
+                {"_id": course_id}, {"$set": {"description": data["description"]}}
+            )
+            return Response("Course updated successfully", 200)
+        elif description:
+            course_repo.get_collection().update_one(
+                {"_id": course_id}, {"$set": {"description": data["description"]}}
+            )
+            return Response("Course updated successfully", 200)
+        elif classroom:
+            classroom_data = classroom_repo.find_one_by({"id": data["classroom"]})
+            if classroom_data is None:
+                return Response("Classroom not found", 404)
+            course_repo.get_collection().update_one(
+                {"_id": course_id}, {"$set": {"classroom": data["classroom"]}}
+            )
+
+            return Response("Course updated successfully", 200)
+
+        return Response("No data provided", 400)
 
 
 @course_bp.route("/api/course/<course_id>/students", methods=["GET", "DELETE"])
