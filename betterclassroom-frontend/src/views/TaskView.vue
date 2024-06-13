@@ -40,21 +40,24 @@ const toggleQuestion = () => {
 
 </script>
 
-<template>
+<<template>
   <div class="w-full h-full">
     <div class="carousel h-full w-full">
       <div id="slide1" class="carousel-item relative justify-center item-center w-full h-full ">
-        <div class="flex w-2/3 h-[580px] w-[850px]">
-          <div class="mx-20 w-2/3">
-            <h1 class="text-2xl my-10">Aufgabe {{ index + 1 }} / {{ props.tasks.length }}</h1>
+        <div class="flex w-3/4 h-[580px] w-[850px]">
+          <div class="mx-20 w-full">
+            <div class="flex justify-between">
+              <h1 class="text-2xl my-10">Aufgabe {{ index + 1 }} / {{ props.tasks.length }}</h1>
+              <button @click="toggleQuestion"
+                :class="['btn', 'btn-accent', 'text-2xl', !questionAsked && 'btn-outline']">
+                ✋🏼
+              </button>
+            </div>
             <p>
-              <div v-html="props.tasks[index].replace(/\\n/g, '<br><br>')"></div>
+            <div v-html="props.tasks[index].replace(/(\\n|\n)/g, '<br><br>')"></div>
             </p>
           </div>
         </div>
-        <button @click="toggleQuestion" :class="['btn', 'btn-accent', 'text-2xl', !questionAsked && 'btn-outline']">
-          ✋🏼
-        </button>
       </div>
     </div>
     <div class="absolute flex justify-between transform -translate-y-1/2 left-1 right-1 top-1/2">
