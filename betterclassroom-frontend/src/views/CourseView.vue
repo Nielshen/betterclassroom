@@ -44,7 +44,7 @@ const editCourse = (e) => {
             </thead>
             <tbody v-for="e in courseData" :key="e" >
                 <tr class="bg-base-200">
-                    <td>{{ e.description }}</td>
+                    <td>{{ e._id }}</td>
                     <td>{{ e.classroom }}</td>
                     <td>{{ e.participants.length }} Teilnehmende</td>
                     <td>

@@ -43,8 +43,9 @@ const courseName = ref('')
 const courseDescription = ref('')
 const courseRoom = ref('')
 const createButton = ref('')
-const professorId = ref('') 
+const professorId = ref('')
 const tasks = ref([])
+const isEditMode = ref('')
 
 const pushCourse = async ({ oldId, description, professor, classroom }) => {
   const id = oldId || uuidv4()
@@ -77,7 +78,7 @@ const save = async () => {
   pushCourse({
     //oldId: route.params.id || courseName.value,
     oldId,
-    description: courseName.value,
+    description: courseDescription.value,
     professor: professorId.value,
     classroom: courseRoom.value
   })
@@ -122,15 +123,21 @@ onBeforeMount(async () => {
   const oldCourseId = route.params.courseId
   if (oldCourseId) {
     const oldCourse = await loadOldCourse(oldCourseId)
-    tasks.value = oldCourse.exercises.map(e => ({ name: e.description, length: e.exercises.length, id: e.id }))
-    courseName.value = oldCourse.description
+    console.log(oldCourse)
+    tasks.value = oldCourse.exercises.map(e => ({ name: e.id, length: e.exercises.length, id: e.id }))
+    console.log(tasks.value)
+    courseName.value = oldCourse._id
+    console.log(courseName.value)
     courseRoom.value = oldCourse.classroom
     title.value = 'Kurs bearbeiten'
     createButton.value = 'Speichern'
+    courseDescription.value = oldCourse.description
+    isEditMode.value = true
   } else {
     title.value = 'Kurs erstellen'
     createButton.value = 'Erstellen'
     professorId.value = await loadProfessorId('Prof. Dr. Eiglsperger')
+    isEditMode.value = false
   }
 })
 
@@ -150,7 +157,7 @@ const startTask = async (taskId) => {
   console.log('Start task', taskId)
   const courseId = route.params.courseId
   const courseLink = `${window.location.host}/student/${courseId}/${taskId}`
-  
+
   try {
     await axios.post(`${api_url}/course/${courseId}/start`)
     alert(`Kurs gestartet: ${courseLink}`)
@@ -172,15 +179,28 @@ const startTask = async (taskId) => {
       </div>
       <input type="text" placeholder="Kursname" class="input input-bordered input-accent w-full max-w-xs my-5"
         v-model="courseName" />
-      <input type="text" placeholder="Raum" class="input input-bordered input-accent w-full max-w-xs my-5"
-        v-model="courseRoom" />
-      <div class="flex w-1/2 justify-around">
-        <button class="btn btn-primary" @click="save">{{ createButton }} </button>
-        <button class="btn btn-warning" @click="router.push('/courses')">Abbrechen</button>
-        <button class="btn btn-primary" @click="createTask">Aufgaben erstellen</button>
+      <div class="drawer drawer-end">
+        <div class="mb-4">
+          <label class="label">
+            <span class="label-text">Raum</span>
+          </label>
+          <select class="select select-bordered w-full max-w-xs" v-model="courseRoom">
+            <option disabled="disabled" selected="selected">Bitte wählen Sie einen Raum</option>
+            <option>O-201</option>
+            <option>O-301</option>
+          </select>
+        </div>
+        
       </div>
-      <div>
-        <table class="table">
+      <textarea placeholder="Kursbeschreibung" class="textarea textarea-bordered w-full my-5 h-32"
+          v-model="courseDescription"></textarea>
+      <div class="flex w-full justify-start">
+        <button class="btn btn-primary mr-4" @click="save">{{ createButton }} </button>
+        <button class="btn btn-danger" @click="router.push('/courses')">Abbrechen</button>
+        <button class="btn btn-primary ml-auto" v-if="isEditMode" @click="createTask">&#65291 Aufgabe erstellen</button>
+      </div>
+      <div v-if="isEditMode">
+        <table class="table mt-8">
           <thead>
             <tr>
               <th>Aufgabe</th>
@@ -191,8 +211,10 @@ const startTask = async (taskId) => {
             <tr v-for="task in tasks">
               <td>{{ task.id }}</td>
               <td>{{ task.length }}</td>
-              <button class="btn btn-sm btn-primary m-1" @click="editTask(task.id)">Bearbeiten</button>
-              <button class="btn btn-sm btn-accent m-1" @click="startTask(task.id)">Starten</button>
+              <td class="text-right">
+                <button class="btn btn-sm btn-danger m-1" @click="editTask(task.id)">Bearbeiten</button>
+                <button class="btn btn-sm btn-accent m-1" @click="startTask(task.id)">Starten</button>
+              </td>
             </tr>
           </tbody>
         </table>
