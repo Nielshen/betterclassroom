@@ -4,6 +4,7 @@ const getApiUrl = (logging = false) => {
     const stagingUrl = import.meta.env.VITE_API_STAGING_URL_RAW
     const localClusterUrl = import.meta.env.VITE_API_CLUSTER_URL_RAW
     const testUrl = import.meta.env.VITE_API_TEST_URL_RAW
+    return prodUrl
     const hostname = window.location.hostname
     logging ? console.log({ prodUrl, testUrl, hostname}) : null
     if (hostname === 'localhost' || hostname.startsWith("127.")) {

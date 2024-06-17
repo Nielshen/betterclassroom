@@ -23,14 +23,12 @@ def handle_professors(data):
                 id=data["id"],
             )
         )
-        return Response("Added professor successfully", status=201)
+        return Response("Inserted professor successfully", status=201)
 
 
-@professor_bp.route("/api/professor/<professor_id>", methods=["DELETE"])
-def delete_professor(professor_id):
-    professor = professor_repo.find_one_by_id(professor_id)
-    if not professor:
-        return Response("Professor not found", status=404)
 
-    professor_repo.get_collection().delete_one({"_id": professor_id})
-    return Response("Professor deleted successfully", status=200)
+def login_professor(data): pass
+
+def get_professor_form_id(data): pass
+
+def registerr_professor(data): pass

@@ -5,7 +5,23 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/courses'
+      redirect: '/login'
+
+    },
+    {
+      path: "/register",
+      name: "register",
+      component: () => import('../views/ProfessorRegisterView.vue')
+    },
+    {
+      path: "/login",
+      name: "login",
+      component: () => import('../views/ProfessorLoginView.vue')
+    },
+    {
+      path: "/changePassword",
+      name: "changePassword",
+      component: () => import('../views/ProfessorChangePasswordView.vue')
     },
     {
       path: '/dashboard/:courseId/:taskId',

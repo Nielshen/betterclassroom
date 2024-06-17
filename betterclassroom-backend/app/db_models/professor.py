@@ -3,7 +3,11 @@ from pydantic_mongo import AbstractRepository
 
 
 class Professor(BaseModel):
-    id: str
+    id: int
+    name: str
+    password: str
+    firstName : str
+    lastName : str
 
 
 class ProfessorRepository(AbstractRepository[Professor]):
