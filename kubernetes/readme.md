@@ -126,7 +126,7 @@ http://betterclassroom-cluster.in.htwg-konstanz.de/api/<API ROUTE>
 
 ### Merge Process from local Feature Branch -> Staging System -> Production System
 
-1. **Create Feature Branch from Main**
+1. **Create Feature Branch From Main**
    - Create a new feature branch from the main branch.
 
 2. **Set Files to Current Feature Branch Name**
@@ -138,25 +138,23 @@ http://betterclassroom-cluster.in.htwg-konstanz.de/api/<API ROUTE>
 4. **Test Changes in Local Cluster**
    - Test the changes in the local cluster.
    - Commit changes to the feature branch.
-   - The local cluster updates automatically, or you can update it manually (see "Manually Delete and Apply New Versions").
-   - Cluster access:
+   - The local cluster updates automatically after push to Git, or you can update it manually (see "Manually Delete and Apply New Versions").
+   - Local Cluster access:
      - [http://better-classroom.com:8088/](http://better-classroom.com:8088/)
      - [http://better-classroom.com:8088/api](http://better-classroom.com:8088/api)
 
-5. **Stable Version Reached and Ready to Merge to Main**
-    - Merge from the feature branch into main branch.
-    - Create a tag (e.g., 0.0.1) from Main Branch
+5. **Stable Version Reached, Version passed Tests and Peer Review**
+    - Merge from **feature** branch into **main** branch.
+    - Update files of the main branch to "main" (see "Change Branches")
+    - Staging Cluster access:
+      - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
+      - [http://betterclassroom-cluster.in.htwg-konstanz.de/api](http://betterclassroom-staging.in.htwg-konstanz.de:8080/api)
 
-6. **Version Passed Tests and Peer Review and is Ready for Staging**
-    - Merge from main branch into staging branch.
-    - Update files of Staging Branch to reflect the tag you have created from Main Branch (e.g., 0.0.1) (see "Change Branches").
-   - Cluster access:
-     - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
-     - [http://betterclassroom-cluster.in.htwg-konstanz.de/api](http://betterclassroom-staging.in.htwg-konstanz.de:8080/api)
-7. **Version Passed Staging and the Production System is currently unused**
-    - Merge from staging branch into production branch.
+6. **Version Passed Staging and the Production System is currently unused**
+    - Create a tag (e.g., 0.0.1) from **main** branch
+    - Merge from **main** branch into **production** branch.
     - Update files of the Production Branch to reflect the tag name (e.g., 0.0.1) (see "Change Branches"). 
-   - Cluster access:
+   - Production Cluster access:
      - [http://betterclassroom-cluster.in.htwg-konstanz.de/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
      - [http://betterclassroom-cluster.in.htwg-konstanz.de/api](http://betterclassroom-cluster.in.htwg-konstanz.de/api)
 
