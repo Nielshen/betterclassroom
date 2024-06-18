@@ -144,17 +144,17 @@ http://betterclassroom-cluster.in.htwg-konstanz.de/api/<API ROUTE>
      - [http://better-classroom.com:8088/api](http://better-classroom.com:8088/api)
 
 5. **Stable Version Reached and Ready to Merge to Main**
-  - Merge from the feature branch into the main branch.
-   - Create a tag (e.g., 0.0.1) from Main Branch
+    - Merge from the feature branch into main branch.
+    - Create a tag (e.g., 0.0.1) from Main Branch
 
 6. **Version Passed Tests and Peer Review and is Ready for Staging**
-   - Merge from the main branch into the staging branch.
-    - Update files of the Staging Branch to reflect the tag you have created from Main Branch (e.g., 0.0.1) (see "Change Branches").
+    - Merge from main branch into staging branch.
+    - Update files of Staging Branch to reflect the tag you have created from Main Branch (e.g., 0.0.1) (see "Change Branches").
    - Cluster access:
      - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
      - [http://betterclassroom-cluster.in.htwg-konstanz.de/api](http://betterclassroom-staging.in.htwg-konstanz.de:8080/api)
 7. **Version Passed Staging and the Production System is currently unused**
-    - Merge from the staging branch into the production branch.
+    - Merge from staging branch into production branch.
     - Update files of the Production Branch to reflect the tag name (e.g., 0.0.1) (see "Change Branches"). 
    - Cluster access:
      - [http://betterclassroom-cluster.in.htwg-konstanz.de/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
