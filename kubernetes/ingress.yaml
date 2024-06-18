@@ -34,6 +34,30 @@ spec:
                 name: mein-frontend
                 port:
                   number: 80
+    - host: betterclassroom-staging.in.htwg-konstanz.de
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mein-frontend
+                port:
+                  number: 80
+          - path: /api
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mein-backend
+                port:
+                  number: 5000
+          - path: /(.*) # other paths
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mein-frontend
+                port:
+                  number: 80
     - host: better-classroom.com
       http:
         paths:
