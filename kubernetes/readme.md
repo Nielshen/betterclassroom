@@ -88,7 +88,7 @@ betterclassroom/kubernetes
 ```kubectl delete -f backendDeployment.yaml```
 
 ```kubectl apply -f backendDeployment.yaml```
-### Change Branches
+### Change Branches local
 1. change Flux Branch
 
 ```export EDITOR=nano```
@@ -107,15 +107,24 @@ port forward
 Note: ```kubectl port-forward``` does not return. To continue, you will need to open another terminal.
 
 ``mongo --host 127.0.0.1 --port 27017``
+### Access Staging HTWG VM
+
+- Better Classrooms staging is accessible under
+
+http://betterclassroom-staging.in.htwg-konstanz.de:8080/
+
+http://betterclassroom-staging.in.htwg-konstanz.de:8080/api/<API ROUTE>
+
 ### Access Production HTWG VM
 
-- Better Classrooms production should be accessible under
+- Better Classrooms production is accessible under
 
 http://betterclassroom-cluster.in.htwg-konstanz.de/
 
-http://betterclassroom-cluster.in.htwg-konstanz.de/api
+http://betterclassroom-cluster.in.htwg-konstanz.de/api/<API ROUTE>
 
-### Merge Process from Feature Branch to Production Branch
+
+### Merge Process from local Feature Branch -> Staging System -> Production System
 
 1. **Create Feature Branch from Main**
    - Create a new feature branch from the main branch.
@@ -135,12 +144,18 @@ http://betterclassroom-cluster.in.htwg-konstanz.de/api
      - [http://better-classroom.com:8088/api](http://better-classroom.com:8088/api)
 
 5. **Stable Version Reached and Ready to Merge to Main**
-   - Create a tag (e.g., 0.0.1) from your current feature branch.
-   - Update files to reflect the tag name (e.g., 0.0.1) (see "Change Branches").
-   - Merge from the feature branch into the main branch.
+  - Merge from the feature branch into the main branch.
+   - Create a tag (e.g., 0.0.1) from Main Branch
 
-6. **Version Passed Tests and Peer Review and is Ready for Production**
-   - Merge from the main branch into the production branch.
+6. **Version Passed Tests and Peer Review and is Ready for Staging**
+   - Merge from the main branch into the staging branch.
+    - Update files of the Staging Branch to reflect the tag you have created from Main Branch (e.g., 0.0.1) (see "Change Branches").
+   - Cluster access:
+     - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
+     - [http://betterclassroom-cluster.in.htwg-konstanz.de/api](http://betterclassroom-staging.in.htwg-konstanz.de:8080/api)
+7. **Version Passed Staging and the Production System is currently unused**
+    - Merge from the staging branch into the production branch.
+    - Update files of the Production Branch to reflect the tag name (e.g., 0.0.1) (see "Change Branches"). 
    - Cluster access:
      - [http://betterclassroom-cluster.in.htwg-konstanz.de/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
      - [http://betterclassroom-cluster.in.htwg-konstanz.de/api](http://betterclassroom-cluster.in.htwg-konstanz.de/api)
