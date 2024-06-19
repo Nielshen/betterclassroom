@@ -31,16 +31,13 @@ const editCourse = (e) => {
 
 function getTotalParticipants(course) {
     if (!course.exercises || !Array.isArray(course.exercises)) {
-        consok.log('No exercises found for course:', course)
         return 0
     }
 
     const totalParticipants = course.exercises.reduce((sum, exercise) => {
         if (exercise.participants && Array.isArray(exercise.participants)) {
-            console.log('Participants found for exercise:', exercise)
             return sum + exercise.participants.length
         }
-        console.log('No participants found for exercise:', exercise)
         return sum
     }, 0)
 

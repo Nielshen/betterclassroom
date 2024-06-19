@@ -15,7 +15,7 @@ export const useDataStore = defineStore('dataStore', () => {
     try {
       user.value = { id, table, role: 'student', help_requested: false, current_exercise: 1 }
       console.log('User value', user.value)
-      localStorage.setItem('user', JSON.stringify(user.value))
+      sessionStorage.setItem('user', JSON.stringify(user.value))
       console.log('Lokale Benutzerdaten gespeichert:', user.value)
       return true
     } catch (e) {
@@ -25,7 +25,7 @@ export const useDataStore = defineStore('dataStore', () => {
   }
 
   const checkUser = () => {
-    const userString = localStorage.getItem('user')
+    const userString = sessionStorage.getItem('user')
     console.log('Check user: ', userString)
     if (userString) {
       user.value = JSON.parse(userString)
@@ -37,7 +37,7 @@ export const useDataStore = defineStore('dataStore', () => {
   const updateUserField = (fieldName, fieldValue) => {
     if (fieldName in user.value && typeof fieldValue === typeof user.value[fieldName]) {
       user.value[fieldName] = fieldValue // Directly update the reactive property
-      localStorage.setItem('user', JSON.stringify(user.value)) // Update local storage to sync
+      sessionStorage.setItem('user', JSON.stringify(user.value)) // Update local storage to sync
       console.log(`Updated ${fieldName} in user data:`, user.value)
     } else {
       console.error(`Error: Type mismatch or invalid field ${fieldName}`)
@@ -45,19 +45,19 @@ export const useDataStore = defineStore('dataStore', () => {
   }
 
   const readUser = () => {
-    console.log('Reading user from localStorage')
-    const user = JSON.parse(localStorage.getItem('user'))
+    console.log('Reading user from sessionStorage')
+    const user = JSON.parse(sessionStorage.getItem('user'))
     if (user) {
       return user
     } else {
-      console.error('No user found in localStorage')
+      console.error('No user found in sessionStorage')
       return {}
     }
   }
 
   const deleteStudentLocally = () => {
     user.value = {}
-    localStorage.removeItem('user')
+    sessionStorage.removeItem('user')
     console.log({ user: !!user.value })
   }
 

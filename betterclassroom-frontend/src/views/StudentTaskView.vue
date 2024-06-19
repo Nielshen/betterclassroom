@@ -119,16 +119,25 @@ const deleteStudent = () => {
     } else {
       console.log('Student erfolgreich gelöscht:', response.success)
     }
-    // remove student from local storage and reset student_id
     dataStore.deleteStudentLocally()
     isAuth.value = false
     student_id.value = ''
+    help_requested.value = false
+    current_exercise.value = 1
   })
 }
 
 const loadUser = () => {
   if (dataStore.checkUser()) {
     console.log('User is authenticated')
+    const user = dataStore.readUser()
+    if (Object.keys(user).length != 0) {
+      console.log('Loaded user from sessionStorage:', user)
+      student_id.value = user.id
+      help_requested.value = user.help_requested
+      current_exercise.value = user.current_exercise - 1
+      reregisterSocket() 
+    }
     isAuth.value = true
   } else {
     console.log('User not authenticated', isAuth.value)
@@ -191,17 +200,10 @@ const reregisterSocket = () => {
   )
 }
 
+
 onBeforeMount(async () => {
-  loadUser()
   initSocket()
-  const user = dataStore.readUser()
-  if (Object.keys(user).length != 0) {
-    console.log('Loaded user from localStorage:', user)
-    student_id.value = user.id
-    help_requested.value = user.help_requested
-    current_exercise.value = user.current_exercise - 1
-    reregisterSocket()
-  }
+  loadUser()
   await loadTasks()
   await loadClassroom()
 })
