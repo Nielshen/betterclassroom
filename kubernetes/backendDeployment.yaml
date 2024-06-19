@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: mein-backend
-          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:main #TODO: set to current feature branch name or on production and main to image tag name
+          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:52-reload-nicht-auf-erste-aufgabe-zuruck #TODO: set to current feature branch name or on production and main to image tag name
           imagePullPolicy: Always
           ports:
             - containerPort: 5000

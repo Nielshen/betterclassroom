@@ -1,61 +1,76 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import axios from 'axios'
-import { getApiUrl } from '@/utils/common'
-const rawUrl = getApiUrl()
-const api_url = `http://${rawUrl}/api`
+
 export const useDataStore = defineStore('dataStore', () => {
-    const user = ref({})
+  const user = ref({})
+  const isStudent = computed(() => user.value.role === 'student')
+  const isLoggedIn = computed(() => !!user.value.role)
+  const dashboardData = ref([])
 
-    const isStudent = computed(() => user.value.role === 'student')
-    const isLoggedIn = computed(() => !!user.value.role)
+  const initStudent = () => {
+    user.value = { role: 'student' }
+  }
 
-    const dashboardData = ref([])
-
-    const saveStudent = async ({ id, table,courseId }) => {
-        try{
-            const result = await axios.post(`${api_url}/students`, { course: courseId, id, table })
-            console.log(result)
-            user.value = { id, table,  role: 'student' }
-            localStorage.setItem('user', JSON.stringify(user.value))
-            return true
-        } catch(e){
-            console.error(e)
-            return false
-        }
-
+  const saveStudentLocally = ({ id, table, course }) => {
+    try {
+      user.value = { id, table, role: 'student', help_requested: false, current_exercise: 1 }
+      console.log('User value', user.value)
+      localStorage.setItem('user', JSON.stringify(user.value))
+      console.log('Lokale Benutzerdaten gespeichert:', user.value)
+      return true
+    } catch (e) {
+      console.error('Error saving student to local storage: ', e)
+      return false
     }
+  }
 
-    const initStudent = () => {
-        user.value = { role: 'student' }
+  const checkUser = () => {
+    const userString = localStorage.getItem('user')
+    console.log('Check user: ', userString)
+    if (userString) {
+      user.value = JSON.parse(userString)
+      return true
     }
+    return false
+  }
 
-    const deleteStudent = async () => {
-        const oldId = user.value.id
-        user.value = {}
-        localStorage.removeItem('user')
-        try{
-        const result = axios.delete(`${api_url}/students/${oldId}`)
-        console.log({ user: !!user.value })
-            return true
-        } catch(e){
-            console.error(e)
-        console.log({ user: user.value })
-            return false
-        }
+  const updateUserField = (fieldName, fieldValue) => {
+    if (fieldName in user.value && typeof fieldValue === typeof user.value[fieldName]) {
+      user.value[fieldName] = fieldValue // Directly update the reactive property
+      localStorage.setItem('user', JSON.stringify(user.value)) // Update local storage to sync
+      console.log(`Updated ${fieldName} in user data:`, user.value)
+    } else {
+      console.error(`Error: Type mismatch or invalid field ${fieldName}`)
     }
+  }
 
-    const checkUser = () => {
-        console.log('checkUser')
-        const userString = localStorage.getItem('user')
-        if (userString) {
-            user.value = JSON.parse(userString)
-            return true
-        }
-        return false
+  const readUser = () => {
+    console.log('Reading user from localStorage')
+    const user = JSON.parse(localStorage.getItem('user'))
+    if (user) {
+      return user
+    } else {
+      console.error('No user found in localStorage')
+      return {}
     }
+  }
 
+  const deleteStudentLocally = () => {
+    user.value = {}
+    localStorage.removeItem('user')
+    console.log({ user: !!user.value })
+  }
 
-    return { user, isStudent, isLoggedIn, dashboardData ,saveStudent, deleteStudent, checkUser, initStudent}
-
+  return {
+    user,
+    isStudent,
+    isLoggedIn,
+    dashboardData,
+    initStudent,
+    saveStudentLocally,
+    checkUser,
+    updateUserField,
+    readUser,
+    deleteStudentLocally
+  }
 })

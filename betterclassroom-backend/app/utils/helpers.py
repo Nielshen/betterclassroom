@@ -24,6 +24,23 @@ def validate_request(model: BaseModel):
     return decorator
 
 
+def validate_socket_request(model: BaseModel):
+    def decorator(func):
+        def wrapper(self, json):
+            try:
+                validated_data = model(**json)
+            except ValidationError as e:
+                return {"error": str(e)}
+            except TypeError:
+                return {"error": "No valid data provided"}
+            return func(self, validated_data)
+
+        wrapper.__name__ = f"validate_{func.__name__}"
+        return wrapper
+
+    return decorator
+
+
 def to_boolean(value):
     """Converts a string that is 'true' or 'false' to a boolean value, otherwise returns the value unchanged."""
     if isinstance(value, str):
@@ -32,11 +49,6 @@ def to_boolean(value):
         elif value.lower() == "false":
             return False
     return value
-
-
-def generate_professor_id(professor_repo) -> int:
-    professorCount = professor_repo.get_collection().count_documents({})
-    return professorCount + 1
 
 
 def createO201(classroom_repo):
@@ -69,4 +81,4 @@ def createO301(classroom_repo):
 
 
 def createProfEigslperger(professor_repo):
-    professor_repo.save(Professor(id=1, name="Prof. Dr. Eigslperger"))
+    professor_repo.save(Professor(id="Prof. Dr. Markus Eiglsperger"))
