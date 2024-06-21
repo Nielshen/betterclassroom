@@ -10,13 +10,14 @@ from app.db_models import (
     ProfessorRepository,
 )
 from app.utils.helpers import createO201, createO301, createProfEigslperger
+import os
 
 socketio = SocketIO(
     cors_allowed_origins="*",
     logger=True,
     engineio_logger=True,
     async_mode="eventlet",
-    path="/api/socket.io"
+    path="/api/socket.io",
 )
 
 
@@ -27,9 +28,11 @@ def create_app():
 
     logging.basicConfig(level=logging.DEBUG)
 
-    connection = "mongodb://mongodb.betterclassroom.svc.cluster.local:27017/"
-    # connection = "mongodb://127.0.0.1:27017/"
+    # fmt: off
+    connection = "mongodb://127.0.0.1:27017/" if os.getenv("BETTERCLASSROOM_LOCAL") else "mongodb://mongodb.betterclassroom.svc.cluster.local:27017/"
+    # fmt: on
     logging.info("MongoDB connection string: %s", connection)
+
     client = MongoClient(connection)
 
     try:

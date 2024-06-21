@@ -1,7 +1,7 @@
 from flask import Blueprint, request, Response, jsonify
 from pydantic import ValidationError
 from app.db_models import Student
-from app import students_repo, course_repo, socketio
+from app import students_repo, course_repo
 from app.utils.helpers import validate_request, to_boolean
 import logging
 
@@ -17,29 +17,42 @@ def handle_students(data):
         all_students = list(students_repo.get_collection().find({}))
         return all_students
     elif request.method == "POST":
-        course = course_repo.get_collection().find_one(
-            {"_id": data["course"]}, {"_id": 1}
-        )
+        course = course_repo.find_one_by_id(data["course"])
         if not course:
             return Response("Course not found", 404)
+
+        exercise = next(
+            (ex for ex in course.exercises if ex.id == data["exercise"]), None
+        )
+        if not exercise:
+            return Response("Exercise not found", 404)
+
+        student = students_repo.find_one_by_id(data["id"])
+        if student:
+            return Response("Student with this ID already exists.", 400)
+
         students_repo.save(
             Student(
                 id=data["id"],
                 table=data["table"],
                 course=data["course"],
+                exercise=data["exercise"],
             )
         )
+
         course_repo.get_collection().update_one(
-            {"_id": data["course"]},
-            {"$addToSet": {"participants": data["id"]}},
+            {"_id": data["course"], "exercises.id": data["exercise"]},
+            {"$addToSet": {"exercises.$.participants": data["id"]}},
         )
+
         data["_id"] = data.pop("id")
         data["action"] = "add"
-        socketio.emit("student", {"data": data}, namespace="/student")
-        return Response("Student inserted successfully", status=201)
+        return Response("Student added successfully", status=201)
     elif request.method == "DELETE":
         students_repo.get_collection().delete_many({})
-        course_repo.get_collection().update_many({}, {"$set": {"participants": []}})
+        course_repo.get_collection().update_many(
+            {}, {"$set": {"exercises.$[].participants": []}}
+        )
         return Response("All students deleted successfully", 200)
 
 
@@ -55,23 +68,10 @@ def handle_student(student_id):
         if not student:
             return Response("Student not found", 404)
         course_repo.get_collection().update_one(
-            {"_id": student.course},
-            {"$pull": {"participants": student.id}},
+            {"_id": student.course, "exercises.id": student.exercise},
+            {"$pull": {"exercises.$.participants": student.id}},
         )
         students_repo.delete_by_id(student.id)
-
-        socketio.emit(
-            "student",
-            {
-                "data": {
-                    "action": "delete",
-                    "_id": student.id,
-                    "table": student.table,
-                }
-            },
-            namespace="/student",
-        )
-
         return Response("Student deleted successfully", 200)
 
 
@@ -112,17 +112,6 @@ def handle_student_progress(student_id):
             students_repo.get_collection().update_one(
                 {"_id": student_id}, {"$set": {"progress": progress_data}}
             )
-            socketio.emit(
-                "progress",
-                {
-                    "data": {
-                        "_id": student_id,
-                        "progress": progress_data,
-                        "table": student.table,
-                    }
-                },
-                namespace="/student",
-            )
             return Response("Progress updated successfully", 200)
 
         if not isinstance(progress_data.get("current_exercise"), int):
@@ -133,17 +122,6 @@ def handle_student_progress(student_id):
         students_repo.get_collection().update_one(
             {"_id": student_id},
             {"$set": {"current_exercise": progress_data.get("current_exercise")}},
-        )
-        socketio.emit(
-            "progress",
-            {
-                "data": {
-                    "_id": student_id,
-                    "current_exercise": progress_data.get("current_exercise"),
-                    "table": student.table,
-                }
-            },
-            namespace="/student",
         )
         return Response("Progress updated successfully", 200)
 
@@ -164,15 +142,4 @@ def handle_help(student_id):
             {"_id": student_id},
             {"$set": {"help_requested": not student.help_requested}},
         )
-        socketio.emit(
-            "help",
-            {
-                "data": {
-                    "_id": student_id,
-                    "help_requested": not student.help_requested,
-                    "table": student.table,
-                }
-            },
-            namespace="/student",
-        )
-        return Response("Help status updated successfully", 200)
+        return Response("Help requested updated successfully", 200)

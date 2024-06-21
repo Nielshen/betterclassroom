@@ -24,19 +24,6 @@ const loadOldCourse = async (id) => {
   }
 }
 
-const loadProfessorId = async (professorName) => {
-  try {
-    const response = await axios.get(`${api_url}/professor?name=${professorName}`)
-    if (response.data && response.data.length > 0) {
-      return response.data[0]._id
-    } else {
-      return null
-    }
-  } catch (error) {
-    console.error(error)
-    return null
-  }
-}
 
 const title = ref('')
 const courseName = ref('')
@@ -49,11 +36,10 @@ const isEditMode = ref('')
 
 const pushCourse = async ({ oldId, description, professor, classroom }) => {
   const id = oldId || uuidv4()
-  const professorId = await loadProfessorId(professor)
   try {
     const result = await axios.post(`${api_url}/course`, {
       id,
-      professor: professorId,
+      professor: professor,
       description,
       classroom
     })
@@ -83,7 +69,7 @@ const save = async () => {
       .catch((err) => {
         alert('Error', err)
       })
-  }
+  } else {
   // course exists do put
   try {
     await axios.put(`${api_url}/course/${courseName.value}`, {
@@ -94,6 +80,7 @@ const save = async () => {
     console.log(error)
   }
   router.push('/courses')
+  }
 }
 
 const deleteCourse = async (courseId) => {
@@ -141,7 +128,7 @@ onBeforeMount(async () => {
   } else {
     title.value = 'Kurs erstellen'
     createButton.value = 'Erstellen'
-    professorId.value = await loadProfessorId('Prof. Dr. Eiglsperger')
+    professorId.value = 'Prof. Dr. Markus Eiglsperger'
     isEditMode.value = false
   }
 })
@@ -164,7 +151,7 @@ const startTask = async (taskId) => {
   const courseLink = `${window.location.host}/student/${courseId}/${taskId}`
 
   try {
-    await axios.post(`${api_url}/course/${courseId}/start`)
+    await axios.post(`${api_url}/course/${courseId}/exercise/${taskId}/start`)
     alert(`Kurs gestartet: ${courseLink}`)
     router.push(`/dashboard/${courseId}/${taskId}`)
   } catch (error) {

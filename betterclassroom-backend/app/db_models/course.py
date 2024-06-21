@@ -17,17 +17,16 @@ class Exercise(BaseModel):
     exercises: List[SubExercise] = Field(
         default_factory=list
     )  # in sub_exercises umbenennen für übersicht?
+    participants: List[str] = Field(default_factory=list)  # str ist student id
+    is_active: bool = False
 
 
 class Course(BaseModel):
     id: str
     description: str
     exercises: List[Exercise] = Field(default_factory=list)
-    participants: List[str] = Field(default_factory=list)  # str ist student id
-    # Participants in Exercise ? 
-    # Wie studenten aus liste löschen by ref?
     classroom: str
-    professor: int
+    professor: str
 
 
 class CourseRepository(AbstractRepository[Course]):

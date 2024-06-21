@@ -43,7 +43,11 @@ const loadOldTask = async (id) => {
 
 // Aufgabenmethoden
 const createExercise = async () => {
-  const id = taskName.value || uuidv4()
+  const id = taskName.value
+  if (!id) {
+    alert("Keine Aufgaben-ID")
+    return
+  }
   try {
     const result = await axios.post(`${api_url}/course/${courseId}/exercise`, {
       id: id,
@@ -112,7 +116,11 @@ const deleteTask = async (taskId) => {
 
 // Unteraufgabenmethoden
 const createSubTask = async () => {
-  const id = subtaskName.value || uuidv4()
+  const id = subtaskName.value
+  if (!id) {
+    alert("Keine Unteraufgaben-ID")
+    return
+  }
   const description = subtask.value.replace(/\r?\n/g, '\\n')
 
   subExercises.value.push({ id: id, description: description })

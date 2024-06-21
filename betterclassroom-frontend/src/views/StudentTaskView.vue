@@ -1,27 +1,36 @@
 <script setup>
 import { onBeforeMount, ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import TaskView from './TaskView.vue'
 import axios from 'axios'
-import { v4 as uuidv4 } from 'uuid'
 import { getApiUrl } from '@/utils/common'
 import { io } from 'socket.io-client'
 import { useDataStore } from '../stores/dataStore'
 
 const dataStore = useDataStore()
-
 const route = useRoute()
 
 const courseId = route.params.courseId
 const exerciseId = route.params.taskId
 
-const description = ref('')
-const tasks = ref([])
-
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
 const wsUrl = `ws://${rawUrl}/student`
+
+let socket = null
+
+const description = ref('')
+const tasks = ref([])
+const isAuth = ref(false)
+const seat = ref('')
+const studentName = ref('')
+const student_id = ref('')
+const current_exercise = ref(0)
+const help_requested = ref(false)
+const width = ref(-1)
+const height = ref(-1)
+const w_ = computed(() => Array.from({ length: width.value }, (_, i) => i))
+const h_ = computed(() => Array.from({ length: height.value }, (_, i) => i))
 
 const loadTasks = async () => {
   const response = await axios.get(`${api_url}/course/${courseId}/exercise`)
@@ -34,53 +43,108 @@ const loadTasks = async () => {
 }
 
 const changeIndex = async (index) => {
-  const data = {
-    current_exercise: index + 1
-  }
-  await axios.post(`${api_url}/students/${dataStore.user.id}/progress`, {
-    ...data
+  socket.emit(
+    'update_progress',
+    { id: dataStore.user.id, current_exercise: index + 1 },
+    function (response) {
+      if (response.error) {
+        console.error('Fehler beim Aktualisieren des Fortschritts:', response.error)
+      } else {
+        console.log('Fortschritt erfolgreich aktualisiert:', response.success, index + 1)
+        dataStore.updateUserField('current_exercise', index + 1)
+        current_exercise.value = index
+      }
+    }
+  )
+}
+
+const raisedHand = async () => {
+  socket.emit('help', { id: dataStore.user.id }, function (response) {
+    if (response.error) {
+      console.error(
+        'Fehler beim Anfordern von Hilfe:',
+        response.error,
+        dataStore.user.id,
+        dataStore.user.help_requested
+      )
+    } else {
+      console.log(
+        'Hilfe erfolgreich angefordert:',
+        response.success,
+        dataStore.user.id,
+        dataStore.user.help_requested
+      )
+    }
   })
 }
 
-const raisedHand = async ({ student_id, help_requested }) => {
-  if (dataStore.user.id === student_id) {
-    console.log('Hand raised', help_requested)
-    await axios.post(`${api_url}/students/${dataStore.user.id}/help`, { help_requested })
+const studentAuth = () => {
+  const studentData = {
+    id: studentName.value,
+    table: seat.value,
+    course: courseId,
+    exercise: exerciseId
   }
-}
+  socket.emit(
+    'student_register',
+    { course: courseId, exercise: exerciseId, student: studentName.value },
+    function (response) {
+      if (response.error) {
+        console.error('Fehler beim Registrieren:', response.error)
+      } else {
+        console.log('Erfolgreich registriert:', response.success)
+      }
+    }
+  )
 
-const isAuth = ref(false)
-watch(dataStore.isStudent, (value) => {
-  isAuth.value = value
-})
-
-const seat = ref('')
-const studentName = ref('')
-
-const studentAuth = async () => {
-  if (await dataStore.saveStudent({ id: studentName.value, table: seat.value, courseId })) {
-    isAuth.value = true
-  } else {
-    isAuth.value = false
-  }
+  console.log('Emitting new_student', studentData)
+  socket.emit('new_student', studentData, function (response) {
+    if (response.error) {
+      console.error('Fehler beim Hinzufügen des Studenten:', response.error)
+      isAuth.value = false
+    } else {
+      console.log('Student erfolgreich hinzugefügt:', response.success)
+      dataStore.saveStudentLocally(studentData)
+      console.log('studentAuth: student_id ref:', dataStore.user.id)
+      student_id.value = dataStore.user.id
+      isAuth.value = true
+    }
+  })
 }
 
 const deleteStudent = () => {
-  dataStore.deleteStudent()
-  isAuth.value = false
+  socket.emit('delete_student', { id: dataStore.user.id }, function (response) {
+    if (response.error) {
+      console.error('Fehler beim Löschen des Studenten:', response.error)
+    } else {
+      console.log('Student erfolgreich gelöscht:', response.success)
+    }
+    dataStore.deleteStudentLocally()
+    isAuth.value = false
+    student_id.value = ''
+    help_requested.value = false
+    current_exercise.value = 1
+  })
 }
 
 const loadUser = () => {
   if (dataStore.checkUser()) {
     console.log('User is authenticated')
+    const user = dataStore.readUser()
+    if (Object.keys(user).length != 0) {
+      console.log('Loaded user from sessionStorage:', user)
+      student_id.value = user.id
+      help_requested.value = user.help_requested
+      current_exercise.value = user.current_exercise - 1
+      reregisterSocket() 
+    }
     isAuth.value = true
   } else {
+    console.log('User not authenticated', isAuth.value)
     dataStore.initStudent()
+    isAuth.value = false
   }
 }
-
-const width = ref(-1)
-const height = ref(-1)
 
 const loadClassroom = async () => {
   const { data } = await axios.get(`${api_url}/classroom`)
@@ -100,41 +164,67 @@ const getSeat = (n, m, width, print = true) => {
   return n * width + m + 1
 }
 
-const w_ = computed(() => Array.from({ length: width.value }, (_, i) => i))
-const h_ = computed(() => Array.from({ length: height.value }, (_, i) => i))
-
-onBeforeMount(async () => {
-  initSockets()
-  loadUser()
-  await loadTasks()
-  await loadClassroom()
-})
-
-const help_requested = ref(false)
-const student_id = ref('')
-
-const initSockets = () => {
-  const socket = io(wsUrl, {
+const initSocket = () => {
+  socket = io(wsUrl, {
     path: '/api/socket.io/student',
     transports: ['websocket']
   })
 
+  socket.on('connect', () => {
+    console.log('Connected to Socket')
+  })
+
+  socket.on('disconnect', () => {
+    console.log('Disconnected from Socket')
+  })
+
   socket.on('help', (data) => {
     console.log('Socket Event: Help requested', data.data.help_requested, data.data._id)
-    if (data.data._id === dataStore.user.id) {
-      help_requested.value = data.data.help_requested
-    }
-    student_id.value = data.data._id
+    dataStore.updateUserField('help_requested', data.data.help_requested)
+    console.log('help_requested ref:', data.data.help_requested)
+    help_requested.value = dataStore.user.help_requested
   })
 }
+
+const reregisterSocket = () => {
+  socket.emit(
+    'student_register',
+    { course: courseId, exercise: exerciseId, student: student_id.value },
+    function (response) {
+      if (response.error) {
+        console.error('Fehler beim Registrieren:', response.error)
+      } else {
+        console.log('Erfolgreich registriert:', response.success)
+      }
+    }
+  )
+}
+
+
+onBeforeMount(async () => {
+  initSocket()
+  loadUser()
+  await loadTasks()
+  await loadClassroom()
+})
 </script>
 <template>
   <div class="h-full">
     <div v-if="!isAuth">
       <div class="flex flex-col justify-center items-center mt-5">
         <div>
-          <input type="text" v-model="studentName" placeholder="Name" class="input input-bordered m-2 max-w-xs" />
-          <input type="text" v-model="seat" placeholder="Sitzplatz" class="input input-bordered m-2 max-w-xs" />
+          <input
+            type="text"
+            v-model="studentName"
+            placeholder="Name"
+            class="input input-bordered m-2 max-w-xs"
+          />
+          <input
+            type="text"
+            v-model="seat"
+            placeholder="Sitzplatz"
+            class="input input-bordered m-2 max-w-xs"
+          />
         </div>
         <div class="border">
           <div class="flex flex-col justify-center items-center">
@@ -142,9 +232,13 @@ const initSockets = () => {
               <p class="text-xl">Tafel</p>
             </div>
             <div v-for="n in h_" :key="n" class="flex flex-row justify-center">
-              <div :id="getSeat(n, m, width, false)" v-for="m in w_" :key="m"
+              <div
+                :id="getSeat(n, m, width, false)"
+                v-for="m in w_"
+                :key="m"
                 class="rounded-lg w-[200px] h-[55px] cursor-pointer bg-primary m-1 hover:bg-secondary hover:text-black text-l text-center text-white"
-                @click="clickOnSeat">
+                @click="clickOnSeat"
+              >
                 {{ getSeat(n, m, width) }}
               </div>
             </div>
@@ -158,8 +252,14 @@ const initSockets = () => {
         <h1 class="ml-4">{{ dataStore.user.id }}</h1>
         <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary mr-4">Abmelden</button>
       </div>
-      <TaskView :key="studend_id" :student_id="dataStore.user.id" :help_requested="help_requested" :tasks="tasks" @idxChange="changeIndex"
-        @raisedHand="raisedHand" />
+      <TaskView
+        :key="student_id"
+        :tasks="tasks"
+        :help_requested="help_requested"
+        :current_exercise="current_exercise"
+        @idxChange="changeIndex"
+        @raisedHand="raisedHand"
+      />
     </div>
   </div>
 </template>
