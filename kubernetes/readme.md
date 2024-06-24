@@ -148,7 +148,7 @@ http://betterclassroom-cluster.in.htwg-konstanz.de/api/<API ROUTE>
     - Update files of the main branch to "main" (see "Change Branches")
     - Staging Cluster access:
       - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
-      - [http://betterclassroom-cluster.in.htwg-konstanz.de/api](http://betterclassroom-staging.in.htwg-konstanz.de:8080/api)
+      - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/api](http://betterclassroom-staging.in.htwg-konstanz.de:8080/api)
 
 6. **Version Passed Staging and the Production System is currently unused**
     - Create a tag (e.g., 0.0.1) from **main** branch
