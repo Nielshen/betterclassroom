@@ -145,7 +145,8 @@ http://betterclassroom-cluster.in.htwg-konstanz.de/api/<API ROUTE>
 
 5. **Stable Version Reached, Version passed Tests and Peer Review**
     - Merge from **feature** branch into **main** branch.
-    - Update files of the main branch to "main" (see "Change Branches")
+    - Create a tag (e.g., 0.0.1) from **main** branch
+    - Update files of the Production Branch to reflect the tag name (e.g., 0.0.1) (see "Change Branches"). 
     - Staging Cluster access:
       - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
       - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/api](http://betterclassroom-staging.in.htwg-konstanz.de:8080/api)
