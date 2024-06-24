@@ -54,7 +54,7 @@ function getTotalParticipants(course) {
             <table class="table-lg">
                 <thead>
                     <tr>
-                        <th>Kurs</th>
+                        <th>Kurs TEST</th>
                         <th>Raum</th>
                         <th>Teilnehmer</th>
                     </tr>
