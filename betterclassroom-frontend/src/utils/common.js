@@ -13,7 +13,7 @@ const getApiUrl = (logging = false) => {
     } else if (hostname === 'betterclassroom-staging.in.htwg-konstanz.de') {
         return stagingUrl
     } else {
-        return prodUrl //  betterclassroom-cluster.in.htwg-konstanz.de
+        return prodUrl //  betterclassroom.in.htwg-konstanz.de
     }
 
 }

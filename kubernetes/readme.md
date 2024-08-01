@@ -119,9 +119,9 @@ http://betterclassroom-staging.in.htwg-konstanz.de:8080/api/<API ROUTE>
 
 - Better Classrooms production is accessible under
 
-http://betterclassroom-cluster.in.htwg-konstanz.de/
+http://betterclassroom.in.htwg-konstanz.de/
 
-http://betterclassroom-cluster.in.htwg-konstanz.de/api/<API ROUTE>
+http://betterclassroom.in.htwg-konstanz.de/api/<API ROUTE>
 
 
 ### Merge Process from local Feature Branch -> Staging System -> Production System
@@ -148,7 +148,7 @@ http://betterclassroom-cluster.in.htwg-konstanz.de/api/<API ROUTE>
     - Create a tag (e.g., 0.0.1) from **main** branch
     - Update files of the Main Branch to reflect the tag name (e.g., 0.0.1) (see "Change Branches"). 
     - Staging Cluster access:
-      - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
+      - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/](http://betterclassroom.in.htwg-konstanz.de/)
       - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/api](http://betterclassroom-staging.in.htwg-konstanz.de:8080/api)
 
 6. **Version Passed Staging and the Production System is currently unused**
@@ -156,14 +156,14 @@ http://betterclassroom-cluster.in.htwg-konstanz.de/api/<API ROUTE>
     - Merge from **main** branch into **production** branch.
     - Update files of the Production Branch to reflect the tag name (e.g., 0.0.1) (see "Change Branches"). 
    - Production Cluster access:
-     - [http://betterclassroom-cluster.in.htwg-konstanz.de/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
-     - [http://betterclassroom-cluster.in.htwg-konstanz.de/api](http://betterclassroom-cluster.in.htwg-konstanz.de/api)
+     - [http://betterclassroom.in.htwg-konstanz.de/](http://betterclassroom.in.htwg-konstanz.de/)
+     - [http://betterclassroom.in.htwg-konstanz.de/api](http://betterclassroom.in.htwg-konstanz.de/api)
 
 ### How to test WebSockets in Production
 
 e.g test student_socket:
 
-ws://betterclassroom-cluster.in.htwg-konstanz.de/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student
+ws://betterclassroom.in.htwg-konstanz.de/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student
 ```<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -174,7 +174,7 @@ ws://betterclassroom-cluster.in.htwg-konstanz.de/api/socket.io/?EIO=4&transport=
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Verbindung zum SocketIO Server mit spezifischen Optionen und Namespace
-            const socket = io('ws://betterclassroom-cluster.in.htwg-konstanz.de/student', {
+            const socket = io('ws://betterclassroom.in.htwg-konstanz.de/student', {
                 path: '/api/socket.io',
                 transports: ['websocket']
             });
