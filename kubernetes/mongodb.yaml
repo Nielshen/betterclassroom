@@ -27,9 +27,5 @@ spec:
       interval: 5m
   releaseName: mongodb
   values:
-    #image:
-     # tag: "4.4.29"  # MongoDB-Version
     auth:
       enabled: false #enable auth in Production
- #   username: admin
-  #  password: admin

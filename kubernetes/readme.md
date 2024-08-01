@@ -88,7 +88,7 @@ betterclassroom/kubernetes
 ```kubectl delete -f backendDeployment.yaml```
 
 ```kubectl apply -f backendDeployment.yaml```
-### Change Branches
+### Change Branches local
 1. change Flux Branch
 
 ```export EDITOR=nano```
@@ -107,17 +107,26 @@ port forward
 Note: ```kubectl port-forward``` does not return. To continue, you will need to open another terminal.
 
 ``mongo --host 127.0.0.1 --port 27017``
+### Access Staging HTWG VM
+
+- Better Classrooms staging is accessible under
+
+http://betterclassroom-staging.in.htwg-konstanz.de:8080/
+
+http://betterclassroom-staging.in.htwg-konstanz.de:8080/api/<API ROUTE>
+
 ### Access Production HTWG VM
 
-- Better Classrooms production should be accessible under
+- Better Classrooms production is accessible under
 
-http://betterclassroom-cluster.in.htwg-konstanz.de/
+http://betterclassroom.in.htwg-konstanz.de/
 
-http://betterclassroom-cluster.in.htwg-konstanz.de/api
+http://betterclassroom.in.htwg-konstanz.de/api/<API ROUTE>
 
-### Merge Process from Feature Branch to Production Branch
 
-1. **Create Feature Branch from Main**
+### Merge Process from local Feature Branch -> Staging System -> Production System
+
+1. **Create Feature Branch From Main**
    - Create a new feature branch from the main branch.
 
 2. **Set Files to Current Feature Branch Name**
@@ -129,27 +138,32 @@ http://betterclassroom-cluster.in.htwg-konstanz.de/api
 4. **Test Changes in Local Cluster**
    - Test the changes in the local cluster.
    - Commit changes to the feature branch.
-   - The local cluster updates automatically, or you can update it manually (see "Manually Delete and Apply New Versions").
-   - Cluster access:
+   - The local cluster updates automatically after push to Git, or you can update it manually (see "Manually Delete and Apply New Versions").
+   - Local Cluster access:
      - [http://better-classroom.com:8088/](http://better-classroom.com:8088/)
      - [http://better-classroom.com:8088/api](http://better-classroom.com:8088/api)
 
-5. **Stable Version Reached and Ready to Merge to Main**
-   - Create a tag (e.g., 0.0.1) from your current feature branch.
-   - Update files to reflect the tag name (e.g., 0.0.1) (see "Change Branches").
-   - Merge from the feature branch into the main branch.
+5. **Stable Version Reached, Version passed Tests and Peer Review**
+    - Merge from **feature** branch into **main** branch.
+    - Create a tag (e.g., 0.0.1) from **main** branch
+    - Update files of the Main Branch to reflect the tag name (e.g., 0.0.1) (see "Change Branches"). 
+    - Staging Cluster access:
+      - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/](http://betterclassroom.in.htwg-konstanz.de/)
+      - [http://betterclassroom-staging.in.htwg-konstanz.de:8080/api](http://betterclassroom-staging.in.htwg-konstanz.de:8080/api)
 
-6. **Version Passed Tests and Peer Review and is Ready for Production**
-   - Merge from the main branch into the production branch.
-   - Cluster access:
-     - [http://betterclassroom-cluster.in.htwg-konstanz.de/](http://betterclassroom-cluster.in.htwg-konstanz.de/)
-     - [http://betterclassroom-cluster.in.htwg-konstanz.de/api](http://betterclassroom-cluster.in.htwg-konstanz.de/api)
+6. **Version Passed Staging and the Production System is currently unused**
+    - Create a tag (e.g., 0.0.1) from **main** branch
+    - Merge from **main** branch into **production** branch.
+    - Update files of the Production Branch to reflect the tag name (e.g., 0.0.1) (see "Change Branches"). 
+   - Production Cluster access:
+     - [http://betterclassroom.in.htwg-konstanz.de/](http://betterclassroom.in.htwg-konstanz.de/)
+     - [http://betterclassroom.in.htwg-konstanz.de/api](http://betterclassroom.in.htwg-konstanz.de/api)
 
 ### How to test WebSockets in Production
 
 e.g test student_socket:
 
-ws://betterclassroom-cluster.in.htwg-konstanz.de/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student
+ws://betterclassroom.in.htwg-konstanz.de/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student
 ```<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -160,7 +174,7 @@ ws://betterclassroom-cluster.in.htwg-konstanz.de/api/socket.io/?EIO=4&transport=
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Verbindung zum SocketIO Server mit spezifischen Optionen und Namespace
-            const socket = io('ws://betterclassroom-cluster.in.htwg-konstanz.de/student', {
+            const socket = io('ws://betterclassroom.in.htwg-konstanz.de/student', {
                 path: '/api/socket.io',
                 transports: ['websocket']
             });

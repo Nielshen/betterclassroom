@@ -3,7 +3,6 @@ from app.db_models.course import Course, Exercise, SubExercise
 from app.utils.helpers import validate_request
 from app import course_repo, professor_repo, classroom_repo, students_repo
 
-
 course_bp = Blueprint("course", __name__)
 
 
@@ -21,6 +20,8 @@ def handle_courses(data):
         classroom_data = classroom_repo.find_one_by({"id": data["classroom"]})
         if classroom_data is None:
             return Response("Classroom not found", 404)
+        if course_repo.find_one_by_id(data["id"]):
+            return Response("Course with this ID already exists", 400)
 
         course_repo.save(
             Course(
@@ -42,6 +43,7 @@ def handle_course(course_id):
         return course
     elif request.method == "DELETE":
         course_repo.get_collection().delete_one({"_id": course_id})
+        students_repo.get_collection().delete_many({"course": course_id})
         return Response("Course deleted successfully", 200)
     elif request.method == "PUT":
         data = request.get_json()
@@ -80,20 +82,33 @@ def handle_course(course_id):
         return Response("No data provided", 400)
 
 
-@course_bp.route("/api/course/<course_id>/students", methods=["GET", "DELETE"])
-def get_students(course_id):
-    course = course_repo.get_collection().find_one({"_id": course_id})
+@course_bp.route(
+    "/api/course/<course_id>/exercise/<exercise_id>/students", methods=["GET", "DELETE"]
+)
+def get_students(course_id, exercise_id):
+    course = course_repo.find_one_by_id(course_id)
     if not course:
         return Response("Course not found", 404)
 
+    exercise = next((ex for ex in course.exercises if ex.id == exercise_id), None)
+    if not exercise:
+        return Response("Exercise not found", 404)
+
     if request.method == "GET":
-        students = list(students_repo.get_collection().find({"course": course_id}))
+        students = list(
+            students_repo.get_collection().find(
+                {"course": course_id, "exercise": exercise_id}
+            )
+        )
         return students
 
     elif request.method == "DELETE":
-        students_repo.get_collection().delete_many({"course": course_id})
+        students_repo.get_collection().delete_many(
+            {"course": course_id, "exercise": exercise_id}
+        )
         course_repo.get_collection().update_one(
-            {"_id": course_id}, {"$set": {"participants": []}}
+            {"_id": course_id, "exercises.id": exercise_id},
+            {"$set": {"exercises.$.participants": []}},
         )
         return Response("Students in course deleted successfully", 200)
 
@@ -121,33 +136,48 @@ def handle_exercises(course_id, data):
             return Response("Course not found", 404)
         if any(ex["id"] == data["id"] for ex in course.get("exercises", [])):
             return Response("An exercise with this ID already exists.", 400)
+
+        data["is_active"] = False
+        data["participants"] = []
+
         course_repo.get_collection().update_one(
             {"_id": course_id}, {"$push": {"exercises": data}}
         )
         return Response("Exercise added successfully", 201)
 
 
-@course_bp.route("/api/course/<course_id>/start", methods=["POST"])
-def start_course(course_id):
-    course = course_repo.get_collection().find_one({"_id": course_id})
+@course_bp.route(
+    "/api/course/<course_id>/exercise/<exercise_id>/start", methods=["POST"]
+)
+def start_course(course_id, exercise_id):
+    course = course_repo.find_one_by_id(course_id)
     if not course:
         return Response("Course not found", 404)
-    # Setze den Kursstatus auf 'aktiv'
+    exercise = next((ex for ex in course.exercises if ex.id == exercise_id), None)
+    if not exercise:
+        return Response("Exercise not found", 404)
     course_repo.get_collection().update_one(
-        {"_id": course_id}, {"$set": {"is_active": True}}
+        {"_id": course_id, "exercises.id": exercise_id},
+        {"$set": {"exercises.$.is_active": True}},
     )
     return Response("Course started successfully", 200)
 
 
-# Endpunkt zum Beenden des Kurses
-@course_bp.route("/api/course/<course_id>/close", methods=["POST"])
-def close_course(course_id):
-    course = course_repo.get_collection().find_one({"_id": course_id})
+@course_bp.route(
+    "/api/course/<course_id>/exercise/<exercise_id>/close", methods=["POST"]
+)
+def close_course(course_id, exercise_id):
+    course = course_repo.find_one_by_id(course_id)
     if not course:
         return Response("Course not found", 404)
-    # Setze den Kursstatus auf 'inaktiv'
+
+    exercise = next((ex for ex in course.exercises if ex.id == exercise_id), None)
+    if not exercise:
+        return Response("Exercise not found", 404)
+
     course_repo.get_collection().update_one(
-        {"_id": course_id}, {"$set": {"is_active": False}}
+        {"_id": course_id, "exercises.id": exercise_id},
+        {"$set": {"exercises.$.is_active": False}},
     )
     return Response("Course closed successfully", 200)
 
@@ -172,6 +202,9 @@ def handle_exercises_two(course_id, exercise_id, data):
         return sub_exercises
 
     elif request.method == "POST":
+        if any(sub.id == data["id"] for sub in exercise.exercises):
+            return Response("Subexercise with this ID already exists", 400)
+
         course_repo.get_collection().update_one(
             {"_id": course_id, "exercises.id": exercise_id},
             {"$push": {"exercises.$.exercises": data}},

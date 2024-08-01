@@ -1,7 +1,8 @@
 <script setup>
 import { defineProps, computed, ref, watch } from 'vue'
 import { getApiUrl } from '@/utils/common'
-import axios from 'axios'
+import { io } from 'socket.io-client'
+
 const props = defineProps({
   name: String,
   maxTasks: Number,
@@ -11,6 +12,7 @@ const props = defineProps({
 
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
+const wsUrl = `ws://${rawUrl}/student`
 
 const studentName = ref(props.name)
 const studentRaisedHand = ref(props.raisedHand)
@@ -42,8 +44,24 @@ watch(
   }
 )
 
+const socket = io(wsUrl, {
+  path: '/api/socket.io/student',
+  transports: ['websocket'],
+  reconnectio: true,
+  reconnectionAttempts: 500,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  randomizationFactor: 0.5
+})
+
 const removeHelp = async () => {
-  await axios.post(`${api_url}/students/${studentName.value}/help`, {})
+  socket.emit('help', { id: studentName.value }, function (response) {
+    if (response.error) {
+      console.error('Error removing help:', response.error)
+    } else {
+      console.log('Removed help:', response.success)
+    }
+  })
 }
 </script>
 

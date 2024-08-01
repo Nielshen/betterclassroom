@@ -26,7 +26,6 @@ const fetchExercisesCount = async () => {
     const response = await axios.get(`${api_url}/course/${courseId}/exercise/${exerciseId}`)
     console.log('fetchExercises:', response.data)
     exerciseCount.value = response.data.length
-    console.log('Exercises count:', exerciseCount.value)
   } catch (error) {
     console.error('Error fetching exercises count:', error)
   }
@@ -37,7 +36,7 @@ const loadCourse = async () => {
     const courseResponse = await axios.get(`${api_url}/course/${courseId}`)
     const currentCourse = courseResponse.data
 
-    const courseStudentsResponse = await axios.get(`${api_url}/course/${courseId}/students`)
+    const courseStudentsResponse = await axios.get(`${api_url}/course/${courseId}/exercise/${exerciseId}/students`)
     const courseStudents = courseStudentsResponse.data
 
     const classroomResponse = await axios.get(`${api_url}/classroom/${currentCourse.classroom}`)
@@ -70,15 +69,8 @@ const loadCourse = async () => {
   }
 }
 
-onBeforeMount(async () => {
-  await fetchExercisesCount()
-  await loadCourse()
-  initSockets()
-  console.log({ tableOccupation: tableOccupation.value })
-  courseLink.value = `${window.location.host}/student/${courseId}/${exerciseId}`
-})
-
 const handleStudentUpdate = (data) => {
+  console.log('Handle student update', data)
   const studentIndex = data.table - 1
   if (studentIndex < 0 || studentIndex >= tableOccupation.value.length) {
     console.error('Invalid table index')
@@ -132,6 +124,18 @@ const initSockets = () => {
     transports: ['websocket']
   })
 
+  socket.emit(
+    'dashboard_register',
+    { course: courseId, exercise: exerciseId },
+    function (response) {
+      if (response.error) {
+        console.error('Fehler beim Registrieren:', response.error)
+      } else {
+        console.log('Erfolgreich registriert:', response.success)
+      }
+    }
+  )
+
   socket.on('connect', () => console.log('Connected to server'))
   socket.on('disconnect', () => console.log('Disconnected from server'))
   socket.on('help', (data) => updateStudentProperty(data.data, 'help_requested'))
@@ -159,8 +163,8 @@ const generateQRCode = async () => {
 }
 const closeCourse = async () => {
   try {
-    await axios.delete(`${api_url}/course/${courseId}/students`)
-    // Leeren der Studentenliste im Frontend
+    await axios.delete(`${api_url}/course/${courseId}/exercise/${exerciseId}/students`)
+    await axios.post(`${api_url}/course/${courseId}/exercise/${exerciseId}/close`)
     tableOccupation.value = []
     alert('Kurs wurde geschlossen und alle Studenten wurden abgemeldet.')
     router.push('/courses')
@@ -169,22 +173,38 @@ const closeCourse = async () => {
   }
 }
 
+onBeforeMount(async () => {
+  await fetchExercisesCount()
+  await loadCourse()
+  console.log({ tableOccupation: tableOccupation.value })
+  courseLink.value = `${window.location.host}/student/${courseId}/${exerciseId}`
+  initSockets()
+})
 </script>
 <template>
   <div>
     <div class="flex m-4 justify-between">
       <div class="flex items-center">
-        Kurslink für Student*innen:&nbsp;<a :href="'http://' + courseLink">{{ 'http://' + courseLink }}</a>
+        Kurslink für Student*innen:&nbsp;<a :href="'http://' + courseLink">{{
+          'http://' + courseLink
+        }}</a>
         <button class="btn btn-danger ml-2" @click="generateQRCode">QR-Code</button>
       </div>
       <button class="btn btn-warning" @click="closeCourse">Beenden</button>
     </div>
     <div class="flex flex-row justify-center">
       <div class="flex flex-col justify-center m-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-1 justify-items-center mx-auto">
-          <DashboardTable v-for="table in tableOccupation" :key="table.id" :exerciseCount="exerciseCount" :table="table"
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-1 justify-items-center mx-auto"
+        >
+          <DashboardTable
+            v-for="table in tableOccupation"
+            :key="table.id"
+            :exerciseCount="exerciseCount"
+            :table="table"
             :tableNumber="table.id"
-            class="w-[18rem] h-[7rem] overflow-hidden bg-primary text-primary-content my-2 mr-3" />
+            class="w-[18rem] h-[7rem] overflow-hidden bg-primary text-primary-content my-2 mr-3"
+          />
         </div>
         <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white">
           <p class="text-4xl">Tafel</p>

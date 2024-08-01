@@ -10,7 +10,7 @@ metadata:
 spec:
   rules:
     # host name should be replaced by flux substitution e.g. ${domain:=better-classroom.com}
-    - host: betterclassroom-cluster.in.htwg-konstanz.de
+    - host: betterclassroom.in.htwg-konstanz.de
       http:
         paths:
           - path: /
