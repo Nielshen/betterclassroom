@@ -4,9 +4,8 @@ from flask import request
 import logging
 from app import students_repo, course_repo
 from app.db_models import Student
-from app.utils.helpers import validate_socket_request, to_boolean
+from app.utils.helpers import validate_socket_request
 import json
-from pydantic import ValidationError
 
 
 class StudentNamespace(Namespace):
@@ -124,39 +123,7 @@ class StudentNamespace(Namespace):
             return {"error": "No data provided"}
 
         if student_data.get("current_exercise") is None:
-            # No current_exercise provided -> try to validate progress data
-            try:
-                student_data = {k: to_boolean(v) for k, v in student_data.items()}
-                Student.__pydantic_validator__.validate_assignment(
-                    Student.model_construct(), "progress", student_data
-                )
-            except ValidationError as e:
-                return {
-                    "error": "Using old progess data dict resulted in following error: "
-                    + str(e)
-                }
-
-            course_data = course_repo.find_one_by({"id": student.course})
-            exercise_ids = {exercise.id for exercise in course_data.exercises}
-
-            if not all(ex_id in exercise_ids for ex_id in student_data.keys()):
-                return {"error": "Exercise not found in the course"}
-
-            students_repo.get_collection().update_one(
-                {"_id": student.id}, {"$set": {"progress": student_data}}
-            )
-            emit(
-                "progress",
-                {
-                    "data": {
-                        "_id": student_data.get("id"),
-                        "progress": student_data,
-                        "table": student.table,
-                    }
-                },
-                to=self.dashboard_sids.get(student.course + "." + student.exercise),
-            )
-            return {"success": "Progress updated successfully"}
+            return {"error": "current_exercise is required"}
 
         if not isinstance(student_data.get("current_exercise"), int):
             return {"error": "current_exercise must be an integer"}
@@ -189,10 +156,6 @@ class StudentNamespace(Namespace):
             {"$set": {"help_requested": changed_help}},
         )
 
-        # emit help event to dashboard and student
-        logging.info(
-            f"Emitting help event to dashboard: {student.course + '.' + student.exercise}"
-        )
         emit(
             "help",
             {
@@ -204,9 +167,7 @@ class StudentNamespace(Namespace):
             },
             to=self.dashboard_sids.get(student.course + "." + student.exercise),
         )
-        logging.info(
-            f"Emitting help event to student: {student.course + '.' + student.exercise + '.' + student.id}"
-        )
+
         emit(
             "help",
             {

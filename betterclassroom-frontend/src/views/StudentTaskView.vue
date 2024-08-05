@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref, computed, watch } from 'vue'
+import { onBeforeMount, ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import TaskView from './TaskView.vue'
 import axios from 'axios'
@@ -33,12 +33,11 @@ const w_ = computed(() => Array.from({ length: width.value }, (_, i) => i))
 const h_ = computed(() => Array.from({ length: height.value }, (_, i) => i))
 
 const loadTasks = async () => {
-  const response = await axios.get(`${api_url}/course/${courseId}/exercise`)
-  const _tasks = response.data
-  const currentTask = _tasks.find((task) => task.id === exerciseId)
+  const response = await axios.get(`${api_url}/course/${courseId}/exercise/${exerciseId}`)
+  const currentTask = response.data
   description.value = currentTask.description
-  const exercises = currentTask.exercises.map((e) => e.description)
-  tasks.id = currentTask.exercises.map((e) => e.id)
+  const exercises = currentTask.map((e) => e.description)
+  tasks.id = currentTask.map((e) => e.id)
   tasks.value = exercises
 }
 
@@ -123,7 +122,7 @@ const deleteStudent = () => {
     isAuth.value = false
     student_id.value = ''
     help_requested.value = false
-    current_exercise.value = 1
+    current_exercise.value = 0
   })
 }
 

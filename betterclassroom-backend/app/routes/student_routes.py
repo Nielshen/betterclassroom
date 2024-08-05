@@ -1,15 +1,13 @@
 from flask import Blueprint, request, Response, jsonify
-from pydantic import ValidationError
 from app.db_models import Student
 from app import students_repo, course_repo
-from app.utils.helpers import validate_request, to_boolean
+from app.utils.helpers import validate_request
 import logging
 
 
 student_bp = Blueprint("students", __name__)
 
 
-# returns all students / creates new student
 @student_bp.route("/api/students", methods=["GET", "POST", "DELETE"])
 @validate_request(Student)
 def handle_students(data):
@@ -75,7 +73,6 @@ def handle_student(student_id):
         return Response("Student deleted successfully", 200)
 
 
-# returns student progress / updates student progress
 @student_bp.route("/api/students/<student_id>/progress", methods=["GET", "POST"])
 def handle_student_progress(student_id):
     student = students_repo.find_one_by({"id": student_id})
@@ -92,41 +89,18 @@ def handle_student_progress(student_id):
             return Response("No data provided", 400)
 
         if progress_data.get("current_exercise") is None:
-            # No current_exercise provided -> try to validate progress data
-            try:
-                progress_data = {k: to_boolean(v) for k, v in progress_data.items()}
-                Student.__pydantic_validator__.validate_assignment(
-                    Student.model_construct(), "progress", progress_data
-                )
-            except ValidationError as e:
-                return Response(
-                    f"Using old progess data dict resulted in following error: {e}", 400
-                )
-
-            course_data = course_repo.find_one_by({"id": student.course})
-            exercise_ids = {exercise.id for exercise in course_data.exercises}
-
-            if not all(ex_id in exercise_ids for ex_id in progress_data.keys()):
-                return Response("Exercise not found in the course", 400)
-
-            students_repo.get_collection().update_one(
-                {"_id": student_id}, {"$set": {"progress": progress_data}}
-            )
-            return Response("Progress updated successfully", 200)
+            return Response("current_exercise is required", 400)
 
         if not isinstance(progress_data.get("current_exercise"), int):
             return Response("current_exercise must be an integer", 400)
-
-        logging.info(f"progress_data: {progress_data.get('current_exercise')}\n\n")
 
         students_repo.get_collection().update_one(
             {"_id": student_id},
             {"$set": {"current_exercise": progress_data.get("current_exercise")}},
         )
-        return Response("Progress updated successfully", 200)
+        return Response("Current exercise updated successfully", 200)
 
 
-# returns student help status / updates student help status
 @student_bp.route("/api/students/<student_id>/help", methods=["GET", "POST"])
 def handle_help(student_id):
     if request.method == "GET":

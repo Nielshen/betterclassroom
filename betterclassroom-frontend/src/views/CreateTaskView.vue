@@ -2,14 +2,13 @@
 import axios from 'axios'
 import { onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { v4 as uuidv4 } from 'uuid'
 import { getApiUrl } from '@/utils/common'
 
 const route = useRoute()
 const router = useRouter()
 
 const courseId = route.params.courseId
-const taskId = route.params.taskid // Verwende taskid statt taskId
+const taskId = route.params.taskId
 
 const title = ref('Aufgabe erstellen')
 const taskName = ref('')
@@ -28,31 +27,27 @@ let subTasksToDelete = [];
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
 
-// Alte Daten laden
-const loadOldTask = async (id) => {
+
+const loadExercises = async() => {
   try {
-    const result = await axios.get(`${api_url}/course`)
-    console.log(result.data)
-    return result.data.filter((course) => course._id === courseId)[0]
+    const result = await axios.get(`${api_url}/course/${courseId}`)
+    return result.data
   } catch (error) {
     console.log(error)
   }
 }
 
-
-
-// Aufgabenmethoden
 const createExercise = async () => {
-  const id = taskName.value
-  if (!id) {
+  const name = taskName.value
+  if (!name) {
     alert("Keine Aufgaben-ID")
     return
   }
   try {
     const result = await axios.post(`${api_url}/course/${courseId}/exercise`, {
-      id: id,
+      name: name,
       description: taskDescription.value,
-      exercises: subExercises.value.map((e) => ({ ...e, id: e.id }))
+      exercises: subExercises.value.map((e) => ({ ...e, name: e.name }))
     })
     console.log(result)
     alert('Aufgabe erstellt')
@@ -74,11 +69,10 @@ const editExercise = async () => {
   for (let subExercise of subExercises.value) {
     const subTaskId = subExercise.id;
     const existingSubExercise = oldSubExercises.value.find(oldSubExercise => oldSubExercise.id === subTaskId)
-    console.log(existingSubExercise)
     if (!existingSubExercise) {
       try {
         const result = await axios.post(`${api_url}/course/${courseId}/exercise/${taskId}`, {
-          id: subExercise.id,
+          name: subExercise.name,
           description: subExercise.description
         })
         console.log(result)
@@ -89,6 +83,7 @@ const editExercise = async () => {
   }
   try {
     const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}`, {
+      name: taskName.value,
       description: taskDescription.value,
     })
     console.log(result)
@@ -114,16 +109,14 @@ const deleteTask = async (taskId) => {
   }
 }
 
-// Unteraufgabenmethoden
 const createSubTask = async () => {
-  const id = subtaskName.value
-  if (!id) {
-    alert("Keine Unteraufgaben-ID")
+  const name = subtaskName.value
+  if (!name) {
+    alert("Kein Unteraufgaben Titel")
     return
   }
   const description = subtask.value.replace(/\r?\n/g, '\\n')
-
-  subExercises.value.push({ id: id, description: description })
+  subExercises.value.push({ name: name, description: description })
   subtaskName.value = ''
   subtask.value = ''
 }
@@ -134,7 +127,7 @@ const editSubTask = async (subTaskId) => {
     return
   }
   const task = subExercises.value.find(subTask => subTask.id === subTaskId)
-  subtaskName.value = task.id
+  subtaskName.value = task.name
   subtask.value = task.description.replace(/\\n/g, '\n')
   isEditing.value = true
   currentSubTaskId.value = subTaskId
@@ -146,12 +139,13 @@ const saveChanges = async () => {
     const subTaskExists = oldSubExercises.value.find(subExercise => subExercise.id === currentSubTaskId.value);
     subExercises.value = subExercises.value.map(subTask => {
       if (subTask.id === currentSubTaskId.value) {
-        return { id: subTask.id, description: subtask.value }
+        return { id: subTask.id, name: subTask.name, description: subtask.value }
       }
       return subTask
     })
     if (subTaskExists) {
       const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}/${currentSubTaskId.value}`, {
+        name: subtaskName.value,
         description: subtask.value
       })
       alert("Änderungen gespeichert")
@@ -185,18 +179,17 @@ const deleteSubTask = async (subTaskId) => {
 }
 
 onBeforeMount(async () => {
-  const oldTaskId = route.params.taskid
+  const oldTaskId = route.params.taskId
   if (oldTaskId) {
-    const oldTask = await loadOldTask(oldTaskId)
+    const oldTask = await loadExercises(oldTaskId)
     if (oldTask) {
       const exercises = oldTask.exercises.find(e => e.id === taskId)
-      console.log(exercises)
       oldSubExercises.value = exercises.exercises.map(e => {
-        return { id: e.id, description: e.description }
+        return { id: e.id, name: e.name, description: e.description }
       })
       subExercises.value = JSON.parse(JSON.stringify(oldSubExercises.value))
-      taskName.value = oldTask.exercises.find(e => e.id === taskId)?.id
-      taskDescription.value = oldTask.exercises.find(e => e.id === taskId)?.description
+      taskName.value = exercises.name
+      taskDescription.value = exercises.description
       title.value = 'Aufgabe bearbeiten'
       createButton.value = 'Speichern'
       exerciseButtonMethod.value = editExercise
@@ -211,8 +204,6 @@ onBeforeMount(async () => {
 })
 
 
-
-
 </script>
 
 <template>
@@ -220,7 +211,7 @@ onBeforeMount(async () => {
     <div class="flex flex-col w-2/3">
       <div class="flex flex-row items-center justify-between">
         <h1 class="text-2xl my-10">{{ title }}</h1>
-        <button v-if="route.params.taskid" class="btn btn-danger" @click="deleteTask(taskId)">Löschen</button>
+        <button v-if="route.params.taskId" class="btn btn-danger" @click="deleteTask(taskId)">Löschen</button>
       </div>
       <input type="text" placeholder="Aufgabenname" class="input input-bordered input-accent w-full max-w-xs my-5"
         v-model="taskName" />
@@ -250,7 +241,7 @@ onBeforeMount(async () => {
           </thead>
           <tbody>
             <tr v-for="s in subExercises" :key="s.id">
-              <td class="font-bold" style="width: 1%; white-space: nowrap;">{{ s.id }}</td>
+              <td class="font-bold" style="width: 1%; white-space: nowrap;">{{ s.name }}</td>
               <td style="white-space: pre-line;">{{ s.description }}</td>
               <td style="text-align: right; width: 1%; white-space: nowrap;">
                 <div class="inline-flex justify-end">

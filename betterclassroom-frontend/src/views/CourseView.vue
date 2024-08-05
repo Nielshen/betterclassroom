@@ -6,11 +6,8 @@ import { getApiUrl } from '@/utils/common'
 
 const router = useRouter()
 
-console.log(window.location.hostname)
 const rawUrl = getApiUrl()
-console.log(rawUrl)
 const api_url = `http://${rawUrl}/api`
-console.log(api_url)
 
 const courseData = ref([])
 
@@ -61,7 +58,7 @@ function getTotalParticipants(course) {
                 </thead>
                 <tbody v-for="e in courseData" :key="e">
                     <tr class="bg-base-200">
-                        <td>{{ e._id }}</td>
+                        <td>{{ e.name }}</td>
                         <td>{{ e.classroom }}</td>
                         <td>{{ getTotalParticipants(e) }} Teilnehmende</td>
                         <td>

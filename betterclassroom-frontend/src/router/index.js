@@ -38,8 +38,8 @@ const router = createRouter({
       component: () => import('../views/CreateCourseView.vue')
     },
     {
-      path: '/editTask/:courseId/:taskid',
-      name: 'editTask',
+      path: '/editTask/:courseId/:taskId',
+      name: 'editTask:/courseId/:taskId',
       component: () => import('../views/CreateTaskView.vue')
     },
     {
