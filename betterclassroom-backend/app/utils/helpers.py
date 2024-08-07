@@ -46,8 +46,6 @@ def get_hash(value: str):
 def createO201(classroom_repo):
     from app.db_models import Classroom, Table
 
-    # TODO fill with test data?
-
     tablesPerRow = 4
     rows = 5
 

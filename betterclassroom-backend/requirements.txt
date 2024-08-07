@@ -7,3 +7,4 @@ pymongo
 pydantic
 pydantic-mongo
 xxhash
+swagger-ui-py

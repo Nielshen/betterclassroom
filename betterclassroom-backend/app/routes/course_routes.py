@@ -54,6 +54,7 @@ def handle_course(course_id):
 
         name = data.get("name")
         description = data.get("description")
+        # TODO - Check if classroom exists
         classroom = data.get("classroom")
 
         data = {}

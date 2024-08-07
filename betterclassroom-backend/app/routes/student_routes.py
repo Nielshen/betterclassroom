@@ -76,7 +76,6 @@ def handle_student(student_id):
 @student_bp.route("/api/students/<student_id>/progress", methods=["GET", "POST"])
 def handle_student_progress(student_id):
     student = students_repo.find_one_by({"id": student_id})
-    logging.info(student)
     if student is None:
         return Response("Student not found", 404)
 
