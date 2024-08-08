@@ -21,10 +21,10 @@ def handle_courses(data):
             return Response("Classroom not found", 404)
         if course_repo.find_one_by_id(get_hash(data["name"])):
             return Response("Course with this ID already exists", 400)
-
+        
         course_repo.save(
             Course(
-                id=data["id"],
+                name=data["name"],
                 description=data["description"],
                 classroom=data["classroom"],
                 professor=data["professor"],
@@ -54,8 +54,11 @@ def handle_course(course_id):
 
         name = data.get("name")
         description = data.get("description")
-        # TODO - Check if classroom exists
-        classroom = data.get("classroom")
+        classroom_id = data.get("classroom")
+        
+        classroom = course_repo.find_one_by_id(classroom_id)
+        if not classroom:
+            return Response("Classroom not found", 404)
 
         data = {}
         if name:
@@ -63,7 +66,7 @@ def handle_course(course_id):
         if description:
             data["description"] = description
         if classroom:
-            data["classroom"] = classroom
+            data["classroom"] = classroom_id
 
         course_repo.get_collection().update_one({"_id": course_id}, {"$set": data})
         return Response("Course updated successfully", 200)
