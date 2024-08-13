@@ -5,7 +5,6 @@ import logging
 from app import students_repo, course_repo
 from app.db_models import Student
 from app.utils.helpers import validate_socket_request
-import json
 
 
 class StudentNamespace(Namespace):
@@ -48,15 +47,10 @@ class StudentNamespace(Namespace):
 
     @validate_socket_request(Student)
     def on_new_student(self, student_data):
-        logging.info(
-            f"New student: {student_data.id}, data: {student_data}, dashboard_sids: {self.dashboard_sids}"
-        )
-
         course = course_repo.find_one_by_id(student_data.course)
         if not course:
             return {"error": "Course not found"}
 
-        # TODO check if exercise exists in course
         exercise = next(
             (ex for ex in course.exercises if ex.id == student_data.exercise), None
         )
@@ -80,19 +74,15 @@ class StudentNamespace(Namespace):
             {"$addToSet": {"exercises.$.participants": student_data.id}},
         )
 
-        # TODO clean this garbage
-        json_data = student_data.json()
-        json_data = json.loads(json_data)
-
-        logging.info(f"Student parsed json: {type(json_data)}")
-        json_data["_id"] = json_data.get("id")
-        json_data["action"] = "add"
+        student_data = dict(student_data)
+        student_data["_id"] = student_data["id"]
+        student_data["action"] = "add"
 
         emit(
             "student",
-            {"data": json_data},
+            {"data": student_data},
             to=self.dashboard_sids.get(
-                json_data["course"] + "." + json_data["exercise"]
+                student_data["course"] + "." + student_data["exercise"]
             ),
         )
         return {"success": "Student added successfully"}
@@ -182,6 +172,27 @@ class StudentNamespace(Namespace):
             ),
         )
         return {"success": "Help requested updated successfully"}
+
+    def on_subexercise_description(self, course_data):
+        course = course_repo.find_one_by_id(course_data.get("course"))
+        if not course:
+            return {"error": "Course not found"}
+
+        exercise = next(
+            (ex for ex in course.exercises if ex.id == course_data.get("exercise")),
+            None,
+        )
+        if not exercise:
+            return {"error": "Exercise not found"}
+
+        course_repo.get_collection().update_one(
+            {
+                "_id": course_data.get("course"),
+                "exercises.id": course_data.get("exercise"),
+            },
+            {"$set": {"exercises.$[exercise].description": course_data.get("description")}},
+            array_filters=[{"exercise.id": course_data.get("exercise")}],
+        )
 
 
 student_ns = StudentNamespace("/student")
