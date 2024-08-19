@@ -10,11 +10,11 @@ const router = createRouter({
     {
       path: '/dashboard/:courseId/:taskId',
       name: 'dashboard/:courseId/:taskId',
-      component: () => import('../views/DashboardViewTest.vue')
+      component: () => import('../views/DashboardView.vue')
     },
     {
-      path: "/student/:courseId/:taskId",
-      name: "student/:courseId/:taskId",
+      path: '/student/:courseId/:taskId',
+      name: 'student/:courseId/:taskId',
       component: () => import('../views/StudentTaskView.vue')
     },
     {
@@ -51,7 +51,7 @@ const router = createRouter({
       path: '/courses',
       name: 'courses',
       component: () => import('../views/CourseView.vue')
-    },
+    }
   ]
 })
 

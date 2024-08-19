@@ -3,7 +3,6 @@ import axios from 'axios'
 import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
-import { v4 as uuidv4 } from 'uuid'
 import { getApiUrl } from '@/utils/common'
 
 

@@ -11,8 +11,6 @@ const props = defineProps({
   exerciseCount: Number
 })
 
-//console.log(props.tableNumber)
-
 const student1_finishedTasks = ref(0)
 const student1_maxTasks = ref(0)
 const student1_raisedHand = ref(false)

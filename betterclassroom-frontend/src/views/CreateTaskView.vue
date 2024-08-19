@@ -3,6 +3,7 @@ import axios from 'axios'
 import { onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getApiUrl } from '@/utils/common'
+import { io } from 'socket.io-client';
 
 const route = useRoute()
 const router = useRouter()
@@ -20,13 +21,23 @@ const oldSubExercises = ref([])
 const createButton = ref('Erstellen')
 const exerciseButtonMethod = ref('')
 const isEditing = ref(false)
-const currentSubTaskId = ref('') 
+const currentSubTaskId = ref('')
+const isExerciseActive = ref(false)
 
 let subTasksToDelete = [];
 
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
+const wsUrl = `ws://${rawUrl}/student`
 
+const socket = io(wsUrl, {
+    path: '/api/socket.io/student',
+    transports: ['websocket']
+  })
+
+const goBackToDashboard = () => {
+  router.push(`/dashboard/${courseId}/${taskId}`)
+}
 
 const loadExercises = async() => {
   try {
@@ -60,8 +71,15 @@ const createExercise = async () => {
 const editExercise = async () => {
   for (let subTaskId of subTasksToDelete) {
     try {
-      const result = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}/${subTaskId}`);
-      console.log(result);
+      socket.emit("delete_subexercise", {
+        course: courseId,
+        exercise: taskId,
+        subexercise: subTaskId
+      }, function (response) {
+        if (response.error) {
+          console.error('Fehler beim Löschen der SubExercise:', response.error)
+        }
+      })
     } catch (error) {
       console.log(error);
     }
@@ -71,11 +89,16 @@ const editExercise = async () => {
     const existingSubExercise = oldSubExercises.value.find(oldSubExercise => oldSubExercise.id === subTaskId)
     if (!existingSubExercise) {
       try {
-        const result = await axios.post(`${api_url}/course/${courseId}/exercise/${taskId}`, {
+        socket.emit("new_subexercise", {
+          course: courseId,
+          exercise: taskId,
           name: subExercise.name,
           description: subExercise.description
+        }, function (response) {
+          if (response.error) {
+            console.error('Fehler beim Erstellen der SubExercise:', response.error)
+          }
         })
-        console.log(result)
       } catch (error) {
         console.log(error)
       }
@@ -144,10 +167,14 @@ const saveChanges = async () => {
       return subTask
     })
     if (subTaskExists) {
-      const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}/${currentSubTaskId.value}`, {
-        name: subtaskName.value,
-        description: subtask.value
-      })
+      socket.emit('alter_subexercise',
+        { course: courseId, exercise: taskId, subexercise: currentSubTaskId.value, name: subtaskName.value, description: subtask.value },
+        function (response) {
+          if (response.error) {
+            console.error('Fehler beim Ändernn der SubExercise: ', response.error)
+          }
+        }
+      )
       alert("Änderungen gespeichert")
     }
     subtask.value = ''
@@ -180,6 +207,7 @@ const deleteSubTask = async (subTaskId) => {
 
 onBeforeMount(async () => {
   const oldTaskId = route.params.taskId
+
   if (oldTaskId) {
     const oldTask = await loadExercises(oldTaskId)
     if (oldTask) {
@@ -193,6 +221,7 @@ onBeforeMount(async () => {
       title.value = 'Aufgabe bearbeiten'
       createButton.value = 'Speichern'
       exerciseButtonMethod.value = editExercise
+      isExerciseActive.value = exercises.is_active
     } else {
       console.error('loadOldTask hat keinen Wert zurückgegeben')
     }
@@ -211,7 +240,10 @@ onBeforeMount(async () => {
     <div class="flex flex-col w-2/3">
       <div class="flex flex-row items-center justify-between">
         <h1 class="text-2xl my-10">{{ title }}</h1>
-        <button v-if="route.params.taskId" class="btn btn-danger" @click="deleteTask(taskId)">Löschen</button>
+        <div>
+          <button v-if="isExerciseActive" class="btn btn-secondary mr-4" @click="goBackToDashboard">Zurück zum Dashboard</button>
+          <button v-if="route.params.taskId" class="btn btn-danger mr-2" @click="deleteTask(taskId)">Löschen</button>
+        </div>
       </div>
       <input type="text" placeholder="Aufgabenname" class="input input-bordered input-accent w-full max-w-xs my-5"
         v-model="taskName" />

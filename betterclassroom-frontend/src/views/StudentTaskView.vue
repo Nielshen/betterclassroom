@@ -20,7 +20,6 @@ const wsUrl = `ws://${rawUrl}/student`
 let socket = null
 
 const description = ref('')
-const tasks = ref([])
 const isAuth = ref(false)
 const seat = ref('')
 const studentName = ref('')
@@ -34,11 +33,9 @@ const h_ = computed(() => Array.from({ length: height.value }, (_, i) => i))
 
 const loadTasks = async () => {
   const response = await axios.get(`${api_url}/course/${courseId}/exercise/${exerciseId}`)
-  const currentTask = response.data
-  description.value = currentTask.description
-  const exercises = currentTask.map((e) => e.description)
-  tasks.id = currentTask.map((e) => e.id)
-  tasks.value = exercises
+  const exerciseData = response.data
+  description.value = exerciseData.description
+  dataStore.updateTasks(exerciseData)
 }
 
 const changeIndex = async (index) => {
@@ -135,9 +132,9 @@ const loadUser = () => {
       student_id.value = user.id
       help_requested.value = user.help_requested
       current_exercise.value = user.current_exercise - 1
-      reregisterSocket() 
+      isAuth.value = true
+      reregisterSocket()
     }
-    isAuth.value = true
   } else {
     console.log('User not authenticated', isAuth.value)
     dataStore.initStudent()
@@ -180,8 +177,21 @@ const initSocket = () => {
   socket.on('help', (data) => {
     console.log('Socket Event: Help requested', data.data.help_requested, data.data._id)
     dataStore.updateUserField('help_requested', data.data.help_requested)
-    console.log('help_requested ref:', data.data.help_requested)
-    help_requested.value = dataStore.user.help_requested
+  })
+
+  socket.on('alter_subexercise', (data) => {
+    console.log('Socket Event: Subexercise description updated', data.data)
+    dataStore.alterTask(data.data.subexercise_id, data.data.name, data.data.description)
+  })
+
+  socket.on('new_subexercise', (data) => {
+    console.log('Socket Event: New subexercise added', data.data)
+    dataStore.addNewSubexercise(data.data)
+  })
+
+  socket.on('delete_subexercise', (data) => {
+    console.log('Socket Event: Subexercise deleted', data.data)
+    dataStore.deleteSubexercise(data.data.subexercise_id)
   })
 }
 
@@ -198,7 +208,6 @@ const reregisterSocket = () => {
     }
   )
 }
-
 
 onBeforeMount(async () => {
   initSocket()
@@ -251,14 +260,7 @@ onBeforeMount(async () => {
         <h1 class="ml-4">{{ dataStore.user.id }}</h1>
         <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary mr-4">Abmelden</button>
       </div>
-      <TaskView
-        :key="student_id"
-        :tasks="tasks"
-        :help_requested="help_requested"
-        :current_exercise="current_exercise"
-        @idxChange="changeIndex"
-        @raisedHand="raisedHand"
-      />
+      <TaskView v-if="isAuth" :key="student_id" @idxChange="changeIndex" @raisedHand="raisedHand" />
     </div>
   </div>
 </template>

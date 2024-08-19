@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 
 export const useDataStore = defineStore('dataStore', () => {
   const user = ref({})
+  const tasks = ref([])
+
   const isStudent = computed(() => user.value.role === 'student')
   const isLoggedIn = computed(() => !!user.value.role)
   const dashboardData = ref([])
@@ -36,9 +38,10 @@ export const useDataStore = defineStore('dataStore', () => {
 
   const updateUserField = (fieldName, fieldValue) => {
     if (fieldName in user.value && typeof fieldValue === typeof user.value[fieldName]) {
-      user.value[fieldName] = fieldValue // Directly update the reactive property
-      sessionStorage.setItem('user', JSON.stringify(user.value)) // Update local storage to sync
-      console.log(`Updated ${fieldName} in user data:`, user.value)
+      user.value[fieldName] = fieldValue
+      const updatedUser = { ...user.value, [fieldName]: fieldValue }
+      sessionStorage.setItem('user', JSON.stringify(updatedUser))
+      console.log(`Updated ${fieldName} in user data:`, updatedUser)
     } else {
       console.error(`Error: Type mismatch or invalid field ${fieldName}`)
     }
@@ -61,8 +64,43 @@ export const useDataStore = defineStore('dataStore', () => {
     console.log({ user: !!user.value })
   }
 
+  const updateTasks = (newTasks) => {
+    tasks.value = newTasks
+  }
+
+  const alterTask = (exerciseId, newName, newDescription) => {
+    const taskIndex = tasks.value.findIndex((task) => task.id === exerciseId)
+    if (taskIndex !== -1) {
+      tasks.value[taskIndex].description = newDescription
+      tasks.value[taskIndex].name = newName
+    } else {
+      console.error(`Exercise with id ${exerciseId} not found`)
+    }
+  }
+
+  const addNewSubexercise = (newSubexercise) => {
+    if (newSubexercise && newSubexercise.id && newSubexercise.name && newSubexercise.description) {
+      tasks.value = [...tasks.value, newSubexercise]
+    } else {
+      console.error('Attempted to add invalid subexercise:', newSubexercise)
+    }
+  }
+
+  const deleteSubexercise = (subexerciseId) => {
+    const index = tasks.value.findIndex((task) => task.id === subexerciseId)
+    if (index !== -1) {
+      tasks.value.splice(index, 1)
+      console.log(`Subexercise with id ${subexerciseId} has been deleted`)
+    } else {
+      console.error(`Subexercise with id ${subexerciseId} not found`)
+    }
+  }
+
+  const getTasks = computed(() => tasks.value)
+
   return {
     user,
+    tasks: getTasks,
     isStudent,
     isLoggedIn,
     dashboardData,
@@ -71,6 +109,10 @@ export const useDataStore = defineStore('dataStore', () => {
     checkUser,
     updateUserField,
     readUser,
-    deleteStudentLocally
+    deleteStudentLocally,
+    updateTasks,
+    alterTask,
+    addNewSubexercise,
+    deleteSubexercise
   }
 })
