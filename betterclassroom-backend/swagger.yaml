@@ -1,0 +1,875 @@
+openapi: 3.1.0
+info:
+  title: BetterClassroom API
+  description: BetterClassroom API documentation
+  version: 1.0.0
+servers:
+  - url: http://betterclassroom.in.htwg-konstanz.de/api
+    description: Production server
+  - url: http://betterclassroom-staging.in.htwg-konstanz.de:8080/api
+    description: Staging server
+  - url: http://localhost:5000/api
+    description: Local server
+paths:
+  /classroom:
+    get:
+      summary: Returns list of all classrooms.
+      tags:
+        - Classroom
+      responses:
+        "200":
+          description: A JSON array of classrooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Classroom"
+        "404":
+          description: No classrooms found
+
+  /classroom/{classroom_id}:
+    get:
+      summary: Returns a classroom by ID.
+      tags:
+        - Classroom
+      parameters:
+        - in: path
+          name: classroom_id
+          required: true
+          description: ID of the classroom to return
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object of classroom
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Classroom"
+        "404":
+          description: Classroom ID not found
+
+  /professor:
+    get:
+      summary: Returns a list of professors.
+      tags:
+        - Professor
+      responses:
+        "200":
+          description: A JSON array of professor names
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Professor"
+    post:
+      summary: Add a new professor.
+      tags:
+        - Professor
+      requestBody:
+        description: The professor to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Professor"
+      responses:
+        "201":
+          description: Professor added successfully
+        "400":
+          description: Professor with that ID already exists
+
+  /professor/{professor_id}:
+    delete:
+      summary: Delete a professor by ID.
+      tags:
+        - Professor
+      parameters:
+        - in: path
+          name: professor_id
+          required: true
+          description: ID of the professor to delete
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Professor deleted successfully
+        "404":
+          description: Professor ID not found
+
+  /students:
+    get:
+      summary: Returns a list of all students.
+      tags:
+        - Student
+      responses:
+        "200":
+          description: A JSON array of student objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+        "404":
+          description: No students found
+    post:
+      summary: Add a new student.
+      tags:
+        - Student
+      requestBody:
+        description: The student to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Student"
+      responses:
+        "201":
+          description: Student added successfully
+        "400":
+          description: Student with that ID already exists
+        "404":
+          description: Given course or exercise not found
+    delete:
+      summary: Delete all students.
+      tags:
+        - Student
+      responses:
+        "200":
+          description: All students deleted successfully
+
+  /students/{student_id}:
+    get:
+      summary: Returns a student by ID.
+      tags:
+        - Student
+      parameters:
+        - in: path
+          name: student_id
+          required: true
+          description: ID of the student to return
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object of student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Student with student ID not found
+    delete:
+      summary: Delete a student by ID.
+      tags:
+        - Student
+      parameters:
+        - in: path
+          name: student_id
+          required: true
+          description: ID of the student to delete
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Student deleted successfully
+        "404":
+          description: Student ID not found
+
+  /students/{student_id}/progress:
+    get:
+      summary: Returns the progress of a student.
+      tags:
+        - Student
+      parameters:
+        - in: path
+          name: student_id
+          required: true
+          description: ID of the student whose progress is to be returned
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The current exercise number of the student
+          content:
+            application/json:
+              schema:
+                type: integer
+        "404":
+          description: Student ID not found
+    post:
+      summary: Updates the progress of a student.
+      tags:
+        - Student
+      parameters:
+        - in: path
+          name: student_id
+          required: true
+          description: ID of the student whose progress is to be updated
+          schema:
+            type: string
+      requestBody:
+        description: The progress data to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_exercise:
+                  type: integer
+      responses:
+        "200":
+          description: Progress updated successfully
+        "400":
+          description: No data provided /current_exercise not provided / current_exercise not an integer
+        "404":
+          description: Student ID not found
+
+  /students/{student_id}/help:
+    get:
+      summary: Returns the help status of a student.
+      tags:
+        - Student
+      parameters:
+        - in: path
+          name: student_id
+          required: true
+          description: ID of the student whose help status is to be returned
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The help status and table number of the student
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  help_requested:
+                    type: boolean
+                  table:
+                    type: integer
+        "404":
+          description: Student ID not found
+    post:
+      summary: Updates the help status of a student.
+      tags:
+        - Student
+      parameters:
+        - in: path
+          name: student_id
+          required: true
+          description: ID of the student whose help status is to be updated
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Help status updated successfully
+        "404":
+          description: Student ID not found
+
+  /course:
+    get:
+      summary: Returns list containing all Courses.
+      tags:
+        - Course
+      responses:
+        "200":
+          description: A JSON array of course objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+    post:
+      summary: Add a new course.
+      tags:
+        - Course
+      requestBody:
+        description: The course to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Course"
+      responses:
+        "201":
+          description: Course added successfully
+        "400":
+          description: Course with that ID already exists
+        "404":
+          description: Professor or Classroom not found
+
+  /course/{course_id}:
+    get:
+      summary: Returns a course by ID.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to return
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object of course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+        "404":
+          description: Course ID not found
+    delete:
+      summary: Delete a course by ID.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to delete
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Course deleted successfully
+        "404":
+          description: Course ID not found
+    put:
+      summary: Update a course by ID.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to update
+          schema:
+            type: string
+      requestBody:
+        description: The course data to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                classroom:
+                  type: string
+      responses:
+        "200":
+          description: Course updated successfully
+        "400":
+          description: Only name, description and classroom can be modified / No data provided
+        "404":
+          description: Course not found
+
+  /course/{course_id}/exercise:
+    get:
+      summary: Returns all exercises for a course.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to return exercises for
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON array of exercise objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Exercise"
+        "404":
+          description: Course not found or no exercises available
+    post:
+      summary: Add a new exercise to a course.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to add the exercise to
+          schema:
+            type: string
+      requestBody:
+        description: The exercise to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Exercise"
+      responses:
+        "201":
+          description: Exercise added successfully
+        "400":
+          description: An exercise with this ID already exists
+        "404":
+          description: Course not found
+
+  /course/{course_id}/exercise/{exercise_id}:
+    get:
+      summary: Returns all subexercises for an exercise.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to return subexercises for
+          schema:
+            type: string
+        - in: path
+          name: exercise_id
+          required: true
+          description: ID of the exercise to return subexercises for
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON array of subexercise objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SubExercise"
+        "404":
+          description: Course or Exercise not found
+    post:
+      summary: Add a new subexercise to an exercise.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to add the subexercise to
+          schema:
+            type: string
+        - in: path
+          name: exercise_id
+          required: true
+          description: ID of the exercise to add the subexercise to
+          schema:
+            type: string
+      requestBody:
+        description: The subexercise to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubExercise"
+      responses:
+        "201":
+          description: Subexercise added successfully
+        "400":
+          description: Subexercise with this ID already exists
+        "404":
+          description: Course or Exercise not found
+    delete:
+      summary: Delete an exercise by ID.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to delete the exercise from
+          schema:
+            type: string
+        - in: path
+          name: exercise_id
+          required: true
+          description: ID of the exercise to delete
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Exercise deleted successfully
+        "404":
+          description: Course or Exercise not found
+    put:
+      summary: Update an exercise by ID.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to update the exercise in
+          schema:
+            type: string
+        - in: path
+          name: exercise_id
+          required: true
+          description: ID of the exercise to update
+          schema:
+            type: string
+      requestBody:
+        description: The exercise data to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "200":
+          description: Exercise updated successfully
+        "400":
+          description: No data provided / No valid fields provided / Only name and description can be modified
+        "404":
+          description: Course or Exercise not found
+
+  /course/{course_id}/exercise/{exercise_id}/students:
+    get:
+      summary: Returns all students for an exercise in a course.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to return students for
+          schema:
+            type: string
+        - in: path
+          name: exercise_id
+          required: true
+          description: ID of the exercise to return students for
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON array of student objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+        "404":
+          description: Course or Exercise not found
+    delete:
+      summary: Delete all students for an exercise in a course.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to delete students from
+          schema:
+            type: string
+        - in: path
+          name: exercise_id
+          required: true
+          description: ID of the exercise to delete students from
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Students in course deleted successfully
+        "404":
+          description: Course or Exercise not found
+
+  /course/{course_id}/exercise/{exercise_id}/start:
+    post:
+      summary: Start an exercise in a course.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to start the exercise in
+          schema:
+            type: string
+        - in: path
+          name: exercise_id
+          required: true
+          description: ID of the exercise to start
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Course started successfully
+        "404":
+          description: Course or Exercise not found
+
+  /course/{course_id}/exercise/{exercise_id}/close:
+    post:
+      summary: Close an exercise in a course.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to close the exercise in
+          schema:
+            type: string
+        - in: path
+          name: exercise_id
+          required: true
+          description: ID of the exercise to close
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Course closed successfully
+        "404":
+          description: Course or Exercise not found
+
+  /course/{course_id}/exercise/{exercise_id}/{subexercise_id}:
+    delete:
+      summary: Delete a subexercise by ID.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to delete the subexercise from
+          schema:
+            type: string
+        - in: path
+          name: exercise_id
+          required: true
+          description: ID of the exercise to delete the subexercise from
+          schema:
+            type: string
+        - in: path
+          name: subexercise_id
+          required: true
+          description: ID of the subexercise to delete
+          schema:
+            type: string
+      responses:
+        "200":
+          description: SubExercise deleted successfully
+        "404":
+          description: Course, Exercise, or Subexercise not found
+    put:
+      summary: Update a subexercise by ID.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to update the subexercise in
+          schema:
+            type: string
+        - in: path
+          name: exercise_id
+          required: true
+          description: ID of the exercise to update the subexercise in
+          schema:
+            type: string
+        - in: path
+          name: subexercise_id
+          required: true
+          description: ID of the subexercise to update
+          schema:
+            type: string
+      requestBody:
+        description: The subexercise data to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "200":
+          description: SubExercise updated successfully
+        "400":
+          description: Only name and description can be modified / No valid fields provided
+        "404":
+          description: Course, Exercise, or Subexercise not found
+
+components:
+  schemas:
+    Student:
+      type: object
+      properties:
+        id:
+          type: string
+        table:
+          type: integer
+        course:
+          type: string
+        exercise:
+          type: string
+        current_exercise:
+          type: integer
+        help_requested:
+          type: boolean
+      required:
+        - id
+        - table
+        - course
+        - exercise
+      example:
+        id: "Ruediger"
+        table: 2
+        course: "Softwarequalitätssicherung"
+        exercise: "Aufgabe 1"
+
+    Classroom:
+      type: object
+      properties:
+        id:
+          type: string
+        tablesPerRow:
+          type: integer
+        rows:
+          type: integer
+        tables:
+          type: array
+          items:
+            $ref: "#/components/schemas/Table"
+      required:
+        - id
+        - tablesPerRow
+        - rows
+        - tables
+      example:
+        id: "O-201"
+        tablesPerRow: 4
+        rows: 5
+        tables:
+          - id: 1
+            occupied: false
+          - id: 2
+            occupied: true
+
+    Table:
+      type: object
+      properties:
+        id:
+          type: int
+        occupied:
+          type: boolean
+      required:
+        - id
+        - occupied
+      example:
+        id: 1
+        occupied: false
+
+    Professor:
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id
+      example:
+        id: "Prof. Dr. Markus Eiglsperger"
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        exercises:
+          type: array
+          items:
+            $ref: "#/components/schemas/Exercise"
+        classroom:
+          type: string
+        professor:
+          type: string
+      required:
+        - name
+        - description
+        - classroom
+        - professor
+      example:
+        name: "Softwarequalitätssicherung"
+        description: "Grundlagen der Softwarequalitätssicherung"
+        classroom: "O-201"
+        professor: "Prof. Dr. Markus Eiglsperger"
+
+    Exercise:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        exercises:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubExercise"
+        participants:
+          type: array
+          items:
+            type: string
+        is_active:
+          type: boolean
+      required:
+        - id
+        - description
+      example:
+        name: "Aufgabe 1"
+        description: "API Testing"
+        exercises:
+          - name: "Schritt 1"
+            description: "Installieren Sie Postman"
+          - name: "Schritt 2"
+            description: "Definieren Sie beispielhafte Anfragen"
+        participants:
+          - "Ruediger"
+          - "Dieter"
+        is_active: true
+
+    SubExercise:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+        - description
+      example:
+        id: "Schritt 1"
+        description: "Installieren Sie Postman"

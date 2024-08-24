@@ -1,32 +1,53 @@
-from typing import List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from pydantic_mongo import AbstractRepository
+from app.utils.helpers import get_hash
+from typing_extensions import Self
+from typing import List
 
 
 class SubExercise(BaseModel):
-    id: str
+    id: str = None
+    name: str
     description: str
 
+    @model_validator(mode="after")
+    def generate_id(self) -> Self:
+        if self.id is None:
+            self.id = get_hash(self.name)
+        return self
+
     def to_dict(self):
-        return {"id": self.id, "description": self.description}
+        return {"id": self.id, "name": self.name, "description": self.description}
 
 
 class Exercise(BaseModel):
-    id: str
+    id: str = None
+    name: str
     description: str
-    exercises: List[SubExercise] = Field(
-        default_factory=list
-    )  # in sub_exercises umbenennen für übersicht?
-    participants: List[str] = Field(default_factory=list)  # str ist student id
+    exercises: List[SubExercise] = Field(default_factory=list)
+    participants: List[str] = Field(default_factory=list)
     is_active: bool = False
+
+    @model_validator(mode="after")
+    def generate_id(self) -> Self:
+        if self.id is None:
+            self.id = get_hash(self.name)
+        return self
 
 
 class Course(BaseModel):
-    id: str
+    id: str = None
+    name: str
     description: str
     exercises: List[Exercise] = Field(default_factory=list)
     classroom: str
     professor: str
+
+    @model_validator(mode="after")
+    def generate_id(self) -> Self:
+        if self.id is None:
+            self.id = get_hash(self.name)
+        return self
 
 
 class CourseRepository(AbstractRepository[Course]):

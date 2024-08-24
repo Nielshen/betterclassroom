@@ -10,11 +10,11 @@ const router = createRouter({
     {
       path: '/dashboard/:courseId/:taskId',
       name: 'dashboard/:courseId/:taskId',
-      component: () => import('../views/DashboardViewTest.vue')
+      component: () => import('../views/DashboardView.vue')
     },
     {
-      path: "/student/:courseId/:taskId",
-      name: "student/:courseId/:taskId",
+      path: '/student/:courseId/:taskId',
+      name: 'student/:courseId/:taskId',
       component: () => import('../views/StudentTaskView.vue')
     },
     {
@@ -38,8 +38,8 @@ const router = createRouter({
       component: () => import('../views/CreateCourseView.vue')
     },
     {
-      path: '/editTask/:courseId/:taskid',
-      name: 'editTask',
+      path: '/editTask/:courseId/:taskId',
+      name: 'editTask:/courseId/:taskId',
       component: () => import('../views/CreateTaskView.vue')
     },
     {
@@ -51,7 +51,7 @@ const router = createRouter({
       path: '/courses',
       name: 'courses',
       component: () => import('../views/CourseView.vue')
-    },
+    }
   ]
 })
 

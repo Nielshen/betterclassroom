@@ -78,6 +78,5 @@ const removeHelp = async () => {
         {{ finishedTasks }} / {{ maxTasks }}
       </div>
     </div>
-    <!-- <p>{{studentName}}</p> -->
   </div>
 </template>

@@ -3,9 +3,7 @@ import axios from 'axios'
 import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
-import { v4 as uuidv4 } from 'uuid'
 import { getApiUrl } from '@/utils/common'
-
 
 const route = useRoute()
 const router = useRouter()
@@ -14,16 +12,6 @@ const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
 
 const courseId = route.params.courseId
-
-const loadOldCourse = async (id) => {
-  try {
-    const result = await axios.get(`${api_url}/course`)
-    return result.data.filter((course) => course._id === id)[0]
-  } catch (error) {
-    console.log(error)
-  }
-}
-
 
 const title = ref('')
 const courseName = ref('')
@@ -34,11 +22,19 @@ const professorId = ref('')
 const tasks = ref([])
 const isEditMode = ref('')
 
-const pushCourse = async ({ oldId, description, professor, classroom }) => {
-  const id = oldId || uuidv4()
+const loadCourse = async (id) => {
+  try {
+    const result = await axios.get(`${api_url}/course/${id}`)
+    return result.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const pushCourse = async ({ name, description, professor, classroom }) => {
   try {
     const result = await axios.post(`${api_url}/course`, {
-      id,
+      name,
       professor: professor,
       description,
       classroom
@@ -54,10 +50,9 @@ const save = async () => {
     alert('Bitte füllen Sie alle Felder aus')
     return
   }
-  console.log(route.params.courseId)
-  if (!route.params.courseId) { // Kurs existiert noch nicht
+  if (!courseId) {
     pushCourse({
-      oldId: courseName.value, // Kurs Name aus Input
+      name: courseName.value,
       description: courseDescription.value,
       professor: professorId.value,
       classroom: courseRoom.value
@@ -70,22 +65,21 @@ const save = async () => {
         alert('Error', err)
       })
   } else {
-  // course exists do put
-  try {
-    await axios.put(`${api_url}/course/${courseName.value}`, {
-      description: courseDescription.value,
-      classroom: courseRoom.value
-    })
-  } catch (error) {
-    console.log(error)
-  }
-  router.push('/courses')
+    try {
+      await axios.put(`${api_url}/course/${courseId}`, {
+        name: courseName.value,
+        description: courseDescription.value,
+        classroom: courseRoom.value
+      })
+    } catch (error) {
+      console.log(error)
+    }
+    router.push('/courses')
   }
 }
 
-const deleteCourse = async (courseId) => {
+const deleteCourse = async () => {
   try {
-    const courseId = route.params.courseId
     const result = await axios.delete(`${api_url}/course/${courseId}`)
     router.push('/courses')
     console.log(result)
@@ -94,37 +88,18 @@ const deleteCourse = async (courseId) => {
   }
 }
 
-const remove = async (courseId) => {
-  if (!courseId) {
-    alert("Keine Kurs-ID")
-    return
-  }
-  try {
-    await axios.delete(`${api_url}/course/${courseId}`)
-      .then(() => {
-        alert('Kurs gelöscht')
-        router.push('/courses')
-      })
-  } catch (error) {
-    alert('Fehler', error)
-    console.log(error)
-  }
-}
 
 onBeforeMount(async () => {
-  const oldCourseId = route.params.courseId
-  if (oldCourseId) {
-    const oldCourse = await loadOldCourse(oldCourseId)
-    console.log(oldCourse)
-    tasks.value = oldCourse.exercises.map(e => ({ name: e.id, length: e.exercises.length, id: e.id }))
-    console.log(tasks.value)
-    courseName.value = oldCourse._id
-    console.log(courseName.value)
-    courseRoom.value = oldCourse.classroom
+  if (courseId) {
     title.value = 'Kurs bearbeiten'
     createButton.value = 'Speichern'
-    courseDescription.value = oldCourse.description
     isEditMode.value = true
+
+    const oldCourse = await loadCourse(courseId)
+    courseName.value = oldCourse.name
+    tasks.value = oldCourse.exercises.map(e => ({ name: e.name, length: e.exercises.length, id: e.id, is_active: e.is_active }))
+    courseRoom.value = oldCourse.classroom
+    courseDescription.value = oldCourse.description
   } else {
     title.value = 'Kurs erstellen'
     createButton.value = 'Erstellen'
@@ -139,15 +114,14 @@ const createTask = (id) => {
   router.push(`/createTask/${courseId}`)
 }
 
-const editTask = (taskid) => {
+const editTask = (taskId) => {
   const courseId = route.params.courseId
-  router.push(`/editTask/${courseId}/${taskid}`)
+  router.push(`/editTask/${courseId}/${taskId}`)
 
 }
 
 const startTask = async (taskId) => {
   console.log('Start task', taskId)
-  const courseId = route.params.courseId
   const courseLink = `${window.location.host}/student/${courseId}/${taskId}`
 
   try {
@@ -158,6 +132,10 @@ const startTask = async (taskId) => {
     console.error('Error starting the course:', error)
     alert('Fehler beim Starten des Kurses')
   }
+}
+
+const goBackToDashboard = (taskId) => {
+  router.push(`/dashboard/${courseId}/${taskId}`)
 }
 
 </script>
@@ -201,11 +179,12 @@ const startTask = async (taskId) => {
           </thead>
           <tbody>
             <tr v-for="task in tasks">
-              <td>{{ task.id }}</td>
+              <td>{{ task.name }}</td>
               <td>{{ task.length }}</td>
               <td class="text-right">
-                <button class="btn btn-sm btn-danger m-1" @click="editTask(task.id)">Bearbeiten</button>
-                <button class="btn btn-sm btn-accent m-1" @click="startTask(task.id)">Starten</button>
+                <button class="btn btn-sm btn-danger m-1 w-24" @click="editTask(task.id)">Bearbeiten</button>
+                <button v-if="!task.is_active" class="btn btn-sm btn-accent m-1 w-24" @click="startTask(task.id)">Starten</button>
+                <button v-else class="btn btn-sm btn-secondary m-1 w-24" @click="goBackToDashboard(task.id)">Dashboard</button>
               </td>
             </tr>
           </tbody>

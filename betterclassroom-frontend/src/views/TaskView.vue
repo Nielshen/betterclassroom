@@ -1,81 +1,97 @@
 <script setup>
-import { ref, watch, watchEffect, onBeforeMount } from 'vue'
-
+import { ref, watch, computed, onMounted } from 'vue'
 import { useDataStore } from '../stores/dataStore'
 
-const props = defineProps({
-  current_exercise: Number,
-  help_requested: Boolean,
-  tasks: {
-    type: Array,
-    required: true
-  }
-})
-
 const emits = defineEmits(['idxChange', 'raisedHand'])
-
-const index = ref(0)
-const questionAsked = ref(props.help_requested)
 const dataStore = useDataStore()
 
-const exercise = ref(props.current_exercise)
-watch(
-  () => props.help_requested,
-  (newVal) => {
-    questionAsked.value = newVal
-  }
-)
+const exercise = ref(dataStore.user.current_exercise ? dataStore.user.current_exercise - 1 : 0)
 
-watch(
-  () => props.current_exercise,
-  (newVal) => {
-    exercise.value = newVal
+const questionAsked = computed(() => dataStore.user.help_requested)
+const tasks = computed(() => dataStore.tasks)
+const previousTasks = ref([])
+
+const currentExerciseTitle = computed(() => {
+  return tasks.value[exercise.value]?.name || 'Keine Aufgabe verfügbar'
+})
+
+watch(() => dataStore.user.current_exercise, (newVal) => {
+  exercise.value = newVal - 1
+})
+
+
+watch(tasks, (newTasks) => {
+
+  if (newTasks.length === 0) {
+    exercise.value = 0
+    emits('idxChange', exercise.value)
+  } else if (previousTasks.value.length > newTasks.length) {
+    // A task was deleted
+    const deletedIndex = previousTasks.value.findIndex((oldTask) => 
+      !newTasks.some(newTask => newTask.id === oldTask.id)
+    )
+    
+    if (deletedIndex <= exercise.value) {
+      // If the deleted task was before or is the current one
+      const currentTaskId = previousTasks.value[exercise.value]?.id
+      const newIndex = newTasks.findIndex(task => task.id === currentTaskId)
+      
+      if (newIndex !== -1) {
+        // The current task still exists, adjust the index
+        exercise.value = newIndex
+      } else {
+        // The current task was deleted, move to the next available task
+        exercise.value = Math.min(exercise.value, newTasks.length - 1)
+      }
+    }
+    // If the deleted task was after the current one, no adjustment needed
+  } else if (previousTasks.value.length < newTasks.length) {
+    // A task was added, no need to change the current exercise
+    console.log('New task added')
   }
-)
+
+  // Update previousTasks for the next change
+  previousTasks.value = JSON.parse(JSON.stringify(newTasks))
+
+  emits('idxChange', exercise.value)
+}, { deep: true })
 
 const nextTask = () => {
-  // index.value = (index.value + 1) % props.tasks.length
-  let nextIndex = (exercise.value + 1) % props.tasks.length;
-  if (props.tasks[nextIndex]) { // Überprüfen, ob der Index gültig ist
-    exercise.value = nextIndex;
-    console.log('exercise', exercise.value);
-    emits('idxChange', exercise.value);
+  if (tasks.value.length > 0) {
+    let nextIndex = (exercise.value + 1) % tasks.value.length
+    exercise.value = nextIndex
+    emits('idxChange', exercise.value)
   }
 }
 
 const previousTask = () => {
-  // index.value = (index.value - 1 + props.tasks.length) % props.tasks.length
-  let previousIndex = (exercise.value - 1 + props.tasks.length) % props.tasks.length;
-  if (props.tasks[previousIndex]) { // Überprüfen, ob der Index gültig ist
-    exercise.value = previousIndex;
-    console.log('exercise', exercise.value);
-    emits('idxChange', exercise.value);
+  if (tasks.value.length > 0) {
+    let previousIndex = (exercise.value - 1 + tasks.value.length) % tasks.value.length
+    exercise.value = previousIndex
+    emits('idxChange', exercise.value)
   }
 }
 
 const toggleQuestion = () => {
   dataStore.updateUserField('help_requested', !dataStore.user.help_requested)
-  // questionAsked.value = dataStore.user.help_requested;
   emits('raisedHand')
-  questionAsked.value = !questionAsked.value
 }
 
-watchEffect(() => {
-  console.log('Aktuelle Aufgabe:', props.tasks[exercise.value]);
-});
-
-
+onMounted(() => {
+  exercise.value = dataStore.user.current_exercise ? dataStore.user.current_exercise - 1 : 0
+  previousTasks.value = JSON.parse(JSON.stringify(tasks.value))
+  emits('idxChange', exercise.value)
+})
 </script>
 
-<
 <template>
   <div class="w-full h-full">
     <div class="carousel h-full w-full">
       <div id="slide1" class="carousel-item relative justify-center item-center w-full h-full">
         <div class="flex w-3/4 h-[580px] w-[850px]">
           <div class="mx-20 w-full">
-            <div class="flex justify-between">
-              <h1 class="text-2xl my-10">Aufgabe {{ exercise + 1 }} / {{ props.tasks.length }}</h1>
+            <div class="flex justify-between items-center">
+              <h1 class="text-2xl my-10">{{ currentExerciseTitle }}</h1>
               <button
                 @click="toggleQuestion"
                 :class="['btn', 'btn-accent', 'text-2xl', !questionAsked && 'btn-outline']"
@@ -84,22 +100,24 @@ watchEffect(() => {
               </button>
             </div>
             <p>
-              <div v-html="props.tasks[exercise] ? props.tasks[exercise].replace(/(\\n|\n)/g, '<br><br>') : 'Laden...'"></div>
-              <!-- <div v-html="props.tasks[exercise].replace(/(\\n|\n)/g, '<br><br>')"></div> -->
+              <div v-if="tasks[exercise]">
+                <div v-html="tasks[exercise].description.replace(/(\\n|\n)/g, '<br><br>')"></div>
+              </div>
+              <div v-else>Laden...</div>
             </p>
           </div>
         </div>
       </div>
     </div>
     <div class="absolute flex justify-between transform -translate-y-1/2 left-1 right-1 top-1/2">
-      <a v-if="exercise > 0" @click="previousTask" class="btn btn-circle btn-accent ml-4">❮</a>
+      <a v-if="tasks.length > 1 && exercise > 0" @click="previousTask" class="btn btn-circle btn-accent ml-4">❮</a>
       <a v-else class="btn btn-circle" style="visibility: hidden">❮</a>
       <a
-        v-if="exercise < props.tasks.length - 1"
+        v-if="tasks.length > 1 && exercise < tasks.length - 1"
         @click="nextTask"
         class="btn btn-circle btn-accent mr-4"
-        >❯</a
-      >
+      >❯</a>
+      <a v-else class="btn btn-circle" style="visibility: hidden">❯</a>
     </div>
   </div>
 </template>
