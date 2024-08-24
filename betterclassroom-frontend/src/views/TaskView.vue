@@ -8,10 +8,8 @@ const dataStore = useDataStore()
 const exercise = ref(dataStore.user.current_exercise ? dataStore.user.current_exercise - 1 : 0)
 
 const questionAsked = computed(() => dataStore.user.help_requested)
-const tasks = computed(() => {
-  console.log('Tasks computed property called, current value:', dataStore.tasks)
-  return dataStore.tasks
-})
+const tasks = computed(() => dataStore.tasks)
+const previousTasks = ref([])
 
 const currentExerciseTitle = computed(() => {
   return tasks.value[exercise.value]?.name || 'Keine Aufgabe verfügbar'
@@ -21,32 +19,41 @@ watch(() => dataStore.user.current_exercise, (newVal) => {
   exercise.value = newVal - 1
 })
 
-watch(tasks, (newTasks, oldTasks) => {
-  console.log('Tasks watcher triggered')
-  console.log('New tasks:', newTasks)
-  console.log('Old tasks:', oldTasks)
-  
-  if (newTasks.length === 1) {
+
+watch(tasks, (newTasks) => {
+
+  if (newTasks.length === 0) {
     exercise.value = 0
     emits('idxChange', exercise.value)
-  } else if (newTasks.length > oldTasks.length) {
-    console.log('New task added, navigation controls updated')
-  } else if (newTasks.length < oldTasks.length) {
-    console.log('Task deleted, adjusting current exercise if necessary')
-    if (exercise.value >= newTasks.length) {
-      // If the current exercise is now out of bounds, adjust it
-      exercise.value = newTasks.length - 1
-      emits('idxChange', exercise.value)
-    } else if (exercise.value > 0) {
-      // If the deleted task was before the current one, we need to shift back
-      const oldTask = oldTasks[exercise.value]
-      const newIndex = newTasks.findIndex(task => task.id === oldTask.id)
+  } else if (previousTasks.value.length > newTasks.length) {
+    // A task was deleted
+    const deletedIndex = previousTasks.value.findIndex((oldTask) => 
+      !newTasks.some(newTask => newTask.id === oldTask.id)
+    )
+    
+    if (deletedIndex <= exercise.value) {
+      // If the deleted task was before or is the current one
+      const currentTaskId = previousTasks.value[exercise.value]?.id
+      const newIndex = newTasks.findIndex(task => task.id === currentTaskId)
+      
       if (newIndex !== -1) {
+        // The current task still exists, adjust the index
         exercise.value = newIndex
-        emits('idxChange', exercise.value)
+      } else {
+        // The current task was deleted, move to the next available task
+        exercise.value = Math.min(exercise.value, newTasks.length - 1)
       }
     }
+    // If the deleted task was after the current one, no adjustment needed
+  } else if (previousTasks.value.length < newTasks.length) {
+    // A task was added, no need to change the current exercise
+    console.log('New task added')
   }
+
+  // Update previousTasks for the next change
+  previousTasks.value = JSON.parse(JSON.stringify(newTasks))
+
+  emits('idxChange', exercise.value)
 }, { deep: true })
 
 const nextTask = () => {
@@ -72,6 +79,7 @@ const toggleQuestion = () => {
 
 onMounted(() => {
   exercise.value = dataStore.user.current_exercise ? dataStore.user.current_exercise - 1 : 0
+  previousTasks.value = JSON.parse(JSON.stringify(tasks.value))
   emits('idxChange', exercise.value)
 })
 </script>

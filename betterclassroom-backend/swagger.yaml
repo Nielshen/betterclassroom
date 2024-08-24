@@ -217,7 +217,6 @@ paths:
         content:
           application/json:
             schema:
-            # TODO object???
               type: object
               properties:
                 current_exercise:

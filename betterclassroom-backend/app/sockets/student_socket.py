@@ -223,7 +223,7 @@ class StudentNamespace(Namespace):
                     },
                     to=sid_value,
                 )
-        return {"success": "Subexercise description updated successfully"}
+        return {"success": subexercise_id}
 
     def on_alter_subexercise(self, data):
         course_id = data.get("course")

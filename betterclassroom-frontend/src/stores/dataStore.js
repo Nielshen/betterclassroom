@@ -4,10 +4,10 @@ import { ref, computed } from 'vue'
 export const useDataStore = defineStore('dataStore', () => {
   const user = ref({})
   const tasks = ref([])
+  const dashboardData = ref([])
 
   const isStudent = computed(() => user.value.role === 'student')
   const isLoggedIn = computed(() => !!user.value.role)
-  const dashboardData = ref([])
 
   const initStudent = () => {
     user.value = { role: 'student' }

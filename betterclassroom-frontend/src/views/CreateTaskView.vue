@@ -11,6 +11,10 @@ const router = useRouter()
 const courseId = route.params.courseId
 const taskId = route.params.taskId
 
+const rawUrl = getApiUrl()
+const api_url = `http://${rawUrl}/api`
+const wsUrl = `ws://${rawUrl}/student`
+
 const title = ref('Aufgabe erstellen')
 const taskName = ref('')
 const taskDescription = ref('')
@@ -24,22 +28,21 @@ const isEditing = ref(false)
 const currentSubTaskId = ref('')
 const isExerciseActive = ref(false)
 
-let subTasksToDelete = [];
-
-const rawUrl = getApiUrl()
-const api_url = `http://${rawUrl}/api`
-const wsUrl = `ws://${rawUrl}/student`
 
 const socket = io(wsUrl, {
-    path: '/api/socket.io/student',
-    transports: ['websocket']
-  })
+  path: '/api/socket.io/student',
+  transports: ['websocket']
+})
 
 const goBackToDashboard = () => {
   router.push(`/dashboard/${courseId}/${taskId}`)
 }
 
-const loadExercises = async() => {
+const backToCourse = () => {
+  router.push(`/createCourse/${courseId}`)
+}
+
+const loadExercises = async () => {
   try {
     const result = await axios.get(`${api_url}/course/${courseId}`)
     return result.data
@@ -68,55 +71,6 @@ const createExercise = async () => {
   }
 }
 
-const editExercise = async () => {
-  for (let subTaskId of subTasksToDelete) {
-    try {
-      socket.emit("delete_subexercise", {
-        course: courseId,
-        exercise: taskId,
-        subexercise: subTaskId
-      }, function (response) {
-        if (response.error) {
-          console.error('Fehler beim Löschen der SubExercise:', response.error)
-        }
-      })
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  for (let subExercise of subExercises.value) {
-    const subTaskId = subExercise.id;
-    const existingSubExercise = oldSubExercises.value.find(oldSubExercise => oldSubExercise.id === subTaskId)
-    if (!existingSubExercise) {
-      try {
-        socket.emit("new_subexercise", {
-          course: courseId,
-          exercise: taskId,
-          name: subExercise.name,
-          description: subExercise.description
-        }, function (response) {
-          if (response.error) {
-            console.error('Fehler beim Erstellen der SubExercise:', response.error)
-          }
-        })
-      } catch (error) {
-        console.log(error)
-      }
-    }
-  }
-  try {
-    const result = await axios.put(`${api_url}/course/${courseId}/exercise/${taskId}`, {
-      name: taskName.value,
-      description: taskDescription.value,
-    })
-    console.log(result)
-    alert('Aufgabe bearbeitet')
-    router.push(`/createCourse/${courseId}`)
-  } catch (error) {
-    console.log(error)
-  }
-}
-
 const deleteTask = async (taskId) => {
   if (!taskId) {
     alert("Keine Aufgaben-ID")
@@ -139,12 +93,28 @@ const createSubTask = async () => {
     return
   }
   const description = subtask.value.replace(/\r?\n/g, '\\n')
-  subExercises.value.push({ name: name, description: description })
+
+  try {
+    socket.emit("new_subexercise", {
+      course: courseId,
+      exercise: taskId,
+      name: subtaskName.value,
+      description: subtask.value
+    }, (response) => {
+      if (response.success) {
+        subExercises.value.push({ id: response.success, name: name, description: description })
+      } else {
+        console.error('Fehler beim Erstellen der SubExercise:', response.error)
+      }
+    })
+  } catch (error) {
+    console.log(error)
+  }
   subtaskName.value = ''
   subtask.value = ''
 }
 
-const editSubTask = async (subTaskId) => {
+const selectSubTaskToEdit = async (subTaskId) => {
   if (!subTaskId) {
     alert("Keine Aufgaben-ID")
     return
@@ -156,13 +126,13 @@ const editSubTask = async (subTaskId) => {
   currentSubTaskId.value = subTaskId
 }
 
-const saveChanges = async () => {
+const saveEditedSubTask = async () => {
   isEditing.value = false
   try {
     const subTaskExists = oldSubExercises.value.find(subExercise => subExercise.id === currentSubTaskId.value);
     subExercises.value = subExercises.value.map(subTask => {
       if (subTask.id === currentSubTaskId.value) {
-        return { id: subTask.id, name: subTask.name, description: subtask.value }
+        return { id: subTask.id, name: subtaskName.value, description: subtask.value }
       }
       return subTask
     })
@@ -170,24 +140,18 @@ const saveChanges = async () => {
       socket.emit('alter_subexercise',
         { course: courseId, exercise: taskId, subexercise: currentSubTaskId.value, name: subtaskName.value, description: subtask.value },
         function (response) {
-          if (response.error) {
+          if (response.success) {
+            alert("Änderungen gespeichert")
+          } else
             console.error('Fehler beim Ändernn der SubExercise: ', response.error)
-          }
         }
       )
-      alert("Änderungen gespeichert")
     }
     subtask.value = ''
     subtaskName.value = ''
   } catch (error) {
     console.error(error);
   }
-}
-
-const cancelChanges = async () => {
-  isEditing.value = false
-  subtask.value = ''
-  subtaskName.value = ''
 }
 
 const deleteSubTask = async (subTaskId) => {
@@ -197,12 +161,31 @@ const deleteSubTask = async (subTaskId) => {
   }
 
   const subTaskExists = oldSubExercises.value.find(subExercise => subExercise.id === subTaskId);
-
   if (subTaskExists) {
-    subTasksToDelete.push(subTaskId);
+    try {
+      socket.emit("delete_subexercise", {
+        course: courseId,
+        exercise: taskId,
+        subexercise: subTaskId
+      }, function (response) {
+        if (response.success) {
+          alert("Unteraufgabe gelöscht")
+        } else
+          if (response.error) {
+            console.error('Fehler beim Löschen der SubExercise:', response.error)
+          }
+      })
+    } catch (error) {
+      console.log(error);
+    }
   }
-
   subExercises.value = subExercises.value.filter(subTask => subTask.id !== subTaskId)
+}
+
+const cancelChanges = async () => {
+  isEditing.value = false
+  subtask.value = ''
+  subtaskName.value = ''
 }
 
 onBeforeMount(async () => {
@@ -220,7 +203,7 @@ onBeforeMount(async () => {
       taskDescription.value = exercises.description
       title.value = 'Aufgabe bearbeiten'
       createButton.value = 'Speichern'
-      exerciseButtonMethod.value = editExercise
+      exerciseButtonMethod.value = backToCourse
       isExerciseActive.value = exercises.is_active
     } else {
       console.error('loadOldTask hat keinen Wert zurückgegeben')
@@ -231,8 +214,6 @@ onBeforeMount(async () => {
     exerciseButtonMethod.value = createExercise
   }
 })
-
-
 </script>
 
 <template>
@@ -241,7 +222,8 @@ onBeforeMount(async () => {
       <div class="flex flex-row items-center justify-between">
         <h1 class="text-2xl my-10">{{ title }}</h1>
         <div>
-          <button v-if="isExerciseActive" class="btn btn-secondary mr-4" @click="goBackToDashboard">Zurück zum Dashboard</button>
+          <button v-if="isExerciseActive" class="btn btn-secondary mr-4" @click="goBackToDashboard">Zurück zum
+            Dashboard</button>
           <button v-if="route.params.taskId" class="btn btn-danger mr-2" @click="deleteTask(taskId)">Löschen</button>
         </div>
       </div>
@@ -260,7 +242,7 @@ onBeforeMount(async () => {
         <button class="btn btn-accent mb-5 float-right" v-if="!isEditing" @click="createSubTask">&#65291 Unteraufgabe
           hinzufügen</button>
         <div class="mb-4" v-if="isEditing">
-          <button class="btn btn-primary mr-2" @click="saveChanges">Speichern</button>
+          <button class="btn btn-primary mr-2" @click="saveEditedSubTask">Speichern</button>
           <button class="btn" @click="cancelChanges">Abbrechen</button>
         </div>
         <table class="table table-zebra">
@@ -277,7 +259,8 @@ onBeforeMount(async () => {
               <td style="white-space: pre-line;">{{ s.description }}</td>
               <td style="text-align: right; width: 1%; white-space: nowrap;">
                 <div class="inline-flex justify-end">
-                  <button class="btn btn-xs btn-primary btn-square m-2" @click="() => editSubTask(s.id)">✏️</button>
+                  <button class="btn btn-xs btn-primary btn-square m-2"
+                    @click="() => selectSubTaskToEdit(s.id)">✏️</button>
                   <button class="btn btn-xs btn-primary btn-square m-2" @click="() => deleteSubTask(s.id)">🗑️</button>
                 </div>
               </td>

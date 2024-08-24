@@ -5,7 +5,6 @@ import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import { getApiUrl } from '@/utils/common'
 
-
 const route = useRoute()
 const router = useRouter()
 
@@ -13,17 +12,6 @@ const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
 
 const courseId = route.params.courseId
-
-
-const loadCourse = async (id) => {
-  try {
-    const result = await axios.get(`${api_url}/course/${id}`)
-    return result.data
-  } catch (error) {
-    console.log(error)
-  }
-}
-
 
 const title = ref('')
 const courseName = ref('')
@@ -33,6 +21,15 @@ const createButton = ref('')
 const professorId = ref('')
 const tasks = ref([])
 const isEditMode = ref('')
+
+const loadCourse = async (id) => {
+  try {
+    const result = await axios.get(`${api_url}/course/${id}`)
+    return result.data
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 const pushCourse = async ({ name, description, professor, classroom }) => {
   try {
@@ -93,16 +90,16 @@ const deleteCourse = async () => {
 
 
 onBeforeMount(async () => {
-  const oldCourseId = route.params.courseId
-  if (oldCourseId) {
-    const oldCourse = await loadCourse(oldCourseId)
-    tasks.value = oldCourse.exercises.map(e => ({ name: e.name, length: e.exercises.length, id: e.id}))
-    courseName.value = oldCourse.name
-    courseRoom.value = oldCourse.classroom
+  if (courseId) {
     title.value = 'Kurs bearbeiten'
     createButton.value = 'Speichern'
-    courseDescription.value = oldCourse.description
     isEditMode.value = true
+
+    const oldCourse = await loadCourse(courseId)
+    courseName.value = oldCourse.name
+    tasks.value = oldCourse.exercises.map(e => ({ name: e.name, length: e.exercises.length, id: e.id, is_active: e.is_active }))
+    courseRoom.value = oldCourse.classroom
+    courseDescription.value = oldCourse.description
   } else {
     title.value = 'Kurs erstellen'
     createButton.value = 'Erstellen'
@@ -125,7 +122,6 @@ const editTask = (taskId) => {
 
 const startTask = async (taskId) => {
   console.log('Start task', taskId)
-  const courseId = route.params.courseId
   const courseLink = `${window.location.host}/student/${courseId}/${taskId}`
 
   try {
@@ -136,6 +132,10 @@ const startTask = async (taskId) => {
     console.error('Error starting the course:', error)
     alert('Fehler beim Starten des Kurses')
   }
+}
+
+const goBackToDashboard = (taskId) => {
+  router.push(`/dashboard/${courseId}/${taskId}`)
 }
 
 </script>
@@ -182,8 +182,9 @@ const startTask = async (taskId) => {
               <td>{{ task.name }}</td>
               <td>{{ task.length }}</td>
               <td class="text-right">
-                <button class="btn btn-sm btn-danger m-1" @click="editTask(task.id)">Bearbeiten</button>
-                <button class="btn btn-sm btn-accent m-1" @click="startTask(task.id)">Starten</button>
+                <button class="btn btn-sm btn-danger m-1 w-24" @click="editTask(task.id)">Bearbeiten</button>
+                <button v-if="!task.is_active" class="btn btn-sm btn-accent m-1 w-24" @click="startTask(task.id)">Starten</button>
+                <button v-else class="btn btn-sm btn-secondary m-1 w-24" @click="goBackToDashboard(task.id)">Dashboard</button>
               </td>
             </tr>
           </tbody>
