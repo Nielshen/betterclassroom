@@ -86,32 +86,53 @@ const deleteTask = async (taskId) => {
   }
 }
 
-const createSubTask = async () => {
-  const name = subtaskName.value
-  if (!name) {
+const handleSubTaskAction = () => {
+  console.log('handleSubTaskAction')
+  if (createButton.value === 'Erstellen') {
+    console.log('saveSubTask called')
+    addSubTask()
+  } else {
+    console.log('saveEditedSubTask called')
+    saveSubTask()
+  }
+}
+
+const addSubTask = () => {
+  console.log('addSubTask')
+  if (!subtaskName.value) {
     alert("Kein Unteraufgaben Titel")
     return
   }
   const description = subtask.value.replace(/\r?\n/g, '\\n')
 
+  subExercises.value.push({ name: subtaskName.value, description: description })
+  subtaskName.value = ''
+  subtask.value = ''
+}
+
+const saveSubTask = async () => {
+  console.log('saveSubTask')
+  const name = subtaskName.value
+  const description = subtask.value
+  addSubTask()
   try {
-    socket.emit("new_subexercise", {
-      course: courseId,
-      exercise: taskId,
-      name: subtaskName.value,
-      description: subtask.value
-    }, (response) => {
-      if (response.success) {
-        subExercises.value.push({ id: response.success, name: name, description: description })
-      } else {
-        console.error('Fehler beim Erstellen der SubExercise:', response.error)
-      }
+    const response = await new Promise((resolve) => {
+      socket.emit("new_subexercise", {
+        course: courseId,
+        exercise: taskId,
+        name: name,
+        description: description
+      }, resolve)
     })
+
+    if (response.success) {
+      // ??
+    } else {
+      console.error('Fehler beim Erstellen der SubExercise:', response.error)
+    }
   } catch (error) {
     console.log(error)
   }
-  subtaskName.value = ''
-  subtask.value = ''
 }
 
 const selectSubTaskToEdit = async (subTaskId) => {
@@ -239,7 +260,8 @@ onBeforeMount(async () => {
           <textarea class="textarea textarea-accent my-5 overflow-auto flex-grow"
             placeholder="Beschreibung der Unteraufgabe" style="min-height: 200px;" v-model="subtask"></textarea>
         </div>
-        <button class="btn btn-accent mb-5 float-right" v-if="!isEditing" @click="createSubTask">&#65291 Unteraufgabe
+        <button class="btn btn-accent mb-5 float-right" v-if="!isEditing" @click="handleSubTaskAction">&#65291
+          Unteraufgabe
           hinzufügen</button>
         <div class="mb-4" v-if="isEditing">
           <button class="btn btn-primary mr-2" @click="saveEditedSubTask">Speichern</button>
