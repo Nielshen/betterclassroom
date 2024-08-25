@@ -4,6 +4,10 @@ import { onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { v4 as uuidv4 } from 'uuid'
 import { getApiUrl } from '@/utils/common'
+import { MdEditor } from 'md-editor-v3';
+import 'md-editor-v3/lib/style.css';
+
+const text = ref('Hello Editor!');
 
 const route = useRoute()
 const router = useRouter()
@@ -227,7 +231,8 @@ onBeforeMount(async () => {
       <textarea class="textarea textarea-accent my-5 overflow-auto" placeholder="Beschreibung der Aufgabe"
         style="min-height: 100px;" v-model="taskDescription"></textarea>
       <div class="overflow-x-auto w-full">
-        <h2 class="text-xl my-5">Unteraufgaben</h2>
+        <h2 class="text-xl my-5">Unteraufgaben 2</h2>
+        <MdEditor v-model="text" />
         <input type="text" placeholder="Unteraufgabentitel" class="input input-md input-bordered input-accent w-full"
           v-model="subtaskName" />
         <div class="flex items-center">
