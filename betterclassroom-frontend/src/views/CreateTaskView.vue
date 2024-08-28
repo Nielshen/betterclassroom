@@ -43,8 +43,6 @@ const loadOldTask = async (id) => {
   }
 }
 
-
-
 // Aufgabenmethoden
 const createExercise = async () => {
   const id = taskName.value
@@ -125,7 +123,7 @@ const createSubTask = async () => {
     alert("Keine Unteraufgaben-ID")
     return
   }
-  const description = subtask.value.replace(/\r?\n/g, '\\n')
+  const description = subtask.value
 
   subExercises.value.push({ id: id, description: description })
   subtaskName.value = ''
@@ -139,7 +137,7 @@ const editSubTask = async (subTaskId) => {
   }
   const task = subExercises.value.find(subTask => subTask.id === subTaskId)
   subtaskName.value = task.id
-  subtask.value = task.description.replace(/\\n/g, '\n')
+  subtask.value = task.description
   isEditing.value = true
   currentSubTaskId.value = subTaskId
 }
@@ -213,38 +211,45 @@ onBeforeMount(async () => {
     exerciseButtonMethod.value = createExercise
   }
 })
-
-
-
-
 </script>
 
+<style scoped>
+.md-editor-container {
+  height: 500px; /* Erhöhen Sie die Höhe nach Bedarf */
+  width: 95%; /* Passt die Breite an den Container an */
+}
+
+.editor-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+</style>
+
 <template>
-  <div class="flex justify-center item-center">
-    <div class="flex flex-col w-2/3">
+  <div class="flex justify-center items-center">
+    <div class="flex flex-col w-full md:w-2/3">
       <div class="flex flex-row items-center justify-between">
         <h1 class="text-2xl my-10">{{ title }}</h1>
         <button v-if="route.params.taskid" class="btn btn-danger" @click="deleteTask(taskId)">Löschen</button>
       </div>
       <input type="text" placeholder="Aufgabenname" class="input input-bordered input-accent w-full max-w-xs my-5"
         v-model="taskName" />
-      <textarea class="textarea textarea-accent my-5 overflow-auto" placeholder="Beschreibung der Aufgabe"
-        style="min-height: 100px;" v-model="taskDescription"></textarea>
+      <textarea placeholder="Aufgabenbeschreibung" class="textarea textarea-bordered textarea-accent w-full my-5" v-model="taskDescription"></textarea>
       <div class="overflow-x-auto w-full">
-        <h2 class="text-xl my-5">Unteraufgaben 2</h2>
-        <MdEditor v-model="text" />
-        <input type="text" placeholder="Unteraufgabentitel" class="input input-md input-bordered input-accent w-full"
+        <h2 class="text-xl my-5">Unteraufgaben</h2>
+        <input type="text" placeholder="Unteraufgabentitel" class="input input-md input-bordered input-accent w-full mb-4"
           v-model="subtaskName" />
-        <div class="flex items-center">
-          <textarea class="textarea textarea-accent my-5 overflow-auto flex-grow"
-            placeholder="Beschreibung der Unteraufgabe" style="min-height: 200px;" v-model="subtask"></textarea>
+        <div class="editor-wrapper">
+          <MdEditor v-model="subtask" language="en-US" class="md-editor-container" />
         </div>
-        <button class="btn btn-accent mb-5 float-right" v-if="!isEditing" @click="createSubTask">&#65291 Unteraufgabe
-          hinzufügen</button>
         <div class="mb-4" v-if="isEditing">
           <button class="btn btn-primary mr-2" @click="saveChanges">Speichern</button>
           <button class="btn" @click="cancelChanges">Abbrechen</button>
         </div>
+        <button class="btn btn-accent mb-5 float-right" v-if="!isEditing" @click="createSubTask">&#65291 Unteraufgabe hinzufügen</button>
         <table class="table table-zebra">
           <thead>
             <tr>
