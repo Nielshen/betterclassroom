@@ -10,6 +10,7 @@ from app.db_models import (
     ProfessorRepository,
 )
 from app.utils.helpers import createO201, createO301, createProfEigslperger
+from swagger_ui import flask_api_doc
 import os
 
 socketio = SocketIO(
@@ -67,5 +68,12 @@ def create_app():
     createO201(classroom_repo)
     createO301(classroom_repo)
     createProfEigslperger(professor_repo)
+
+    flask_api_doc(
+        app,
+        config_path="swagger.yaml",
+        url_prefix="/api/docs",
+        title="BetterClassroom API Doc",
+    )
 
     return app

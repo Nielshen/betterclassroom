@@ -4,9 +4,7 @@ from flask import request
 import logging
 from app import students_repo, course_repo
 from app.db_models import Student
-from app.utils.helpers import validate_socket_request, to_boolean
-import json
-from pydantic import ValidationError
+from app.utils.helpers import validate_socket_request, get_hash
 
 
 class StudentNamespace(Namespace):
@@ -49,15 +47,10 @@ class StudentNamespace(Namespace):
 
     @validate_socket_request(Student)
     def on_new_student(self, student_data):
-        logging.info(
-            f"New student: {student_data.id}, data: {student_data}, dashboard_sids: {self.dashboard_sids}"
-        )
-
         course = course_repo.find_one_by_id(student_data.course)
         if not course:
             return {"error": "Course not found"}
 
-        # TODO check if exercise exists in course
         exercise = next(
             (ex for ex in course.exercises if ex.id == student_data.exercise), None
         )
@@ -81,19 +74,15 @@ class StudentNamespace(Namespace):
             {"$addToSet": {"exercises.$.participants": student_data.id}},
         )
 
-        # TODO clean this garbage
-        json_data = student_data.json()
-        json_data = json.loads(json_data)
-
-        logging.info(f"Student parsed json: {type(json_data)}")
-        json_data["_id"] = json_data.get("id")
-        json_data["action"] = "add"
+        student_data = dict(student_data)
+        student_data["_id"] = student_data["id"]
+        student_data["action"] = "add"
 
         emit(
             "student",
-            {"data": json_data},
+            {"data": student_data},
             to=self.dashboard_sids.get(
-                json_data["course"] + "." + json_data["exercise"]
+                student_data["course"] + "." + student_data["exercise"]
             ),
         )
         return {"success": "Student added successfully"}
@@ -124,39 +113,7 @@ class StudentNamespace(Namespace):
             return {"error": "No data provided"}
 
         if student_data.get("current_exercise") is None:
-            # No current_exercise provided -> try to validate progress data
-            try:
-                student_data = {k: to_boolean(v) for k, v in student_data.items()}
-                Student.__pydantic_validator__.validate_assignment(
-                    Student.model_construct(), "progress", student_data
-                )
-            except ValidationError as e:
-                return {
-                    "error": "Using old progess data dict resulted in following error: "
-                    + str(e)
-                }
-
-            course_data = course_repo.find_one_by({"id": student.course})
-            exercise_ids = {exercise.id for exercise in course_data.exercises}
-
-            if not all(ex_id in exercise_ids for ex_id in student_data.keys()):
-                return {"error": "Exercise not found in the course"}
-
-            students_repo.get_collection().update_one(
-                {"_id": student.id}, {"$set": {"progress": student_data}}
-            )
-            emit(
-                "progress",
-                {
-                    "data": {
-                        "_id": student_data.get("id"),
-                        "progress": student_data,
-                        "table": student.table,
-                    }
-                },
-                to=self.dashboard_sids.get(student.course + "." + student.exercise),
-            )
-            return {"success": "Progress updated successfully"}
+            return {"error": "current_exercise is required"}
 
         if not isinstance(student_data.get("current_exercise"), int):
             return {"error": "current_exercise must be an integer"}
@@ -189,10 +146,6 @@ class StudentNamespace(Namespace):
             {"$set": {"help_requested": changed_help}},
         )
 
-        # emit help event to dashboard and student
-        logging.info(
-            f"Emitting help event to dashboard: {student.course + '.' + student.exercise}"
-        )
         emit(
             "help",
             {
@@ -204,9 +157,7 @@ class StudentNamespace(Namespace):
             },
             to=self.dashboard_sids.get(student.course + "." + student.exercise),
         )
-        logging.info(
-            f"Emitting help event to student: {student.course + '.' + student.exercise + '.' + student.id}"
-        )
+
         emit(
             "help",
             {
@@ -221,6 +172,160 @@ class StudentNamespace(Namespace):
             ),
         )
         return {"success": "Help requested updated successfully"}
+
+    def on_new_subexercise(self, data):
+        course_id = data.get("course")
+        exercise_id = data.get("exercise")
+
+        name = data.get("name")
+        description = data.get("description")
+
+        subexercise_id = get_hash(name)
+
+        course = course_repo.find_one_by_id(course_id)
+        if not course:
+            return {"error": "Course not found"}
+
+        exercise = next(
+            (ex for ex in course.exercises if ex.id == exercise_id),
+            None,
+        )
+        if not exercise:
+            return {"error": "Exercise not found"}
+
+        if any(sub.id == subexercise_id for sub in exercise.exercises):
+            return {"error": "Subexercise with this ID already exists"}
+
+        course_repo.get_collection().update_one(
+            {"_id": course_id, "exercises.id": exercise_id},
+            {
+                "$addToSet": {
+                    "exercises.$.exercises": {
+                        "id": subexercise_id,
+                        "name": name,
+                        "description": description,
+                    }
+                }
+            },
+        )
+
+        course_exercise_key = f"{course_id}.{exercise_id}"
+        for sid_key, sid_value in self.student_sids.items():
+            if sid_key.startswith(course_exercise_key):
+                emit(
+                    "new_subexercise",
+                    {
+                        "data": {
+                            "id": subexercise_id,
+                            "name": name,
+                            "description": description,
+                        }
+                    },
+                    to=sid_value,
+                )
+        return {"success": subexercise_id}
+
+    def on_alter_subexercise(self, data):
+        course_id = data.get("course")
+        exercise_id = data.get("exercise")
+        subexercise_id = data.get("subexercise")
+        name = data.get("name")
+        description = data.get("description")
+
+        course = course_repo.find_one_by_id(course_id)
+        if not course:
+            return {"error": "Course not found"}
+
+        exercise = next(
+            (ex for ex in course.exercises if ex.id == exercise_id),
+            None,
+        )
+        if not exercise:
+            return {"error": "Exercise not found"}
+
+        subexercise = next(
+            subex for subex in exercise.exercises if subex.id == subexercise_id
+        )
+        if not subexercise:
+            return {"error": "Subexercise not found"}
+
+        update_fields = {}
+        if name:
+            update_fields["exercises.$[exercise].exercises.$[subexercise].name"] = name
+        if description:
+            update_fields[
+                "exercises.$[exercise].exercises.$[subexercise].description"
+            ] = description
+
+        if not update_fields:
+            return {"error": "No valid fields provided for update"}
+
+        course_repo.get_collection().update_one(
+            {
+                "_id": course_id,
+                "exercises.id": exercise_id,
+                "exercises.exercises.id": subexercise_id,
+            },
+            {"$set": update_fields},
+            array_filters=[
+                {"exercise.id": exercise_id},
+                {"subexercise.id": subexercise_id},
+            ],
+        )
+
+        course_exercise_key = f"{course_id}.{exercise_id}"
+        for sid_key, sid_value in self.student_sids.items():
+            if sid_key.startswith(course_exercise_key):
+                emit(
+                    "alter_subexercise",
+                    {
+                        "data": {
+                            "subexercise_id": subexercise_id,
+                            "name": name,
+                            "description": description,
+                        }
+                    },
+                    to=sid_value,
+                )
+        return {"success": "Subexercise updated successfully"}
+
+    def on_delete_subexercise(self, data):
+        course_id = data.get("course")
+        exercise_id = data.get("exercise")
+        subexercise_id = data.get("subexercise")
+
+        course = course_repo.find_one_by_id(course_id)
+        if not course:
+            return {"error": "Course not found"}
+
+        exercise = next((ex for ex in course.exercises if ex.id == exercise_id), None)
+        if not exercise:
+            return {"error": "Exercise not found"}
+
+        subexercise = next(
+            subex for subex in exercise.exercises if subex.id == subexercise_id
+        )
+        if not subexercise:
+            return {"error": "Subexercise not found"}
+
+        course_repo.get_collection().update_one(
+            {"_id": course_id, "exercises.id": exercise_id},
+            {"$pull": {"exercises.$.exercises": {"id": subexercise_id}}},
+        )
+
+        course_exercise_key = f"{course_id}.{exercise_id}"
+        for sid_key, sid_value in self.student_sids.items():
+            if sid_key.startswith(course_exercise_key):
+                emit(
+                    "delete_subexercise",
+                    {
+                        "data": {
+                            "subexercise_id": subexercise_id,
+                        }
+                    },
+                    to=sid_value,
+                )
+        return {"success": "Subexercise deleted successfully"}
 
 
 student_ns = StudentNamespace("/student")
