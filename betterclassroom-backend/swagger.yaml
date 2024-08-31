@@ -8,6 +8,8 @@ servers:
     description: Production server
   - url: http://betterclassroom-staging.in.htwg-konstanz.de:8080/api
     description: Staging server
+  - url: http://better-classroom.com:8088/api
+    description: Local cluster
   - url: http://localhost:5000/api
     description: Local server
 paths:
