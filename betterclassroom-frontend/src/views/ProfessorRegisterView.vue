@@ -16,30 +16,28 @@ const rawUrl = getApiUrl()
 const professorApiUrl = `http://${rawUrl}/api/professor`
 
 const register = async () => {
-    const data = {
-        email: email.value,
-        last_name: lastName.value,
-        first_name: firstName.value,
-        password: password1.value,
-        password2: password2.value
-    }
+  const data = {
+    email: email.value,
+    last_name: lastName.value,
+    first_name: firstName.value,
+    password: password1.value,
+    password2: password2.value
+  }
 
-    try {
-        //const response = await axios.post(`${professorApiUrl}/register`, data)
-        router.push("/courses")
-    } catch(e) {
-
-        console.error(e)
-    
-    }
-
-    
+  try {
+    //const response = await axios.post(`${professorApiUrl}/register`, data)
+    router.push('/courses')
+  } catch (e) {
+    console.error(e)
+  }
 }
-
 </script>
 <template>
-  <div class="flex flex-col h-full my-10 p-4 items-center justify-between border-4 border-black ">
-  <h1>Register as a Professor</h1>
+<div class="flex flex-col items-center">
+  <div class="flex flex-col h-full w-[400px] my-10 p-6 items-left justify-between rounded-xl shadow-2xl shadow-bg-primaryl hover:shadow-cyan-500/50">
+    <h1 class="text-2xl">Better Classroom</h1>
+    <h1 class="text-xl font-bold mb-10">Registrierung</h1>
+
     <label class="input input-bordered flex items-center gap-2 my-2">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -56,32 +54,34 @@ const register = async () => {
       </svg>
       <input type="text" v-model="email" class="grow" placeholder="Email" />
     </label>
-    <label class="input input-bordered flex items-center gap-2 my-2">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 16 16"
-        fill="currentColor"
-        class="w-4 h-4 opacity-70"
-      >
-        <path
-          d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z"
-        />
-      </svg>
-      <input type="text" v-model="lastName" class="grow" placeholder="Vorname" />
-    </label>
-    <label class="input input-bordered flex items-center gap-2 my-2">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 16 16"
-        fill="currentColor"
-        class="w-4 h-4 opacity-70"
-      >
-        <path
-          d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z"
-        />
-      </svg>
-      <input type="text" v-model="firstName" class="grow" placeholder="Nachname" />
-    </label>
+    <div class="flex gap-2 my-3">
+      <label class="input input-bordered flex items-center gap-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          class="w-4 h-4 opacity-70"
+        >
+          <path
+            d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z"
+          />
+        </svg>
+        <input type="text" v-model="lastName" class="grow w-1/2" placeholder="Vorname" />
+      </label>
+      <label class="input input-bordered flex items-center gap-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          class="w-4 h-4 opacity-70"
+        >
+          <path
+            d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z"
+          />
+        </svg>
+        <input type="text" v-model="firstName" class="grow w-1/2" placeholder="Nachname" />
+      </label>
+    </div>
     <label class="input input-bordered flex items-center gap-2 my-2">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -112,6 +112,7 @@ const register = async () => {
       </svg>
       <input type="password" v-model="password2" class="grow" value="password" />
     </label>
-    <button @click="register"  class="btn btn-primary">Register</button>
+    <button @click="register" class="btn btn-primary my-4">Registrieren</button>
   </div>
+</div>
 </template>
