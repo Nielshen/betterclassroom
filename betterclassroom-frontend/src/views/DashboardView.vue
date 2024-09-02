@@ -22,7 +22,6 @@ const courseLink = ref('')
 const exerciseCount = ref(0)
 const fullLink = computed(() => `http://${courseLink.value}`)
 const showFullLink = ref(false)
-const copyStatus = ref('Copy to clipboard');
 
 
 
@@ -170,18 +169,37 @@ const generateQRCode = async () => {
   }
 }
 
-const copyToClipboard = async () => {
-  try {
-    await navigator.clipboard.writeText(fullLink.value);
-    copyStatus.value = 'Copied!';
-    setTimeout(() => {
-      copyStatus.value = 'Copy to clipboard';
-    }, 2000);
-  } catch (err) {
-    console.error('Failed to copy: ', err);
-    copyStatus.value = 'Failed to copy';
+function copyToClipboard(text) {
+  let copied = false;
+
+  // Try using navigator.clipboard
+  if (navigator.clipboard && window.isSecureContext) {
+    console.log('Using navigator.clipboard')
+    navigator.clipboard.writeText(text);
+    copied = true;
+  } else {
+    // Fallback to execCommand
+    console.log('Using execCommand')
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      copied = document.execCommand('copy');
+    } catch (err) {
+      copied = false;
+    }
+    document.body.removeChild(textArea);
   }
-};
+
+  // If both methods failed, prompt user
+  if (!copied) {
+    window.prompt("Copy this link:", text);
+  }
+
+  return copied;
+}
+
 
 const closeCourse = async () => {
   try {
@@ -211,7 +229,7 @@ onBeforeMount(async () => {
           <button
             :href="fullLink"
             class="btn btn-danger hover:underline"
-            @click="copyToClipboard"
+            @click="copyToClipboard(fullLink)"
             @mouseenter="showFullLink = true"
             @mouseleave="showFullLink = false"
           >
