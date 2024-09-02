@@ -68,7 +68,7 @@ const removeHelp = async () => {
 <template>
   <div>
     <p v-if="studentRaisedHand"><button @click="removeHelp">👋</button></p>
-    <p v-else>-</p>
+    <p v-else><br></p>
     <div
       :class="['radial-progress', studentRaisedHand ? 'text-error' : 'text-base-100']"
       :style="`--value: ${progress}`"

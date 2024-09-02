@@ -48,24 +48,26 @@ watch(
 </script>
 <template>
   <div
-    class="card w-full sm:w-[13rem] md:w-[14rem] lg:w-[15rem] xl:w-[17rem] h-[7rem] overflow-hidden bg-primary text-primary-content my-2 mr-3"
-  >
-    <div class="pl-3 pr-3">
-      <div class="flex flex-row justify-between">
-        <div class="mt-0" v-if="props.table.student2 != null">
+    class="card w-full h-[8rem] overflow-hidden bg-primary text-primary-content"
+    >
+    <div class="p-2 h-full">
+      <div class="flex flex-row justify-center items-center h-full">
+        <div v-if="props.table.student2 != null" class="w-1/2 flex justify-center items-center">
           <DashboardPerson
             :name="props.table.student2._id"
             :finishedTasks="student2_finishedTasks"
             :maxTasks="student2_maxTasks"
             :raisedHand="student2_raisedHand"
+            class="text-base scale-105"
           />
         </div>
-        <div class="mt-0" v-if="props.table.student1 != null">
+        <div v-if="props.table.student1 != null" class="w-1/2 flex justify-center items-center">
           <DashboardPerson
             :name="props.table.student1._id"
             :finishedTasks="student1_finishedTasks"
             :maxTasks="student1_maxTasks"
             :raisedHand="student1_raisedHand"
+            class="text-base scale-105"
           />
         </div>
       </div>
