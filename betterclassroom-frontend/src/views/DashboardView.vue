@@ -222,7 +222,8 @@ onBeforeMount(async () => {
 })
 </script>
 <template>
-  <div class="flex flex-col min-h-screen max-h-screen">
+  <div class="flex flex-col h-screen">
+
     <div class="flex m-4 justify-between sm:space-x-3">
       <div class="flex items-center text-sm sm:text-base">
         <div class="relative group mx-1">
@@ -243,19 +244,15 @@ onBeforeMount(async () => {
           </span>
         </div>
         <button class="btn btn-danger ml-2" @click="generateQRCode">QR-Code</button>
-        
       </div>
       <button class="btn btn-warning" @click="router.push(`/editTask/${courseId}/${exerciseId}`)">
         Aufgaben bearbeiten
       </button>
     </div>
-    
 
-    <div class="flex-grow overflow-auto">
-      <div class="container mx-auto px-4" style="max-width: 1200px;">
-        <div
-          class="grid grid-cols-4 gap-4 justify-center"
-        >
+    <div class="flex-grow flex flex-col">
+      <div class="flex-grow container mx-auto px-4" style="max-width: 1200px;">
+        <div class="grid grid-cols-4 gap-4 justify-center">
           <DashboardTable
             v-for="table in tableOccupation"
             :key="table.id"
@@ -265,16 +262,15 @@ onBeforeMount(async () => {
             class="w-full max-w-[280px]"
           />
         </div>
-        <div
-          class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white flex items-center justify-center"
-        >
-          <p class="text-4xl">Tafel</p>
-        </div>
+          <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white flex items-center justify-center">
+            <p class="text-4xl">Tafel</p>
+          </div>
       </div>
 
+      <div class="flex justify-end px-4 py-4">
+        <button class="btn btn-warning" @click="closeCourse">Beenden</button>
+      </div>
     </div>
-    <div class="flex justify-end m-4">
-      <button class="btn btn-warning" @click="closeCourse">Beenden</button>
-    </div>
+    
   </div>
 </template>
