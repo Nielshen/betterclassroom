@@ -109,7 +109,6 @@ The `kubernetes` directory contains configuration files for deploying the applic
 - Backend: The Flask application is located in `betterclassroom-backend/app/main.py`
 - Frontend: The Vue.js application entry point is `betterclassroom-frontend/src/main.js`
 - Database: Ensure MongoDB is running and properly configured in the backend
-Node.js is available under the MIT license. Node.js also includes external libraries that are available under a variety of licenses. See LICENSE for the full license text.
 ## License
 
 BetterClassroom is available under the MIT license. See LICENSE for the full license text.
