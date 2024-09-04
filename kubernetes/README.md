@@ -149,14 +149,15 @@ kubectl apply -f backendDeployment.yaml
 ```bash
 kubectl port-forward svc/mongodb -n betterclassroom 27017:27017
 ```
+Note: `kubectl port-forward` does not return. To continue, you will need to open another terminal.
 
 ### Connect to MongoDB
+
 
 ```bash
 mongosh --host 127.0.0.1 --port 27017
 ```
-
-Note: `kubectl port-forward` does not return. To continue, you will need to open another terminal.
+Note: Requires the [MongoDB Shell](https://www.mongodb.com/docs/mongodb-shell/install/)
 
 ## Accessing Staging and Production Environments
 
