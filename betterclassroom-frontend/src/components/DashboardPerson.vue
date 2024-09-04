@@ -88,7 +88,7 @@ const removeHelp = async () => {
     <p v-if="studentRaisedHand"><button @click="removeHelp">👋</button></p>
     <p v-else><br></p>
     <div
-      :class="['radial-progress', studentRaisedHand ? 'text-error' : 'text-base-100']"
+      :class="['radial-progress', studentRaisedHand ? 'text-error' : 'text-base-100', 'font-semibold']"
       :style="`--value: ${progress}`"
       role="progressbar"
     >

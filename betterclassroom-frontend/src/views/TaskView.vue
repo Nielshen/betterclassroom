@@ -5,7 +5,7 @@ import { useDataStore } from '../stores/dataStore'
 const emits = defineEmits(['idxChange', 'raisedHand'])
 const dataStore = useDataStore()
 
-const exercise = ref(dataStore.user.current_exercise ? dataStore.user.current_exercise - 1 : 0)
+const exercise = ref(dataStore.user.current_exercise ? dataStore.user.current_exercise : 0)
 
 const questionAsked = computed(() => dataStore.user.help_requested)
 const tasks = computed(() => dataStore.tasks)
@@ -16,7 +16,7 @@ const currentExerciseTitle = computed(() => {
 })
 
 watch(() => dataStore.user.current_exercise, (newVal) => {
-  exercise.value = newVal - 1
+  exercise.value = newVal
 })
 
 
@@ -59,6 +59,7 @@ watch(tasks, (newTasks) => {
 const nextTask = () => {
   if (tasks.value.length > 0) {
     let nextIndex = (exercise.value + 1) % tasks.value.length
+    console.log('Next index:', nextIndex)
     exercise.value = nextIndex
     emits('idxChange', exercise.value)
   }
@@ -67,9 +68,15 @@ const nextTask = () => {
 const previousTask = () => {
   if (tasks.value.length > 0) {
     let previousIndex = (exercise.value - 1 + tasks.value.length) % tasks.value.length
+    console.log('Previous index:', previousIndex)
     exercise.value = previousIndex
     emits('idxChange', exercise.value)
   }
+}
+
+const finishExercise = (exercise) => {
+  dataStore.updateUserField('current_exercise', exercise + 1)
+  emits('idxChange', exercise + 1)
 }
 
 const toggleQuestion = () => {
@@ -78,7 +85,7 @@ const toggleQuestion = () => {
 }
 
 onMounted(() => {
-  exercise.value = dataStore.user.current_exercise ? dataStore.user.current_exercise - 1 : 0
+  exercise.value = dataStore.user.current_exercise ? dataStore.user.current_exercise : 0
   previousTasks.value = JSON.parse(JSON.stringify(tasks.value))
   emits('idxChange', exercise.value)
 })
@@ -95,6 +102,7 @@ onMounted(() => {
               <button
                 @click="toggleQuestion"
                 :class="['btn', 'btn-accent', 'text-2xl', !questionAsked && 'btn-outline']"
+                title="Hier klicken, um Hilfe anzufordern"
               >
                 ✋🏼
               </button>
@@ -103,7 +111,7 @@ onMounted(() => {
               <div v-if="tasks[exercise]">
                 <div v-html="tasks[exercise].description.replace(/(\\n|\n)/g, '<br><br>')"></div>
               </div>
-              <div v-else>Laden...</div>
+              <div v-else>Du hast alle Aufgaben bearbeitet.</div>
             </p>
           </div>
         </div>
@@ -117,6 +125,7 @@ onMounted(() => {
         @click="nextTask"
         class="btn btn-circle btn-accent mr-4"
       >❯</a>
+      <a v-else-if="exercise === tasks.length - 1" @click="finishExercise(exercise)" class="btn btn-circle btn-accent mr-4 text-xl text-checkmark font-semibold">✓</a>
       <a v-else class="btn btn-circle" style="visibility: hidden">❯</a>
     </div>
   </div>

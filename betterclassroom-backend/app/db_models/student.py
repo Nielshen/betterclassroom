@@ -7,7 +7,7 @@ class Student(BaseModel):
     table: int
     course: str
     exercise: str
-    current_exercise: int = 1
+    current_exercise: int = 0
     help_requested: bool = False
 
 
