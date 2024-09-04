@@ -31,7 +31,7 @@ This directory contains Pydantic models for database entities and their respecti
 - `professor.py`: Defines the `Professor` model
 - `student.py`: Contains the `Student` model
 
-These models represent the structure of the data stored in the database and provide methods for interacting with the data.
+These models represent the structure of the data stored in the database.
 
 ### 2. app/routes
 
