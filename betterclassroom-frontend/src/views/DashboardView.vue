@@ -22,8 +22,7 @@ const courseLink = ref('')
 const exerciseCount = ref(0)
 const fullLink = computed(() => `http://${courseLink.value}`)
 const showFullLink = ref(false)
-
-
+const showNames = ref(true)
 
 
 const fetchExercisesCount = async () => {
@@ -213,6 +212,10 @@ const closeCourse = async () => {
   }
 }
 
+const toggleShowNames = () => {
+  showNames.value = !showNames.value
+}
+
 onBeforeMount(async () => {
   await fetchExercisesCount()
   await loadCourse()
@@ -251,7 +254,7 @@ onBeforeMount(async () => {
     </div>
 
     <div class="flex-grow flex flex-col">
-      <div class="flex-grow container mx-auto px-4" style="max-width: 1200px;">
+      <div class="flex-grow container mx-auto px-4" style="max-width: 1300px;">
         <div class="grid grid-cols-4 gap-4 justify-center">
           <DashboardTable
             v-for="table in tableOccupation"
@@ -259,7 +262,8 @@ onBeforeMount(async () => {
             :exerciseCount="exerciseCount"
             :table="table"
             :tableNumber="table.id"
-            class="w-full max-w-[280px]"
+            :showNames="showNames"
+            class="w-full max-w-[300px]"
           />
         </div>
           <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white flex items-center justify-center">
@@ -267,7 +271,8 @@ onBeforeMount(async () => {
           </div>
       </div>
 
-      <div class="flex justify-end px-4 py-4">
+      <div class="flex justify-between items-center px-4 py-4">
+        <button class="btn btn-danger" @click="toggleShowNames">Namen anzeigen</button>
         <button class="btn btn-warning" @click="closeCourse">Beenden</button>
       </div>
     </div>

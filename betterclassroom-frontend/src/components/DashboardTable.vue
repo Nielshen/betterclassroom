@@ -8,7 +8,8 @@ const props = defineProps({
     type: Object,
     required: true
   },
-  exerciseCount: Number
+  exerciseCount: Number,
+  showNames: Boolean
 })
 
 const student1_finishedTasks = ref(0)
@@ -59,6 +60,7 @@ watch(
             :finishedTasks="student1_finishedTasks"
             :maxTasks="student1_maxTasks"
             :raisedHand="student1_raisedHand"
+            :showNames="props.showNames"
             class="text-base scale-105"
           />
         </div>
@@ -69,6 +71,7 @@ watch(
             :finishedTasks="student2_finishedTasks"
             :maxTasks="student2_maxTasks"
             :raisedHand="student2_raisedHand"
+            :showNames="props.showNames"
             class="text-base scale-105"
           />
         </div>
