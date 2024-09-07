@@ -1,6 +1,6 @@
 <script setup>
 import { onBeforeMount, ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import TaskView from './TaskView.vue'
 import axios from 'axios'
 import { getApiUrl } from '@/utils/common'
@@ -9,6 +9,7 @@ import { useDataStore } from '../stores/dataStore'
 
 const dataStore = useDataStore()
 const route = useRoute()
+const router = useRouter()
 
 const courseId = route.params.courseId
 const exerciseId = route.params.taskId
@@ -216,6 +217,7 @@ onBeforeMount(async () => {
   await loadClassroom()
 })
 </script>
+
 <template>
   <div class="h-full">
     <div v-if="!isAuth">
@@ -261,6 +263,11 @@ onBeforeMount(async () => {
         <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary mr-4">Abmelden</button>
       </div>
       <TaskView v-if="isAuth" :key="student_id" @idxChange="changeIndex" @raisedHand="raisedHand" />
+    </div>
+    <div class="flex justify-end m-4">
+      <button class="btn btn-primary" @click="router.push(`/dashboardStudentView/${courseId}/${exerciseId}`)">
+        Zum Dashboard
+      </button>
     </div>
   </div>
 </template>
