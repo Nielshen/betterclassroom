@@ -13,8 +13,7 @@ const router = useRouter()
 const courseId = route.params.courseId
 const taskId = route.params.taskId
 
-//const rawUrl = getApiUrl()
-const rawUrl = import.meta.env.VITE_API_PROD_URL_RAW
+const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
 const wsUrl = `ws://${rawUrl}/student`
 
