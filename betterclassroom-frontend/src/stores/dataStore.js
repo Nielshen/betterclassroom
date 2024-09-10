@@ -15,7 +15,7 @@ export const useDataStore = defineStore('dataStore', () => {
 
   const saveStudentLocally = ({ id, table, course }) => {
     try {
-      user.value = { id, table, role: 'student', help_requested: false, current_exercise: 1 }
+      user.value = { id, table, role: 'student', help_requested: false, current_exercise: 0 }
       console.log('User value', user.value)
       sessionStorage.setItem('user', JSON.stringify(user.value))
       console.log('Lokale Benutzerdaten gespeichert:', user.value)

@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 import DashboardTable from '../components/DashboardTable.vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
@@ -11,15 +11,19 @@ const route = useRoute()
 const router = useRouter()
 
 const courseId = route.params.courseId
-const exerciseId = route.params.taskId /*Exercise ID*/
-
-let tableOccupation = ref([])
-const courseLink = ref('')
-const exerciseCount = ref(0)
+const exerciseId = route.params.taskId
 
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
 const wsUrl = `ws://${rawUrl}/student`
+
+let tableOccupation = ref([])
+const courseLink = ref('')
+const exerciseCount = ref(0)
+const fullLink = computed(() => `http://${courseLink.value}`)
+const showFullLink = ref(false)
+const showNames = ref(true)
+
 
 const fetchExercisesCount = async () => {
   try {
@@ -163,6 +167,39 @@ const generateQRCode = async () => {
     console.error(err)
   }
 }
+
+function copyToClipboard(text) {
+  let copied = false;
+
+  // Try using navigator.clipboard
+  if (navigator.clipboard && window.isSecureContext) {
+    console.log('Using navigator.clipboard')
+    navigator.clipboard.writeText(text);
+    copied = true;
+  } else {
+    // Fallback to execCommand
+    console.log('Using execCommand')
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      copied = document.execCommand('copy');
+    } catch (err) {
+      copied = false;
+    }
+    document.body.removeChild(textArea);
+  }
+
+  // If both methods failed, prompt user
+  if (!copied) {
+    window.prompt("Copy this link:", text);
+  }
+
+  return copied;
+}
+
+
 const closeCourse = async () => {
   try {
     await axios.delete(`${api_url}/course/${courseId}/exercise/${exerciseId}/students`)
@@ -175,6 +212,10 @@ const closeCourse = async () => {
   }
 }
 
+const toggleShowNames = () => {
+  showNames.value = !showNames.value
+}
+
 onBeforeMount(async () => {
   await fetchExercisesCount()
   await loadCourse()
@@ -184,12 +225,27 @@ onBeforeMount(async () => {
 })
 </script>
 <template>
-  <div class="flex flex-col min-h-screen max-h-screen">
+  <div class="flex flex-col h-screen">
+
     <div class="flex m-4 justify-between sm:space-x-3">
       <div class="flex items-center text-sm sm:text-base">
-        Kurslink für Student*innen:&nbsp;<a :href="'http://' + courseLink">{{
-          'http://' + courseLink
-        }}</a>
+        <div class="relative group mx-1">
+          <button
+            :href="fullLink"
+            class="btn btn-danger hover:underline"
+            @click="copyToClipboard(fullLink)"
+            @mouseenter="showFullLink = true"
+            @mouseleave="showFullLink = false"
+          >
+            Kurslink
+          </button>
+          <span
+            v-if="showFullLink"
+            class="sm:text-base absolute left-0 top-full mt-2 w-auto p-2 bg-gray-800 text-white text-xs rounded-md z-10 whitespace-nowrap"
+          >
+            {{ fullLink }}
+          </span>
+        </div>
         <button class="btn btn-danger ml-2" @click="generateQRCode">QR-Code</button>
       </div>
       <button class="btn btn-warning" @click="router.push(`/editTask/${courseId}/${exerciseId}`)">
@@ -197,29 +253,29 @@ onBeforeMount(async () => {
       </button>
     </div>
 
-    <div class="flex overflow-auto flex-row justify-center">
-      <div class="flex flex-col justify-center m-4">
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-1 justify-items-center mx-auto"
-        >
+    <div class="flex-grow flex flex-col">
+      <div class="flex-grow container mx-auto px-4" style="max-width: 1300px;">
+        <div class="grid grid-cols-4 gap-4 justify-center">
           <DashboardTable
             v-for="table in tableOccupation"
             :key="table.id"
             :exerciseCount="exerciseCount"
             :table="table"
             :tableNumber="table.id"
-            class="w-full max-w-[18rem] h-[7rem] overflow-hidden bg-primary text-primary-content my-2 mr-3"
+            :showNames="showNames"
+            class="w-full max-w-[300px]"
           />
         </div>
-        <div
-          class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white flex items-center justify-center"
-        >
-          <p class="text-4xl">Tafel</p>
-        </div>
+          <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white flex items-center justify-center">
+            <p class="text-4xl">Tafel</p>
+          </div>
+      </div>
+
+      <div class="flex justify-between items-center px-4 py-4">
+        <button class="btn btn-danger" @click="toggleShowNames">Namen anzeigen</button>
+        <button class="btn btn-warning" @click="closeCourse">Beenden</button>
       </div>
     </div>
-    <div class="flex justify-end m-4">
-      <button class="btn btn-warning" @click="closeCourse">Beenden</button>
-    </div>
+    
   </div>
 </template>

@@ -13,7 +13,7 @@ const toDashboard = () => router.push('/');
 <template>
    <div class="navbar bg-neutral" >
   <div class="flex-1">
-    <a class="btn btn-primary  text-xl" @click="toDashboard">BetterClassroom</a>
+    <a class="btn btn-primary text-xl" @click="toDashboard">BetterClassroom</a>
   </div>
   <div class="flex-none gap-2">
     <div class="dropdown dropdown-end ">
