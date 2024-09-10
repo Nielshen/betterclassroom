@@ -8,7 +8,8 @@ import { getApiUrl } from '@/utils/common'
 const route = useRoute()
 const router = useRouter()
 
-const rawUrl = getApiUrl()
+//const rawUrl = getApiUrl()
+const rawUrl = import.meta.env.VITE_API_PROD_URL_RAW
 const api_url = `http://${rawUrl}/api`
 
 const courseId = route.params.courseId

@@ -4,6 +4,8 @@ import { onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getApiUrl } from '@/utils/common'
 import { io } from 'socket.io-client';
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
 
 const route = useRoute()
 const router = useRouter()
@@ -11,7 +13,8 @@ const router = useRouter()
 const courseId = route.params.courseId
 const taskId = route.params.taskId
 
-const rawUrl = getApiUrl()
+//const rawUrl = getApiUrl()
+const rawUrl = import.meta.env.VITE_API_PROD_URL_RAW
 const api_url = `http://${rawUrl}/api`
 const wsUrl = `ws://${rawUrl}/student`
 
@@ -280,7 +283,6 @@ onBeforeMount(async () => {
           <button class="btn btn-primary mr-2" @click="saveEditedSubTask">Speichern</button>
           <button class="btn" @click="cancelChanges">Abbrechen</button>
         </div>
-        <button class="btn btn-accent mb-5 float-right" v-if="!isEditing" @click="createSubTask">&#65291 Unteraufgabe hinzufügen</button>
         <table class="table table-zebra">
           <thead>
             <tr>
