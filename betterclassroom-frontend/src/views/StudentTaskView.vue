@@ -132,7 +132,7 @@ const loadUser = () => {
   if (dataStore.checkUser()) {
     console.log('User is authenticated')
     const user = dataStore.readUser()
-    if (Object.keys(user).length != 0) {
+    if (Object.keys(user).length !== 0) {
       console.log('Loaded user from sessionStorage:', user)
       student_id.value = user.id
       help_requested.value = user.help_requested
