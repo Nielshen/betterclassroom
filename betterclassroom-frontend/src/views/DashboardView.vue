@@ -77,7 +77,11 @@ const loadCourse = async () => {
 
 const handleStudentUpdate = (data) => {
   console.log('Handle student update', data)
-  const studentIndex = data.table - 1
+
+  const tableNumber = parseInt(data.table.slice(0, -1), 10)
+  const seatSide = data.table.slice(-1)
+
+  const studentIndex = tableNumber - 1
   if (studentIndex < 0 || studentIndex >= tableOccupation.value.length) {
     console.error('Invalid table index')
     return
@@ -85,19 +89,16 @@ const handleStudentUpdate = (data) => {
 
   const table = tableOccupation.value[studentIndex]
 
-  if (data.action === 'add') {
-    const studentKey = ['student1', 'student2'].find(
-      (key) => !table[key] || table[key]._id === data._id
-    )
+  const studentKey = seatSide === 'L' ? 'student1' : 'student2'
 
-    if (studentKey) {
+  if (data.action === 'add') {
+    if (!table[studentKey] || table[studentKey]._id === data._id) {
       table[studentKey] = data
     } else {
       console.error('All slots at table are full. Cannot add student:', data)
     }
   } else if (data.action === 'delete') {
-    const studentKey = ['student1', 'student2'].find((key) => table[key]?._id === data._id)
-    if (studentKey) {
+    if (table[studentKey] && table[studentKey]._id === data._id) {
       table[studentKey] = null
     } else {
       console.error('Student not found at table:', data)
@@ -107,17 +108,21 @@ const handleStudentUpdate = (data) => {
 
 const updateStudentProperty = (data, property) => {
   console.log('Updating student property:', data, property)
-  const studentIndex = data.table - 1
+
+  const tableNumber = parseInt(data.table.slice(0, -1), 10)
+  const seatSide = data.table.slice(-1)
+
+  const studentIndex = tableNumber - 1
   if (studentIndex < 0 || studentIndex >= tableOccupation.value.length) {
     console.error('Invalid table index')
     return
   }
 
   const table = tableOccupation.value[studentIndex]
-  const studentKey = ['student1', 'student2'].find(
-    (key) => table[key] && table[key]._id === data._id
-  )
-  if (studentKey) {
+
+  const studentKey = seatSide === 'L' ? 'student1' : 'student2'
+
+  if (table[studentKey] && table[studentKey]._id === data._id) {
     table[studentKey][property] = data[property]
   } else {
     console.error(`Updating student failed: Student not found for property ${property}`)

@@ -11,7 +11,7 @@ course_bp = Blueprint("course", __name__)
 def handle_courses(data):
     if request.method == "GET":
         all_courses = list(course_repo.get_collection().find({}))
-        return all_courses
+        return jsonify(all_courses)
     elif request.method == "POST":
         professor_data = professor_repo.find_one_by({"id": data["professor"]})
         if professor_data is None:
@@ -39,7 +39,7 @@ def handle_course(course_id):
     if not course:
         return Response("Course not found", 404)
     if request.method == "GET":
-        return course
+        return jsonify(course)
     elif request.method == "DELETE":
         course_repo.get_collection().delete_one({"_id": course_id})
         students_repo.get_collection().delete_many({"course": course_id})
@@ -127,7 +127,7 @@ def handle_exercises_two(course_id, exercise_id, data):
 
     if request.method == "GET":
         sub_exercises = [sub.to_dict() for sub in exercise.exercises]
-        return sub_exercises
+        return jsonify(sub_exercises)
 
     elif request.method == "POST":
         data["id"] = get_hash(data["name"])
@@ -193,7 +193,7 @@ def get_students(course_id, exercise_id):
                 {"course": course_id, "exercise": exercise_id}
             )
         )
-        return students
+        return jsonify(students)
 
     elif request.method == "DELETE":
         students_repo.get_collection().delete_many(

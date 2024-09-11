@@ -1,11 +1,11 @@
 <script setup>
-import { onBeforeMount, ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import {computed, onBeforeMount, ref} from 'vue'
+import {useRoute} from 'vue-router'
 import TaskView from './TaskView.vue'
 import axios from 'axios'
-import { getApiUrl } from '@/utils/common'
-import { io } from 'socket.io-client'
-import { useDataStore } from '../stores/dataStore'
+import {getApiUrl} from '@/utils/common'
+import {io} from 'socket.io-client'
+import {useDataStore} from '../stores/dataStore'
 
 const dataStore = useDataStore()
 const route = useRoute()
@@ -26,10 +26,13 @@ const studentName = ref('')
 const student_id = ref('')
 const current_exercise = ref(0)
 const help_requested = ref(false)
+const classroomId = ref('')
+
 const width = ref(-1)
 const height = ref(-1)
-const w_ = computed(() => Array.from({ length: width.value }, (_, i) => i))
-const h_ = computed(() => Array.from({ length: height.value }, (_, i) => i))
+
+const w_ = computed(() => Array.from({length: width.value}, (_, i) => i))
+const h_ = computed(() => Array.from({length: height.value}, (_, i) => i))
 
 const loadTasks = async () => {
   const response = await axios.get(`${api_url}/course/${courseId}/exercise/${exerciseId}`)
@@ -40,35 +43,30 @@ const loadTasks = async () => {
 
 const changeIndex = async (index) => {
   socket.emit(
-    'update_progress',
-    { id: dataStore.user.id, current_exercise: index},
-    function (response) {
-      if (response.error) {
-        console.error('Fehler beim Aktualisieren des Fortschritts:', response.error)
-      } else {
-        console.log('Fortschritt erfolgreich aktualisiert:', response.success, index + 1)
-        dataStore.updateUserField('current_exercise', index)
-        current_exercise.value = index
+      'update_progress',
+      {id: dataStore.user.id, current_exercise: index},
+      function (response) {
+        if (response.error) {
+          console.error('Fehler beim Aktualisieren des Fortschritts:', response.error)
+        } else {
+          console.log('Fortschritt erfolgreich aktualisiert:', response.success, index + 1)
+          dataStore.updateUserField('current_exercise', index)
+          current_exercise.value = index
+        }
       }
-    }
   )
 }
 
 const raisedHand = async () => {
-  socket.emit('help', { id: dataStore.user.id }, function (response) {
+  socket.emit('help', {id: dataStore.user.id}, function (response) {
     if (response.error) {
-      console.error(
-        'Fehler beim Anfordern von Hilfe:',
-        response.error,
-        dataStore.user.id,
-        dataStore.user.help_requested
-      )
+      console.error('Fehler beim Anfordern von Hilfe:', response.error)
     } else {
       console.log(
-        'Hilfe erfolgreich angefordert:',
-        response.success,
-        dataStore.user.id,
-        dataStore.user.help_requested
+          'Hilfe erfolgreich angefordert:',
+          response.success,
+          dataStore.user.id,
+          dataStore.user.help_requested
       )
     }
   })
@@ -81,21 +79,28 @@ const studentAuth = () => {
     course: courseId,
     exercise: exerciseId
   }
+  if (studentName.value === '' || seat.value === '') {
+    console.error('Name oder Sitzplatz nicht ausgefüllt')
+    alert('Bitte füllen Sie alle Felder aus')
+    return
+  }
+
   socket.emit(
-    'student_register',
-    { course: courseId, exercise: exerciseId, student: studentName.value },
-    function (response) {
-      if (response.error) {
-        console.error('Fehler beim Registrieren:', response.error)
-      } else {
-        console.log('Erfolgreich registriert:', response.success)
+      'student_register',
+      {course: courseId, exercise: exerciseId, student: studentName.value},
+      function (response) {
+        if (response.error) {
+          console.error('Fehler beim Registrieren:', response.error)
+        } else {
+          console.log('Erfolgreich registriert:', response.success)
+        }
       }
-    }
   )
 
   console.log('Emitting new_student', studentData)
   socket.emit('new_student', studentData, function (response) {
     if (response.error) {
+      alert("Student with this name already exists")
       console.error('Fehler beim Hinzufügen des Studenten:', response.error)
       isAuth.value = false
     } else {
@@ -109,7 +114,7 @@ const studentAuth = () => {
 }
 
 const deleteStudent = () => {
-  socket.emit('delete_student', { id: dataStore.user.id }, function (response) {
+  socket.emit('delete_student', {id: dataStore.user.id}, function (response) {
     if (response.error) {
       console.error('Fehler beim Löschen des Studenten:', response.error)
     } else {
@@ -143,21 +148,52 @@ const loadUser = () => {
 }
 
 const loadClassroom = async () => {
-  const { data } = await axios.get(`${api_url}/classroom`)
-  const course = await axios.get(`${api_url}/course`)
-  const { classroom } = course.data.find((c) => c._id === courseId)
-  const currentRoom = data.find((room) => room._id === classroom) || {}
-  width.value = currentRoom.tablesPerRow || 4
-  height.value = currentRoom.rows || 5
+  try {
+    const {data: courses} = await axios.get(`${api_url}/course`)
+    const course = courses.find((c) => c._id === courseId)
+
+    if (course && course.classroom) {
+      const {data: classroom} = await axios.get(`${api_url}/classroom/${course.classroom}`)
+      classroomId.value = classroom._id
+      width.value = classroom.tablesPerRow
+      height.value = classroom.rows
+    } else {
+      console.error('Classroom ID not found in the course')
+    }
+  } catch (error) {
+    console.error('Error loading classroom:', error)
+  }
 }
 
-const clickOnSeat = (event) => {
-  const id = event.target.id
-  seat.value = id
+
+const clickOnSeat = async (event) => {
+  const id = event.target.id.split('-');
+  const tableId = id[0];
+  const seatSide = id[1];
+
+  seat.value = id.join('-');
+  console.log(classroomId.value, tableId, seatSide);
+
+  try {
+    const getResponse = await axios.get(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}/occupied`);
+    console.log('getResponse:', getResponse.data);
+    const isOccupied = getResponse.data.occupied;
+
+    if (isOccupied === true) {
+      alert(`The seat on ${seatSide} side of table ${tableId} is already occupied.`);
+    } else {
+      const putResponse = await axios.post(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}`, {
+        occupied: true
+      });
+      console.log('putResponse:', putResponse.data);
+    }
+  } catch (error) {
+    console.error("Test test test Error updating seat status:", error);
+  }
 }
 
-const getSeat = (n, m, width, print = true) => {
-  return n * width + m + 1
+const getSeat = (n, m, seat) => {
+  return `${n * width.value + m + 1}-${seat}`
 }
 
 const initSocket = () => {
@@ -197,41 +233,42 @@ const initSocket = () => {
 
 const reregisterSocket = () => {
   socket.emit(
-    'student_register',
-    { course: courseId, exercise: exerciseId, student: student_id.value },
-    function (response) {
-      if (response.error) {
-        console.error('Fehler beim Registrieren:', response.error)
-      } else {
-        console.log('Erfolgreich registriert:', response.success)
+      'student_register',
+      {course: courseId, exercise: exerciseId, student: student_id.value},
+      function (response) {
+        if (response.error) {
+          console.error('Fehler beim Registrieren:', response.error)
+        } else {
+          console.log('Erfolgreich registriert:', response.success)
+        }
       }
-    }
   )
 }
 
 onBeforeMount(async () => {
   initSocket()
   loadUser()
-  await loadTasks()
   await loadClassroom()
+  await loadTasks()
 })
 </script>
+
 <template>
   <div class="h-full">
     <div v-if="!isAuth">
       <div class="flex flex-col justify-center items-center mt-5">
         <div>
           <input
-            type="text"
-            v-model="studentName"
-            placeholder="Name"
-            class="input input-bordered m-2 max-w-xs"
+              v-model="studentName"
+              class="input input-bordered m-2 max-w-xs"
+              placeholder="Name"
+              type="text"
           />
           <input
-            type="text"
-            v-model="seat"
-            placeholder="Sitzplatz"
-            class="input input-bordered m-2 max-w-xs"
+              v-model="seat"
+              class="input input-bordered m-2 max-w-xs"
+              placeholder="Sitzplatz"
+              type="text"
           />
         </div>
         <div class="border">
@@ -241,26 +278,34 @@ onBeforeMount(async () => {
             </div>
             <div v-for="n in h_" :key="n" class="flex flex-row justify-center">
               <div
-                :id="getSeat(n, m, width, false)"
-                v-for="m in w_"
-                :key="m"
-                class="rounded-lg w-[200px] h-[55px] cursor-pointer bg-primary m-1 hover:bg-secondary hover:text-black text-l text-center text-white"
-                @click="clickOnSeat"
+                  v-for="m in w_"
+                  :key="m"
+                  class="relative rounded-lg w-[200px] h-[80px] bg-primary text-white text-center m-2 p-2"
               >
-                {{ getSeat(n, m, width) }}
+                <div
+                    :id="getSeat(n, m, 'L')"
+                    class="absolute top-1/2 left-4 transform -translate-y-1/2 w-[60px] h-[40px] border border-gray-300 rounded-md bg-transparent cursor-pointer hover:bg-gray-200"
+                    @click="clickOnSeat"
+                ></div>
+                <div
+                    :id="getSeat(n, m, 'R')"
+                    class="absolute top-1/2 right-4 transform -translate-y-1/2 w-[60px] h-[40px] border border-gray-300 rounded-md bg-transparent cursor-pointer hover:bg-gray-200"
+                    @click="clickOnSeat"
+                ></div>
               </div>
             </div>
           </div>
         </div>
-        <button @click="studentAuth" class="btn btn-primary">Bestätigen</button>
+        <button class="btn btn-primary" @click="studentAuth">Bestätigen</button>
       </div>
     </div>
     <div v-else class="h-full">
       <div class="flex flex-row justify-between items-start my-2">
         <h1 class="text-base font-medium ml-6 mt-1">{{ dataStore.user.id }}</h1>
-        <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary mr-6 mt-1">Abmelden</button>
+        <button v-if="isAuth" class="btn btn-primary mr-6 mt-1" @click="deleteStudent">Abmelden</button>
       </div>
-      <TaskView v-if="isAuth" :key="student_id" @idxChange="changeIndex" @raisedHand="raisedHand" />
+      <TaskView v-if="isAuth" :key="student_id" @idxChange="changeIndex" @raisedHand="raisedHand"/>
     </div>
   </div>
 </template>
+
