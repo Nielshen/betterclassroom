@@ -35,7 +35,6 @@ def handle_professors(data):
         return Response("Inserted professor successfully", status=201)
 
 
-j
 @professor_bp.route("/api/professor/login", methods=["POST"])
 def login_professor():
     """
@@ -58,7 +57,6 @@ def login_professor():
     
     
     
-
 
 @professor_bp.route("/api/professor/reset_password", methods=["POST"])
 def reset_password():
