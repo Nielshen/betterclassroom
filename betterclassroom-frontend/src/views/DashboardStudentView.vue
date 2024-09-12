@@ -4,7 +4,6 @@ import DashboardTable from '../components/DashboardTable.vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import { io } from 'socket.io-client'
-import QRCode from 'qrcode'
 import { getApiUrl } from '@/utils/common'
 
 const route = useRoute()
