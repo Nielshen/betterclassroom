@@ -7,7 +7,6 @@ from app import professor_repo
 professor_bp = Blueprint("professor", __name__)
 
 
-# returns all professors / creates new professor
 @professor_bp.route("/api/professor", methods=["GET", "POST"])
 @validate_request(Professor)
 def handle_professors(data):

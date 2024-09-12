@@ -7,7 +7,8 @@ const props = defineProps({
   name: String,
   maxTasks: Number,
   raisedHand: Boolean,
-  finishedTasks: Number
+  finishedTasks: Number,
+  showNames: Boolean
 })
 
 const rawUrl = getApiUrl()
@@ -66,11 +67,28 @@ const removeHelp = async () => {
 </script>
 
 <template>
-  <div>
-    <p v-if="studentRaisedHand"><button @click="removeHelp">👋</button></p>
-    <p v-else>-</p>
+  <div v-if="showNames"  class="flex flex-col items-center w-full">
+    <div class="flex items-center justify-center w-full mb-2 relative">
+      <button 
+        v-if="studentRaisedHand" 
+        @click="removeHelp" 
+        class="absolute left-2 text-base"
+      >👋</button>
+      <span class="text-base font-medium text-center truncate max-w-[80%]">{{ studentName }}</span>
+    </div>
     <div
-      :class="['radial-progress', studentRaisedHand ? 'text-error' : 'text-base-100']"
+      :class="['radial-progress', studentRaisedHand ? 'text-error' : 'text-base-100', 'font-semibold']"
+      :style="`--value: ${progress}; --size: 4.5rem; --thickness: 7px;`"
+      role="progressbar"
+    >
+      {{ finishedTasks }} / {{ maxTasks }}
+    </div>
+  </div>
+  <div v-else>
+    <p v-if="studentRaisedHand"><button @click="removeHelp">👋</button></p>
+    <p v-else><br></p>
+    <div
+      :class="['radial-progress', studentRaisedHand ? 'text-error' : 'text-base-100', 'font-semibold']"
       :style="`--value: ${progress}`"
       role="progressbar"
     >
@@ -78,6 +96,6 @@ const removeHelp = async () => {
         {{ finishedTasks }} / {{ maxTasks }}
       </div>
     </div>
-    <!-- <p>{{studentName}}</p> -->
   </div>
+
 </template>

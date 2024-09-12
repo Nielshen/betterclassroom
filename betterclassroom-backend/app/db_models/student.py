@@ -1,5 +1,4 @@
-from typing import Dict
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from pydantic_mongo import AbstractRepository
 
 
@@ -8,8 +7,7 @@ class Student(BaseModel):
     table: int
     course: str
     exercise: str
-    progress: Dict[str, bool] = Field(default_factory=dict)  # str ist exercise_id
-    current_exercise: int = 1
+    current_exercise: int = 0
     help_requested: bool = False
 
 

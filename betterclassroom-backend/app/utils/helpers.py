@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ValidationError
 from flask import request, Response
-from app.db_models import Classroom, Table, Professor
+import xxhash
 
 
 def validate_request(model: BaseModel):
@@ -10,10 +10,8 @@ def validate_request(model: BaseModel):
                 try:
                     data = request.get_json()
                     model(**data)
-                except ValidationError as e:
+                except Exception as e:
                     return Response(str(e), 400)
-                except TypeError:
-                    return Response("No data provided", 400)
                 return func(*args, **kwargs, data=data)
             else:
                 return func(*args, **kwargs, data=None)
@@ -41,18 +39,12 @@ def validate_socket_request(model: BaseModel):
     return decorator
 
 
-def to_boolean(value):
-    """Converts a string that is 'true' or 'false' to a boolean value, otherwise returns the value unchanged."""
-    if isinstance(value, str):
-        if value.lower() == "true":
-            return True
-        elif value.lower() == "false":
-            return False
-    return value
+def get_hash(value: str):
+    return xxhash.xxh3_64(value).hexdigest()
 
 
 def createO201(classroom_repo):
-    # TODO fill with test data?
+    from app.db_models import Classroom, Table
 
     tablesPerRow = 4
     rows = 5
@@ -68,6 +60,8 @@ def createO201(classroom_repo):
 
 
 def createO301(classroom_repo):
+    from app.db_models import Classroom, Table
+
     tablesPerRow = 4
     rows = 5
     classroom_repo.save(
@@ -81,4 +75,6 @@ def createO301(classroom_repo):
 
 
 def createProfEigslperger(professor_repo):
+    from app.db_models import Professor
+
     professor_repo.save(Professor(id="Prof. Dr. Markus Eiglsperger"))
