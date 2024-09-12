@@ -16,7 +16,6 @@ const getApiUrl = (logging = false) => {
     } else {
         return prodUrl //  betterclassroom.in.htwg-konstanz.de
     }
-
 }
 
 
