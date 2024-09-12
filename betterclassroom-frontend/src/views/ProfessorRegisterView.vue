@@ -3,8 +3,12 @@ import { onBeforeMount, ref, computed, watch } from 'vue'
 import axios from 'axios'
 import { getApiUrl } from '@/utils/common'
 import { useRouter } from 'vue-router'
+import { useDataStore } from '../stores/dataStore'
+import { v4 as uuidv4 } from 'uuid'
 
 const router = useRouter()
+
+const { saveProfessorLocally,deleteProfessorLocally } = useDataStore()
 
 const email = ref('')
 const lastName = ref('')
@@ -13,24 +17,56 @@ const password1 = ref('')
 const password2 = ref('')
 
 const rawUrl = getApiUrl()
-const professorApiUrl = `http://${rawUrl}/api/professor`
+
+
+const requestRegister = async ({ email, last_name, first_name, password}) => {
+ try{
+    const data = {
+      email: email,
+      lastName: last_name,
+      firstName: first_name,
+      password: password,
+      id : uuidv4()
+    }
+    const apiUrl = getApiUrl() + "/api/professor"
+    console.log({
+      apiUrl, data
+    })  
+    const response = await axios.post(apiUrl, data)
+    if (response.status !== 200) {
+      console.error("Register failed", response)
+      return
+    }
+    console.log("Response", response)
+    saveProfessorLocally(data)
+  } catch (e) {
+    console.error(e)
+ } 
+}
 
 const register = async () => {
+  if (password1.value !== password2.value) {
+    console.error("Passwords do not match")
+    return
+  }
   const data = {
     email: email.value,
     last_name: lastName.value,
     first_name: firstName.value,
     password: password1.value,
-    password2: password2.value
   }
 
   try {
-    //const response = await axios.post(`${professorApiUrl}/register`, data)
+    await requestRegister(data)
     router.push('/courses')
   } catch (e) {
     console.error(e)
   }
 }
+
+onBeforeMount(() => {
+  deleteProfessorLocally()
+}) 
 </script>
 <template>
 <div class="flex flex-col items-center">

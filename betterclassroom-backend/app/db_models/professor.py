@@ -4,10 +4,10 @@ from pydantic_mongo import AbstractRepository
 
 class Professor(BaseModel):
     id: int
-    name: str
+    email: str
     password: str
+    lastName: str
     firstName : str
-    lastName : str
 
 
 class ProfessorRepository(AbstractRepository[Professor]):

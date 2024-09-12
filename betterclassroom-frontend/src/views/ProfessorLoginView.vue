@@ -5,7 +5,7 @@ import { getApiUrl } from '@/utils/common'
 import { useRouter } from 'vue-router'
 import { useDataStore } from '../stores/dataStore'
 
-const { user } = useDataStore()
+const { user, checkProfessor, saveProfessorLocally } = useDataStore()
 const router = useRouter()
 
 const email = ref('')
@@ -13,28 +13,40 @@ const lastName = ref('')
 const firstName = ref('')
 const password = ref('')
 
-const rawUrl = getApiUrl()
-const professorApiUrl = `http://${rawUrl}/api/professor`
-
 const register = async () => {
   router.push('/register')
 }
+
+const requestLogin = async ({ email, password }) => {
+  const data = {
+    email: email,
+    password: password
+  }
+
+  try {
+
+    const apiUrl = getApiUrl() + '/api/professor/login'
+    const response = await axios.post(apiUrl, data)
+    if (response.status !== 200) {
+      console.error('Login failed', response)
+      return
+    }
+    console.log('Response', response)
+    saveProfessorLocally(data)
+  } catch (e) {
+    console.error(e)
+    throw e
+  }
+}
+
 const login = async () => {
   const data = {
     email: email.value,
-    last_name: lastName.value,
-    first_name: firstName.value,
     password: password.value
   }
 
   try {
-    //const response = await axios.post(`${professorApiUrl}/register`, data)
-    user.value = {
-      email: email.value,
-      last_name: lastName.value,
-      first_name: firstName.value,
-      role: 'professor'
-    }
+    await requestLogin(data)
     router.push('/courses')
   } catch (e) {
     console.error(e)
@@ -43,6 +55,12 @@ const login = async () => {
 const changePassword = async () => {
   router.push('/changePassword')
 }
+
+onBeforeMount(() => {
+  if (checkProfessor()) {
+    router.push('/courses')
+  }
+})
 </script>
 
 <template>

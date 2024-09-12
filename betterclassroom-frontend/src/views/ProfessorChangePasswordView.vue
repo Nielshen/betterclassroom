@@ -2,28 +2,59 @@
 import { onBeforeMount, ref, computed, watch } from 'vue'
 import axios from 'axios'
 import { getApiUrl } from '@/utils/common'
+import { useDataStore } from '../stores/dataStore'
+
+const { saveProfessorLocally,deleteProfessorLocally } = useDataStore()
 
 const email = ref('')
-const lastName = ref('')
-const firstName = ref('')
 const password1 = ref('')
 const password2 = ref('')
 
 const rawUrl = getApiUrl()
 const professorApiUrl = `http://${rawUrl}/api/professor`
 
-const register = async () => {
+
+const saveLocally = (data) => {
+  localStorage.setItem('user', JSON.stringify(data))
+}
+
+
+
+const requestChangePassword = async ({ email, password}) => {
+  try {
+    const data = {
+      email: email,
+      password: password,
+    }
+    const apiUrl = getApiUrl() + "/api/professor/reset_Password"
+    console.log({
+      apiUrl, data
+    })
+    const response = await axios.post(apiUrl, data)
+    if (response.status !== 200) {
+      console.error("Register failed", response)
+      return
+    }
+    console.log("Response", response)
+    saveProfessorLocally(data)
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+
+const  resetPassword = async () => {
+  if (password1.value !== password2.value) {
+    console.error("Passwords do not match")
+    return
+  }
   const data = {
     email: email.value,
-    last_name: lastName.value,
-    first_name: firstName.value,
     password: password1.value,
-    password2: password2.value
   }
 
   try {
-    //const response = await axios.post(`${professorApiUrl}/register`, data)
-    null
+    await requestChangePassword(data)
   } catch (e) {
     console.error(e)
   }
@@ -82,7 +113,7 @@ const register = async () => {
         </svg>
         <input type="password" v-model="password2" class="grow" value="password" />
       </label>
-      <button @click="register" class="btn btn-primary mt-3">Passwort ändern</button>
+      <button @click="resetPassword" class="btn btn-primary mt-3">Passwort ändern</button>
     </div>
   </div>
 </template>
