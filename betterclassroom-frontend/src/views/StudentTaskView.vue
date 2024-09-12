@@ -41,13 +41,13 @@ const loadTasks = async () => {
 const changeIndex = async (index) => {
   socket.emit(
     'update_progress',
-    { id: dataStore.user.id, current_exercise: index + 1 },
+    { id: dataStore.user.id, current_exercise: index},
     function (response) {
       if (response.error) {
         console.error('Fehler beim Aktualisieren des Fortschritts:', response.error)
       } else {
         console.log('Fortschritt erfolgreich aktualisiert:', response.success, index + 1)
-        dataStore.updateUserField('current_exercise', index + 1)
+        dataStore.updateUserField('current_exercise', index)
         current_exercise.value = index
       }
     }
@@ -131,7 +131,7 @@ const loadUser = () => {
       console.log('Loaded user from sessionStorage:', user)
       student_id.value = user.id
       help_requested.value = user.help_requested
-      current_exercise.value = user.current_exercise - 1
+      current_exercise.value = user.current_exercise
       isAuth.value = true
       reregisterSocket()
     }
@@ -257,8 +257,8 @@ onBeforeMount(async () => {
     </div>
     <div v-else class="h-full">
       <div class="flex flex-row justify-between items-start my-2">
-        <h1 class="ml-4">{{ dataStore.user.id }}</h1>
-        <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary mr-4">Abmelden</button>
+        <h1 class="text-base font-medium ml-6 mt-1">{{ dataStore.user.id }}</h1>
+        <button v-if="isAuth" @click="deleteStudent" class="btn btn-primary mr-6 mt-1">Abmelden</button>
       </div>
       <TaskView v-if="isAuth" :key="student_id" @idxChange="changeIndex" @raisedHand="raisedHand" />
     </div>

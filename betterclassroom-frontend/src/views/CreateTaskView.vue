@@ -243,11 +243,11 @@ onBeforeMount(async () => {
       <div class="flex flex-row items-center justify-between">
         <h1 class="text-2xl my-10">{{ title }}</h1>
         <div>
-          <button v-if="isExerciseActive" class="btn btn-secondary mr-4" @click="goBackToDashboard">Zurück zum
-            Dashboard</button>
+          <button v-if="isExerciseActive" class="btn btn-secondary mr-4" @click="goBackToDashboard">Zum Dashboard</button>
           <button v-if="route.params.taskId" class="btn btn-danger mr-2" @click="deleteTask(taskId)">Löschen</button>
         </div>
       </div>
+
       <input type="text" placeholder="Aufgabenname" class="input input-bordered input-accent w-full max-w-xs my-5"
         v-model="taskName" />
       <textarea class="textarea textarea-accent my-5 overflow-auto" placeholder="Beschreibung der Aufgabe"
@@ -290,7 +290,10 @@ onBeforeMount(async () => {
           </tbody>
         </table>
       </div>
-      <button class="btn btn-primary mt-10" @click="exerciseButtonMethod">{{ createButton }}</button>
+
+      <div class="mt-10 pb-10">
+        <button class="btn btn-primary w-full" @click="exerciseButtonMethod">{{ createButton }}</button>
+      </div>
     </div>
   </div>
 </template>
