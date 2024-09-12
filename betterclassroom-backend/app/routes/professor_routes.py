@@ -53,7 +53,7 @@ def login_professor():
     professor = professor_repo.get_collection().find_one({"email": data["email"]})  
     if professor and professor["password"] == data["password"]:
         return jsonify(professor), 200
-    return Response("Invalid credentials", status=401)
+    return Response("Invalid credentials*", status=401)
 
     
     
