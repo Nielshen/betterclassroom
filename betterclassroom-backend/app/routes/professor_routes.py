@@ -38,15 +38,15 @@ def handle_professors(data):
 @professor_bp.route("/api/professor/login", methods=["POST"])
 def login_professor():
     """
-    Loggt einen Professor ein.
+    Logs in a professor.
 
-    Argumente:
-    - request.json: Ein JSON-Objekt, das die E-Mail und das Passwort des Professors enthält.
-        - email (str): Die E-Mail-Adresse des Professors.
-        - password (str): Das Passwort des Professors.
+    Arguments:
+    - request.json: A JSON object containing the professor's email and password.
+        - email (str): The professor's email address.
+        - password (str): The professor's password.
 
-    Rückgabe:
-    - Response: Eine HTTP-Antwort, entweder mit dem Professor-Objekt und dem Statuscode 200, oder mit dem Statuscode 401, falls die Anmeldeinformationen ungültig sind.
+    Returns:
+    - Response: An HTTP response, either with the professor object and status code 200, or with status code 401 if the credentials are invalid.
     """
     data = request.json
     professor = professor_repo.get_collection().find_one({"email": data["email"]})  
@@ -56,20 +56,19 @@ def login_professor():
 
     
     
-    
 
 @professor_bp.route("/api/professor/reset_password", methods=["POST"])
 def reset_password():
     """
-    Setzt das Passwort eines Professors zurück.
+    Resets a professor's password.
 
-    Argumente:
-    - request.json: Ein JSON-Objekt, das die E-Mail des Professors und das neue Passwort enthält.
-        - email (str): Die E-Mail-Adresse des Professors.
-        - new_password (str): Das neue Passwort des Professors.
+    Arguments:
+    - request.json: A JSON object containing the professor's email and the new password.
+        - email (str): The professor's email address.
+        - new_password (str): The new password of the professor.
 
-    Rückgabe:
-    - Response: Eine HTTP-Antwort, die den Erfolg oder Misserfolg des Zurücksetzens des Passworts anzeigt.
+    Returns:
+    - Response: An HTTP response indicating the success or failure of the password reset.
     """
     data = request.json
     professor = professor_repo.get_collection().find_one({"email": data["email"]})  
@@ -82,10 +81,4 @@ def reset_password():
 
 
 
-"""
-def login_professor(data): pass
 
-def get_professor_form_id(data): pass
-
-def registerr_professor(data): pass
-"""
