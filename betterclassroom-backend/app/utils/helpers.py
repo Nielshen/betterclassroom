@@ -72,9 +72,3 @@ def createO301(classroom_repo):
             tables=[Table(id=i, occupied_left=False, occupied_right=False) for i in range(0, tablesPerRow * rows)],
         )
     )
-
-
-def createProfEigslperger(professor_repo):
-    from app.db_models import Professor
-
-    professor_repo.save(Professor(id="Prof. Dr. Markus Eiglsperger"))
