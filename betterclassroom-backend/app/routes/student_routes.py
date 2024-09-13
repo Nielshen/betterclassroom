@@ -1,8 +1,7 @@
 from flask import Blueprint, request, Response, jsonify
 from app.db_models import Student
-from app import students_repo, course_repo
+from app import students_repo, course_repo, classroom_repo
 from app.utils.helpers import validate_request
-import logging
 
 
 student_bp = Blueprint("students", __name__)
@@ -51,6 +50,9 @@ def handle_students(data):
         course_repo.get_collection().update_many(
             {}, {"$set": {"exercises.$[].participants": []}}
         )
+        classroom_repo.get_collection().update_many(
+            {}, {"$set": {"tables.$[].occupied_left": False, "tables.$[].occupied_right": False}}
+        )
         return Response("All students deleted successfully", 200)
 
 
@@ -69,6 +71,17 @@ def handle_student(student_id):
             {"_id": student.course, "exercises.id": student.exercise},
             {"$pull": {"exercises.$.participants": student.id}},
         )
+        classroom_id = course_repo.find_one_by_id(student.course).classroom
+        table_index = int(student.table.split("-")[0]) - 1
+        
+        seat_mapping = {"L": "left", "R": "right"}
+        seat_side = seat_mapping[student.table.split("-")[1]]
+        
+        classroom_repo.get_collection().update_one({"_id": classroom_id}, {
+            "$set": {
+                f"tables.{table_index}.occupied_{seat_side}": False
+            }
+        })
         students_repo.delete_by_id(student.id)
         return Response("Student deleted successfully", 200)
 

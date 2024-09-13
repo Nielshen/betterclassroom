@@ -27,6 +27,7 @@ const student_id = ref('')
 const current_exercise = ref(0)
 const help_requested = ref(false)
 const classroomId = ref('')
+const classroomSeats = ref({})
 
 const width = ref(-1)
 const height = ref(-1)
@@ -72,18 +73,39 @@ const raisedHand = async () => {
   })
 }
 
-const studentAuth = () => {
-  const studentData = {
-    id: studentName.value,
-    table: seat.value,
-    course: courseId,
-    exercise: exerciseId
-  }
+const submitStudent = async () => {
   if (studentName.value === '' || seat.value === '') {
     console.error('Name oder Sitzplatz nicht ausgefüllt')
     alert('Bitte füllen Sie alle Felder aus')
     return
   }
+
+  const tableId = seat.value.split('-')[0] - 1;
+  const seatSide = seat.value.split('-')[1];
+  console.log('tableId:', tableId, 'seatSide:', seatSide);
+
+  try {
+    const getResponse = await axios.get(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}/occupied`);
+    console.log('getResponse:', getResponse.data);
+    const isOccupied = getResponse.data.occupied;
+
+    if (isOccupied) {
+      alert(`The seat on ${seatSide} side of table ${tableId} is already occupied.`);
+      return;
+    } else {
+      const putResponse = await axios.post(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}`, {
+        occupied: true
+      })
+      console.log('putResponse:', putResponse.data);
+    }
+
+    const studentData = {
+    id: studentName.value,
+    table: seat.value,
+    course: courseId,
+    exercise: exerciseId
+  }
+
 
   socket.emit(
       'student_register',
@@ -111,6 +133,9 @@ const studentAuth = () => {
       isAuth.value = true
     }
   })
+  } catch (error) {
+    console.error("Error updating seat status:", error);
+  }
 }
 
 const deleteStudent = () => {
@@ -157,6 +182,7 @@ const loadClassroom = async () => {
       classroomId.value = classroom._id
       width.value = classroom.tablesPerRow
       height.value = classroom.rows
+      classroomSeats.value = classroom.tables
     } else {
       console.error('Classroom ID not found in the course')
     }
@@ -165,35 +191,24 @@ const loadClassroom = async () => {
   }
 }
 
-
 const clickOnSeat = async (event) => {
-  const id = event.target.id.split('-');
-  const tableId = id[0];
-  const seatSide = id[1];
-
-  seat.value = id.join('-');
-  console.log(classroomId.value, tableId, seatSide);
-
-  try {
-    const getResponse = await axios.get(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}/occupied`);
-    console.log('getResponse:', getResponse.data);
-    const isOccupied = getResponse.data.occupied;
-
-    if (isOccupied === true) {
-      alert(`The seat on ${seatSide} side of table ${tableId} is already occupied.`);
-    } else {
-      const putResponse = await axios.post(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}`, {
-        occupied: true
-      });
-      console.log('putResponse:', putResponse.data);
-    }
-  } catch (error) {
-    console.error("Test test test Error updating seat status:", error);
-  }
+  const id = event.target.id
+  seat.value = id
+  console.log(classroomId.value, id)
 }
 
 const getSeat = (n, m, seat) => {
   return `${n * width.value + m + 1}-${seat}`
+}
+
+const isOccupied = (n, m, seat) => {
+  const tableId = n * width.value + m
+  if (seat === 'L') {
+    seat = 'occupied_left'
+  } else {
+    seat = 'occupied_right'
+  }
+  return classroomSeats.value[tableId][seat]
 }
 
 const initSocket = () => {
@@ -255,57 +270,67 @@ onBeforeMount(async () => {
 
 <template>
   <div class="h-full">
-    <div v-if="!isAuth">
-      <div class="flex flex-col justify-center items-center mt-5">
-        <div>
-          <input
-              v-model="studentName"
-              class="input input-bordered m-2 max-w-xs"
-              placeholder="Name"
-              type="text"
-          />
-          <input
-              v-model="seat"
-              class="input input-bordered m-2 max-w-xs"
-              placeholder="Sitzplatz"
-              type="text"
-          />
-        </div>
-        <div class="border">
-          <div class="flex flex-col justify-center items-center">
-            <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white">
-              <p class="text-xl">Tafel</p>
-            </div>
-            <div v-for="n in h_" :key="n" class="flex flex-row justify-center">
-              <div
-                  v-for="m in w_"
-                  :key="m"
-                  class="relative rounded-lg w-[200px] h-[80px] bg-primary text-white text-center m-2 p-2"
-              >
-                <div
-                    :id="getSeat(n, m, 'L')"
-                    class="absolute top-1/2 left-4 transform -translate-y-1/2 w-[60px] h-[40px] border border-gray-300 rounded-md bg-transparent cursor-pointer hover:bg-gray-200"
-                    @click="clickOnSeat"
+     <div v-if="!isAuth">
+       <div class="flex flex-col justify-center items-center mt-5">
+         <div>
+           <input
+             v-model="studentName"
+             class="input input-bordered m-2 max-w-xs"
+             placeholder="Name"
+             type="text"
+           />
+           <input
+             v-model="seat"
+             class="input input-bordered m-2 max-w-xs"
+             placeholder="Sitzplatz"
+             type="text"
+           />
+         </div>
+         <div class="border">
+           <div class="flex flex-col justify-center items-center">
+             <div class="flex items-center justify-center rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white font-semibold">
+               <p class="text-2xl">Tafel</p>
+             </div>
+             <div v-for="n in h_" :key="n" class="flex flex-row justify-center items-center">
+               <div class="w-8 mr-2 text-center font-bold">{{ n + 1 }}</div>
+               <div class="flex flex-row justify-center">
+                 <div
+                   v-for="m in w_"
+                   :key="m"
+                   class="relative rounded-lg w-[200px] h-[80px] bg-primary text-white text-center m-2 p-2"
+                 >
+                 <div
+                  :id="getSeat(n, m, 'L')"
+                  :class="{
+                    'absolute top-1/2 left-4 transform -translate-y-1/2 w-[75px] h-[50px] border border-gray-300 rounded-md': true,
+                    'bg-red-300 cursor-not-allowed': isOccupied(n, m, 'L'),
+                    'bg-transparent cursor-pointer hover:bg-gray-200': !isOccupied(n, m, 'L')
+                  }"
+                  @click="!isOccupied(n, m, 'L') && clickOnSeat($event)"
                 ></div>
                 <div
-                    :id="getSeat(n, m, 'R')"
-                    class="absolute top-1/2 right-4 transform -translate-y-1/2 w-[60px] h-[40px] border border-gray-300 rounded-md bg-transparent cursor-pointer hover:bg-gray-200"
-                    @click="clickOnSeat"
+                  :id="getSeat(n, m, 'R')"
+                  :class="{
+                    'absolute top-1/2 right-4 transform -translate-y-1/2 w-[75px] h-[50px] border border-gray-300 rounded-md': true,
+                    'bg-red-300 cursor-not-allowed': isOccupied(n, m, 'R'),
+                    'bg-transparent cursor-pointer hover:bg-gray-200': !isOccupied(n, m, 'R')
+                  }"
+                  @click="!isOccupied(n, m, 'R') && clickOnSeat($event)"
                 ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <button class="btn btn-primary" @click="studentAuth">Bestätigen</button>
-      </div>
-    </div>
-    <div v-else class="h-full">
-      <div class="flex flex-row justify-between items-start my-2">
-        <h1 class="text-base font-medium ml-6 mt-1">{{ dataStore.user.id }}</h1>
-        <button v-if="isAuth" class="btn btn-primary mr-6 mt-1" @click="deleteStudent">Abmelden</button>
-      </div>
-      <TaskView v-if="isAuth" :key="student_id" @idxChange="changeIndex" @raisedHand="raisedHand"/>
-    </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+         <button class="btn btn-primary" @click="submitStudent">Bestätigen</button>
+       </div>
+     </div>
+     <div v-else class="h-full">
+       <div class="flex flex-row justify-between items-start my-2">
+         <h1 class="text-base font-medium ml-6 mt-1">{{ dataStore.user.id }}</h1>
+         <button v-if="isAuth" class="btn btn-primary mr-6 mt-1" @click="deleteStudent">Abmelden</button>
+       </div>
+       <TaskView v-if="isAuth" :key="student_id" @idxChange="changeIndex" @raisedHand="raisedHand"/>
+     </div>
   </div>
-</template>
-
+ </template>

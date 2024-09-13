@@ -239,6 +239,16 @@ def close_course(course_id, exercise_id):
         {"_id": course_id, "exercises.id": exercise_id},
         {"$set": {"exercises.$.is_active": False}},
     )
+    
+    classroom_repo.get_collection().update_many(
+        {"_id": course.classroom},
+        {
+            "$set": {
+                "tables.$[].occupied_left": False,
+                "tables.$[].occupied_right": False
+            }
+        }
+    )
     return Response("Course closed successfully", 200)
 
 

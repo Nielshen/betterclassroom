@@ -1,6 +1,5 @@
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, jsonify
 from app import classroom_repo
-from bson import ObjectId
 
 classroom_bp = Blueprint("classroom", __name__)
 
