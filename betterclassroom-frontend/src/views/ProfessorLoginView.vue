@@ -8,10 +8,16 @@ import { useDataStore } from '../stores/dataStore'
 const { user, checkProfessor, saveProfessorLocally } = useDataStore()
 const router = useRouter()
 
+const rawUrl = getApiUrl()
+const api_url = `http://${rawUrl}/api`
+
+
 const email = ref('')
 const lastName = ref('')
 const firstName = ref('')
 const password = ref('')
+
+
 
 const register = async () => {
   router.push('/register')
@@ -25,7 +31,7 @@ const requestLogin = async ({ email, password }) => {
 
   try {
 
-    const apiUrl = getApiUrl() + '/api/professor/login'
+    const apiUrl = api_url + '/professor/login'
     const response = await axios.post(apiUrl, data)
     if (response.status !== 200) {
       console.error('Login failed', response)

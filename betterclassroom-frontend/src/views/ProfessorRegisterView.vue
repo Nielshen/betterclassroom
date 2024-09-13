@@ -16,6 +16,7 @@ const password1 = ref('')
 const password2 = ref('')
 
 const rawUrl = getApiUrl()
+const api_url = `http://${rawUrl}/api`
 
 
 const requestRegister = async ({ email, last_name, first_name, password}) => {
@@ -26,7 +27,7 @@ const requestRegister = async ({ email, last_name, first_name, password}) => {
       firstName: first_name,
       password: password,
     }
-    const apiUrl = getApiUrl() + "/api/professor"
+    const apiUrl = api_url + "/professor"
     console.log({
       apiUrl, data
     })  
