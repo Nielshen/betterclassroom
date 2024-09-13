@@ -1,13 +1,20 @@
 <script setup>
 
 import { useRouter } from 'vue-router';
+import { useDataStore } from '@/stores/dataStore';
 
 
 const router = useRouter();
+const dataStore = useDataStore();
 
 const logout = async () => {}
 
-const toDashboard = () => router.push('/');
+const toDashboard = () => {
+  if (dataStore.isProfessor) {
+    router.push('/courses');
+  } else {
+  }
+} 
 </script>
 
 <template>
