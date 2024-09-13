@@ -32,7 +32,7 @@ const requestRegister = async ({ email, last_name, first_name, password}) => {
       apiUrl, data
     })  
     const response = await axios.post(apiUrl, data)
-    if (response.status !== 200) {
+    if (response.status !== 201) {
       console.error("Register failed", response)
       return
     }
