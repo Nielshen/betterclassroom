@@ -3,7 +3,6 @@ from app.db_models import Professor
 from app.utils.helpers import validate_request
 from app import professor_repo
 
-
 professor_bp = Blueprint("professor", __name__)
 
 
@@ -14,19 +13,14 @@ def handle_professors(data):
         all_professors = list(professor_repo.get_collection().find({}))
         return jsonify(all_professors)
 
-        
-        
-        
-
     elif request.method == "POST":
-        professor = professor_repo.find_one_by_id(data["email"])
+        professor = professor_repo.find_one_by_id(data["id"])
         if professor:
             return Response("Professor with that ID already exists", status=400)
 
         professor_repo.save(
             Professor(
-                id=data["id"],
-                email=data["email"],
+                id=data["id"], # email
                 password=data["password"],
                 firstName=data["firstName"],
                 lastName=data["lastName"],
@@ -49,7 +43,7 @@ def login_professor():
     - Response: An HTTP response, either with the professor object and status code 200, or with status code 401 if the credentials are invalid.
     """
     data = request.json
-    professor = professor_repo.get_collection().find_one({"email": data["email"]})  
+    professor = professor_repo.get_collection().find_one({"_id": data["email"]})
     if professor and professor["password"] == data["password"]:
         return jsonify(professor), 200
     return Response("Invalid credentials*", status=401)

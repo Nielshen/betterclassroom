@@ -4,8 +4,7 @@ from typing import Optional
 
 
 class Professor(BaseModel):
-    id: int
-    email: Optional[str]
+    id: str # email
     password: Optional[str]
     lastName: Optional[str]
     firstName : Optional[str]

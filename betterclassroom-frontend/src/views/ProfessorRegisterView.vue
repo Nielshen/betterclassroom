@@ -4,7 +4,6 @@ import axios from 'axios'
 import { getApiUrl } from '@/utils/common'
 import { useRouter } from 'vue-router'
 import { useDataStore } from '../stores/dataStore'
-import { v4 as uuidv4 } from 'uuid'
 
 const router = useRouter()
 
@@ -22,11 +21,10 @@ const rawUrl = getApiUrl()
 const requestRegister = async ({ email, last_name, first_name, password}) => {
  try{
     const data = {
-      email: email,
+      id: email,
       lastName: last_name,
       firstName: first_name,
       password: password,
-      id : uuidv4()
     }
     const apiUrl = getApiUrl() + "/api/professor"
     console.log({

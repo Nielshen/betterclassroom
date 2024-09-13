@@ -97,12 +97,12 @@ onBeforeMount(() => {
             clip-rule="evenodd"
           />
         </svg>
-        <input type="password" v-model="password" class="grow" value="password" />
+        <input type="password" v-model="password" class="grow" placeholder="Password" value="password" />
       </label>
 
       <button @click="login" class="btn btn-primary p-2 mt-3 mb-6">Anmelden</button>
       <div class="flex flex-row justify-around">
-        <button @click="register" class="btn btn-secondary p-2 my-4">Noch keine Account?</button>
+        <button @click="register" class="btn btn-secondary p-2 my-4">Noch kein Account?</button>
         <button @click="changePassword" class="btn btn-secondary p-2 my-4">
           Passwort vergessen?
         </button>
