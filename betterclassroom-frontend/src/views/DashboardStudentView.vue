@@ -136,58 +136,49 @@ onBeforeMount(async () => {
   initSockets()
 })
 </script>
+
 <template>
-    <div class="flex flex-col h-screen">
-  
-      <div class="flex m-4 justify-between sm:space-x-3">
-        <div class="flex items-center text-sm sm:text-base">
-          <div class="relative group mx-1">
-            <button
-              :href="fullLink"
-              class="btn btn-danger hover:underline"
-              @click="copyToClipboard(fullLink)"
-              @mouseenter="showFullLink = true"
-              @mouseleave="showFullLink = false"
-            >
-              Kurslink
-            </button>
-            <span
-              v-if="showFullLink"
-              class="sm:text-base absolute left-0 top-full mt-2 w-auto p-2 bg-gray-800 text-white text-xs rounded-md z-10 whitespace-nowrap"
-            >
-              {{ fullLink }}
-            </span>
-          </div>
-          <button class="btn btn-danger ml-2" @click="generateQRCode">QR-Code</button>
-        </div>
-        <button class="btn btn-warning" @click="router.push(`/editTask/${courseId}/${exerciseId}`)">
-          Aufgaben bearbeiten
-        </button>
-      </div>
-  
-      <div class="flex-grow flex flex-col">
-        <div class="flex-grow container mx-auto px-4" style="max-width: 1300px;">
-          <div class="grid grid-cols-4 gap-4 justify-center">
-            <DashboardTable
-              v-for="table in tableOccupation"
-              :key="table.id"
-              :exerciseCount="exerciseCount"
-              :table="table"
-              :tableNumber="table.id"
-              :showNames="showNames"
-              class="w-full max-w-[300px]"
-            />
-          </div>
-            <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white flex items-center justify-center">
-              <p class="text-4xl">Tafel</p>
-            </div>
-        </div>
-  
-        <div class="flex justify-between items-center px-4 py-4">
-          <button class="btn btn-danger" @click="toggleShowNames">Namen anzeigen</button>
-          <button class="btn btn-warning" @click="closeCourse">Beenden</button>
+  <div class="flex flex-col h-screen">
+
+    <div class="flex m-4 justify-between sm:space-x-3">
+      <div class="flex items-center text-sm sm:text-base">
+        <div class="relative group mx-1">
+          <button
+            :href="fullLink"
+            class="btn btn-danger hover:underline"
+            @click="copyToClipboard(fullLink)"
+            @mouseenter="showFullLink = true"
+            @mouseleave="showFullLink = false"
+          >
+            Kurslink
+          </button>
+          <span
+            v-if="showFullLink"
+            class="sm:text-base absolute left-0 top-full mt-2 w-auto p-2 bg-gray-800 text-white text-xs rounded-md z-10 whitespace-nowrap"
+          >
+            {{ fullLink }}
+          </span>
         </div>
       </div>
-      
     </div>
-  </template>
+
+    <div class="flex-grow flex flex-col">
+      <div class="flex-grow container mx-auto px-4" style="max-width: 1300px;">
+        <div class="grid grid-cols-4 gap-4 justify-center">
+          <DashboardTable
+            v-for="table in tableOccupation"
+            :key="table.id"
+            :exerciseCount="exerciseCount"
+            :table="table"
+            :tableNumber="table.id"
+            class="w-full max-w-[300px]"
+          />
+        </div>
+        <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white flex items-center justify-center">
+          <p class="text-4xl">Tafel</p>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</template>

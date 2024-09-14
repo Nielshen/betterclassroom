@@ -69,8 +69,8 @@ const router = createRouter({
       component: () => import('../views/CourseView.vue')
     },
     { 
-      path: '/dashboardStudentView/:courseId/:taskId',
-        name: 'dashboardStudentView/:courseId/:taskId',
+      path: '/DashboardStudentView/:courseId/:taskId',
+        name: 'DashboardStudentView/:courseId/:taskId',
         component: () => import('../views/DashboardStudentView.vue')
       }
     ]    
