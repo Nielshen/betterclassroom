@@ -77,7 +77,7 @@ const raisedHand = async () => {
 const submitStudent = async () => {
   if (studentName.value === '' || seat.value === '') {
     console.error('Name oder Sitzplatz nicht ausgefüllt')
-    alert('Bitte füllen Sie alle Felder aus')
+    notify({type: "error", text: "Bitte füllen Sie alle Felder aus"})
     return
   }
 

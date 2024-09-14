@@ -4,6 +4,8 @@ import { onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getApiUrl } from '@/utils/common'
 import { io } from 'socket.io-client';
+import { notify } from '@kyvg/vue3-notification'
+
 
 const route = useRoute()
 const router = useRouter()
@@ -54,7 +56,7 @@ const loadExercises = async () => {
 const createExercise = async () => {
   const name = taskName.value
   if (!name) {
-    alert("Keine Aufgaben-ID")
+    notify({type: "error", text: "Keine Aufgaben-ID"})
     return
   }
   try {
@@ -64,7 +66,7 @@ const createExercise = async () => {
       exercises: subExercises.value.map((e) => ({ ...e, name: e.name }))
     })
     console.log(result)
-    alert('Aufgabe erstellt')
+    notify({type: "success", text: "Aufgabe erstellt"})
     router.push(`/createCourse/${courseId}`)
   } catch (error) {
     console.log(error)
@@ -73,15 +75,15 @@ const createExercise = async () => {
 
 const deleteTask = async (taskId) => {
   if (!taskId) {
-    alert("Keine Aufgaben-ID")
+    notify({type: "error", text: "Keine Aufgaben-ID"})
     return
   }
   try {
     const result = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}`)
-    alert("Aufgabe gelöscht")
+    notify({type: "success", text: "Aufgabe gelöscht"})
     router.push(`/createCourse/${courseId}`)
   } catch (error) {
-    alert('Fehler', error)
+    notify({type: "error", text: "Fehler" + error})
     subExercises.value.pop();
   }
 }
@@ -100,7 +102,10 @@ const handleSubTaskAction = () => {
 const addSubTask = () => {
   console.log('addSubTask')
   if (!subtaskName.value) {
-    alert("Kein Unteraufgaben Titel")
+    notify({type: "error", text: "Kein Unteraufgaben Titel"})
+    return
+  } else if (!subtask.value) {
+    notify({type: "error", text: "Keine Unteraufgaben Beschreibung"})
     return
   }
   const description = subtask.value.replace(/\r?\n/g, '\\n')
@@ -137,7 +142,7 @@ const saveSubTask = async () => {
 
 const selectSubTaskToEdit = async (subTaskId) => {
   if (!subTaskId) {
-    alert("Keine Aufgaben-ID")
+    notify({type: "error", text: "Keine Aufgaben-ID"})
     return
   }
   const task = subExercises.value.find(subTask => subTask.id === subTaskId)
@@ -162,7 +167,7 @@ const saveEditedSubTask = async () => {
         { course: courseId, exercise: taskId, subexercise: currentSubTaskId.value, name: subtaskName.value, description: subtask.value },
         function (response) {
           if (response.success) {
-            alert("Änderungen gespeichert")
+            notify({type: "success", text: "Änderungen gespeichert"})
           } else
             console.error('Fehler beim Ändernn der SubExercise: ', response.error)
         }
@@ -177,7 +182,7 @@ const saveEditedSubTask = async () => {
 
 const deleteSubTask = async (subTaskId) => {
   if (!subTaskId) {
-    alert("Keine Aufgaben-ID")
+    notify({type: "error", text: "Keine Aufgaben-ID"})
     return
   }
 
@@ -190,7 +195,7 @@ const deleteSubTask = async (subTaskId) => {
         subexercise: subTaskId
       }, function (response) {
         if (response.success) {
-          alert("Unteraufgabe gelöscht")
+          notify({type: "success", text: "Unteraufgabe gelöscht"})
         } else
           if (response.error) {
             console.error('Fehler beim Löschen der SubExercise:', response.error)

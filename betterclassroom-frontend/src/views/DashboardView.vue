@@ -6,6 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { io } from 'socket.io-client'
 import QRCode from 'qrcode'
 import { getApiUrl } from '@/utils/common'
+import { notify } from '@kyvg/vue3-notification'
 
 const route = useRoute()
 const router = useRouter()
@@ -184,6 +185,7 @@ function copyToClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
     console.log('Using navigator.clipboard')
     navigator.clipboard.writeText(text);
+    notify({type: "success", text: "Link kopiert"})
     copied = true;
   } else {
     // Fallback to execCommand
@@ -203,6 +205,7 @@ function copyToClipboard(text) {
   // If both methods failed, prompt user
   if (!copied) {
     window.prompt("Copy this link:", text);
+    notify({type: "error", text: "Link nicht kopiert"})
   }
 
   return copied;
@@ -214,7 +217,7 @@ const closeCourse = async () => {
     await axios.delete(`${api_url}/course/${courseId}/exercise/${exerciseId}/students`)
     await axios.post(`${api_url}/course/${courseId}/exercise/${exerciseId}/close`)
     tableOccupation.value = []
-    alert('Kurs wurde geschlossen und alle Studenten wurden abgemeldet.')
+    notify({type: "success", text: "Kurs wurde geschlossen und alle Studenten wurden abgemeldet."})
     router.push('/courses')
   } catch (error) {
     console.error('Error closing course:', error)
@@ -223,6 +226,7 @@ const closeCourse = async () => {
 
 const toggleShowNames = () => {
   showNames.value = !showNames.value
+  notify({type: "success", text: "Toggle Studentennamen "})
 }
 
 onBeforeMount(async () => {
