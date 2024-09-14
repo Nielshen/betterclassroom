@@ -2,3 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 @import 'daisyui/dist/full.css';
+
+
+.my-notification {
+    margin: 50px 15px 15px;
+    padding: 20px;
+    font-size: 15px;
+    color: #000000;
+    background: #44a4fc;
+    border: 1px solid #187fe7;
+    border-radius: 20px;
+  
+    &.success {
+      background: #68cd86;
+      border-color: #42a85f;
+      text-align: center;
+    }
+  
+    &.warn {
+      background: #ffb648;
+      border-color: #f48a06;
+      text-align: center;
+    }
+  
+    &.error {
+      background: #e54d42;
+      border-color: #b82e24;
+      text-align: center;
+    }
+  }

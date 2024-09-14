@@ -6,7 +6,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/login'
+      redirect: '/courses'
     },
     {
       path: "/register", // Professor
@@ -69,28 +69,6 @@ const router = createRouter({
       component: () => import('../views/CourseView.vue')
     }
   ]
-})
-
-router.beforeEach((to, from, next) => {
-  const professorRoutes = [
-    '/dashboard/:courseId/:taskId',
-    '/createTask/:courseId',
-    '/createTask/:courseId/:taskId',
-    '/createCourse/:courseId',
-    '/createCourse/',
-    '/editTask/:courseId/:taskId',
-    '/tasks',
-    '/courses'
-  ]
-  const authRequired = professorRoutes.some(route => to.path.startsWith(route))
-  const store = useDataStore()
-  const loggedIn = store.isProfessor
-
-  if (authRequired && !loggedIn) {
-    return next('/login')
-  }
-
-  next()
 })
 
 export default router

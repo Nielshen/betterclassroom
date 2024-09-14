@@ -4,6 +4,7 @@ import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import { getApiUrl } from '@/utils/common'
+import { notify } from "@kyvg/vue3-notification"
 
 const route = useRoute()
 const router = useRouter()
@@ -47,7 +48,7 @@ const pushCourse = async ({ name, description, professor, classroom }) => {
 
 const save = async () => {
   if (courseName.value === '' || courseRoom.value === '') {
-    alert('Bitte füllen Sie alle Felder aus')
+    notify({type: "warn", text: "Bitte füllen Sie alle Felder aus"})
     return
   }
   if (!courseId) {
@@ -58,11 +59,11 @@ const save = async () => {
       classroom: courseRoom.value
     })
       .then(() => {
-        alert('Success')
+        notify({type: "success", text: "Kurs erfolgreich erstellt"})
         router.push('/courses')
       })
       .catch((err) => {
-        alert('Error', err)
+        notify({type: "error", text: "Fehler beim Erstellen vom Kurs", err})
       })
   } else {
     try {
@@ -126,11 +127,11 @@ const startTask = async (taskId) => {
 
   try {
     await axios.post(`${api_url}/course/${courseId}/exercise/${taskId}/start`)
-    alert(`Kurs gestartet: ${courseLink}`)
+    notify({type: "success", text: `"Kurs gestartet: " ${courseLink}`})
     router.push(`/dashboard/${courseId}/${taskId}`)
   } catch (error) {
     console.error('Error starting the course:', error)
-    alert('Fehler beim Starten des Kurses')
+    notify({type: "error", text: "Fehler beim Starten des Kurses"})
   }
 }
 

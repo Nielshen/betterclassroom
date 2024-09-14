@@ -6,13 +6,13 @@ const getApiUrl = (logging = false) => {
     const testUrl = import.meta.env.VITE_API_TEST_URL_RAW
     const hostname = window.location.hostname
     if (hostname === 'localhost' || hostname.startsWith("127.")) {
-        return testUrl // localhost:5000
+        return stagingUrl // localhost:5000
     } else if (hostname === 'better-classroom.com') {
-        return localClusterUrl
+        return stagingUrl
     } else if (hostname === 'betterclassroom-staging.in.htwg-konstanz.de') {
         return stagingUrl
     } else {
-        return prodUrl //  betterclassroom.in.htwg-konstanz.de
+        return stagingUrl //  betterclassroom.in.htwg-konstanz.de
     }
 }
 
