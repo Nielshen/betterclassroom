@@ -76,7 +76,7 @@ const raisedHand = async () => {
 const submitStudent = async () => {
   if (studentName.value === '' || seat.value === '') {
     console.error('Name oder Sitzplatz nicht ausgefüllt')
-    alert('Bitte füllen Sie alle Felder aus')
+    notify({type: "error", text: "Bitte füllen Sie alle Felder aus"})
     return
   }
 
@@ -90,7 +90,7 @@ const submitStudent = async () => {
     const isOccupied = getResponse.data.occupied;
 
     if (isOccupied) {
-      alert(`The seat on ${seatSide} side of table ${tableId} is already occupied.`);
+      notify({type: "error", text: `The seat on ${seatSide} side of table ${tableId} is already occupied.`})
       return;
     } else {
       const putResponse = await axios.post(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}`, {
@@ -122,7 +122,7 @@ const submitStudent = async () => {
   console.log('Emitting new_student', studentData)
   socket.emit('new_student', studentData, function (response) {
     if (response.error) {
-      alert("Student with this name already exists")
+      notify({type: "error", text: "Student with this name already exists"})
       console.error('Fehler beim Hinzufügen des Studenten:', response.error)
       isAuth.value = false
     } else {

@@ -20,5 +20,6 @@ const fetchStudents = async () => {
 <template>
   <Navbar />
   <Sidebar />
+  <notifications width="350px" position="top center" classes="my-notification" />
 </template>
 

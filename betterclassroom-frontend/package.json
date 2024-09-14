@@ -15,6 +15,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@kyvg/vue3-notification": "^3.3.0",
     "axios": "^1.7.2",
     "marked": "^14.1.2",
     "md-editor-v3": "^4.19.1",
