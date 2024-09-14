@@ -2,7 +2,7 @@ from flask_socketio import emit
 from flask_socketio.namespace import Namespace
 from flask import request
 import logging
-from app import students_repo, course_repo
+from app import students_repo, course_repo, classroom_repo
 from app.db_models import Student
 from app.utils.helpers import validate_socket_request, get_hash
 
@@ -95,6 +95,17 @@ class StudentNamespace(Namespace):
             {"_id": student.course, "exercises.id": student.exercise},
             {"$pull": {"exercises.$.participants": student.id}},
         )
+        classroom_id = course_repo.find_one_by_id(student.course).classroom
+        table_index = int(student.table.split("-")[0]) - 1
+        
+        seat_mapping = {"L": "left", "R": "right"}
+        seat_side = seat_mapping[student.table.split("-")[1]]
+        
+        classroom_repo.get_collection().update_one({"_id": classroom_id}, {
+            "$set": {
+                f"tables.{table_index}.occupied_{seat_side}": False
+            }
+        })
         students_repo.delete_by_id(student.id)
 
         emit(

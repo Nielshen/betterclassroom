@@ -5,7 +5,6 @@ const getApiUrl = (logging = false) => {
     const localClusterUrl = import.meta.env.VITE_API_CLUSTER_URL_RAW
     const testUrl = import.meta.env.VITE_API_TEST_URL_RAW
     const hostname = window.location.hostname
-    logging ? console.log({ prodUrl, testUrl, hostname}) : null
     if (hostname === 'localhost' || hostname.startsWith("127.")) {
         return testUrl // localhost:5000
     } else if (hostname === 'better-classroom.com') {
@@ -15,7 +14,6 @@ const getApiUrl = (logging = false) => {
     } else {
         return prodUrl //  betterclassroom.in.htwg-konstanz.de
     }
-
 }
 
 

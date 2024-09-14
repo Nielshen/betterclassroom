@@ -91,7 +91,6 @@ The `kubernetes` directory contains configuration files for deploying the applic
 
    ```
    kubectl port-forward svc/mongodb -n betterclassroom 27017:27017
-   ```Node.js is available under the MIT license. Node.js also includes external libraries that are available under a variety of licenses. See LICENSE for the full license text.
    ```
 
 4. Set up the frontend:
@@ -109,6 +108,7 @@ The `kubernetes` directory contains configuration files for deploying the applic
 - Backend: The Flask application is located in `betterclassroom-backend/app/main.py`
 - Frontend: The Vue.js application entry point is `betterclassroom-frontend/src/main.js`
 - Database: Ensure MongoDB is running and properly configured in the backend
+
 ## License
 
 BetterClassroom is available under the MIT license. See LICENSE for the full license text.

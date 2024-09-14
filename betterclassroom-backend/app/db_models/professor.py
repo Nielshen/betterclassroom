@@ -1,9 +1,13 @@
 from pydantic import BaseModel
 from pydantic_mongo import AbstractRepository
+from typing import Optional
 
 
 class Professor(BaseModel):
-    id: str
+    id: str # email
+    password: Optional[str]
+    lastName: Optional[str]
+    firstName : Optional[str]
 
 
 class ProfessorRepository(AbstractRepository[Professor]):
