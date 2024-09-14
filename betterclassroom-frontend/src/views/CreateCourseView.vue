@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import { getApiUrl } from '@/utils/common'
 import { notify } from "@kyvg/vue3-notification"
+import { useDataStore } from '@/stores/dataStore'
 
 const route = useRoute()
 const router = useRouter()
@@ -22,6 +23,8 @@ const createButton = ref('')
 const professorId = ref('')
 const tasks = ref([])
 const isEditMode = ref('')
+
+const dataStore = useDataStore()
 
 const loadCourse = async (id) => {
   try {
@@ -104,7 +107,7 @@ onBeforeMount(async () => {
   } else {
     title.value = 'Kurs erstellen'
     createButton.value = 'Erstellen'
-    professorId.value = 'Prof. Dr. Markus Eiglsperger'
+    professorId.value = dataStore.user.email
     isEditMode.value = false
   }
 })

@@ -4,6 +4,8 @@ import { onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getApiUrl } from '@/utils/common'
 import { io } from 'socket.io-client';
+import { notify } from '@kyvg/vue3-notification'
+
 
 const route = useRoute()
 const router = useRouter()
@@ -101,6 +103,9 @@ const addSubTask = () => {
   console.log('addSubTask')
   if (!subtaskName.value) {
     notify({type: "error", text: "Kein Unteraufgaben Titel"})
+    return
+  } else if (!subtask.value) {
+    notify({type: "error", text: "Keine Unteraufgaben Beschreibung"})
     return
   }
   const description = subtask.value.replace(/\r?\n/g, '\\n')
