@@ -9,7 +9,7 @@ from app.db_models import (
     StudentRepository,
     ProfessorRepository,
 )
-from app.utils.helpers import createO201, createO301, createProfEigslperger
+from app.utils.helpers import createO201, createO301
 from swagger_ui import flask_api_doc
 import os
 
@@ -67,7 +67,6 @@ def create_app():
 
     createO201(classroom_repo)
     createO301(classroom_repo)
-    createProfEigslperger(professor_repo)
 
     flask_api_doc(
         app,

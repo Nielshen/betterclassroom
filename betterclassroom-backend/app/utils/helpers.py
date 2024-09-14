@@ -54,7 +54,7 @@ def createO201(classroom_repo):
             id="O-201",
             tablesPerRow=tablesPerRow,
             rows=rows,
-            tables=[Table(id=i, occupied=False) for i in range(0, tablesPerRow * rows)],
+            tables=[Table(id=i, occupied_left=False, occupied_right=False) for i in range(0, tablesPerRow * rows)],
         )
     )
 
@@ -69,12 +69,6 @@ def createO301(classroom_repo):
             id="O-301",
             tablesPerRow=tablesPerRow,
             rows=rows,
-            tables=[Table(id=i, occupied=False) for i in range(0, tablesPerRow * rows)],
+            tables=[Table(id=i, occupied_left=False, occupied_right=False) for i in range(0, tablesPerRow * rows)],
         )
     )
-
-
-def createProfEigslperger(professor_repo):
-    from app.db_models import Professor
-
-    professor_repo.save(Professor(id="Prof. Dr. Markus Eiglsperger"))

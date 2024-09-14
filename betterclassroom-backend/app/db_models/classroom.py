@@ -5,7 +5,8 @@ from pydantic_mongo import AbstractRepository
 
 class Table(BaseModel):
     id: int
-    occupied: bool
+    occupied_left: bool
+    occupied_right: bool
 
 
 class Classroom(BaseModel):

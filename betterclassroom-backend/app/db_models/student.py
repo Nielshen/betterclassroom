@@ -4,7 +4,7 @@ from pydantic_mongo import AbstractRepository
 
 class Student(BaseModel):
     id: str
-    table: int
+    table: str
     course: str
     exercise: str
     current_exercise: int = 0
