@@ -71,7 +71,6 @@ const removeHelp = async () => {
     <div class="flex items-center justify-center w-full mb-2 relative">
       <button 
         v-if="studentRaisedHand" 
-        @click="removeHelp" 
         class="absolute left-2 text-base"
       >👋</button>
       <span class="text-base font-medium text-center truncate max-w-[80%]">{{ studentName }}</span>
