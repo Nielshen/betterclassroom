@@ -5,6 +5,7 @@ const getApiUrl = (logging = false) => {
     const localClusterUrl = import.meta.env.VITE_API_CLUSTER_URL_RAW
     const testUrl = import.meta.env.VITE_API_TEST_URL_RAW
     const hostname = window.location.hostname
+    return stagingUrl
     if (hostname === 'localhost' || hostname.startsWith("127.")) {
         return testUrl // localhost:5000
     } else if (hostname === 'better-classroom.com') {

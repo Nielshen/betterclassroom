@@ -9,6 +9,15 @@ const router = useRouter()
 
 const { saveProfessorLocally,deleteProfessorLocally } = useDataStore()
 
+const alertMessage = ref('')
+
+const setAlertMessageFor2Seconds = (message) => {
+  alertMessage.value = message
+  setTimeout(() => {
+    alertMessage.value = ''
+  }, 2000)
+}
+
 const email = ref('')
 const lastName = ref('')
 const firstName = ref('')
@@ -33,18 +42,26 @@ const requestRegister = async ({ email, last_name, first_name, password}) => {
     })  
     const response = await axios.post(apiUrl, data)
     if (response.status !== 201) {
+      setAlertMessageFor2Seconds("Register failed")
       console.error("Register failed", response)
       return
     }
     console.log("Response", response)
     saveProfessorLocally(data)
   } catch (e) {
+    setAlertMessageFor2Seconds("Register failed")
     console.error(e)
  } 
 }
 
 const register = async () => {
+  if(!email.value || !lastName.value || !firstName.value || !password1.value || !password2.value) {
+    console.error("Please fill in all fields")
+    setAlertMessageFor2Seconds("Please fill in all fields")
+    return
+  }
   if (password1.value !== password2.value) {
+    setAlertMessageFor2Seconds("Passwords do not match")
     console.error("Passwords do not match")
     return
   }
@@ -72,6 +89,11 @@ onBeforeMount(() => {
   <div class="flex flex-col h-full w-[400px] my-10 p-6 items-left justify-between rounded-xl shadow-2xl shadow-bg-primaryl hover:shadow-cyan-500/50">
     <h1 class="text-2xl">Better Classroom</h1>
     <h1 class="text-xl font-bold mb-10">Registrierung</h1>
+    <div v-if="alertMessage" class="left-3 toast-middle toast-center">
+        <div class="alert bg-red-300">
+          <span>{{ alertMessage }}</span>
+        </div>
+      </div>
 
     <label class="input input-bordered flex items-center gap-2 my-2">
       <svg

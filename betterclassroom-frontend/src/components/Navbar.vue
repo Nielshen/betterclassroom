@@ -2,12 +2,19 @@
 
 import { useRouter } from 'vue-router';
 import { useDataStore } from '@/stores/dataStore';
+import { computed } from 'vue';
 
 
 const router = useRouter();
 const dataStore = useDataStore();
 
-const logout = async () => {}
+const isLoggedIn = computed(() => !!dataStore.user.role);
+
+const logout = async () => {
+  dataStore.deleteProfessorLocally()
+  router.push('/login');
+  alert('Logged out');
+}
 
 const toDashboard = () => {
   if (dataStore.isProfessor) {
@@ -38,5 +45,6 @@ const toDashboard = () => {
     </div>
   </div>
   <!--<button v-if="dataStore.isLoggedIn" @click="logout" class="btn btn-secondary">Logout</button>-->
+  <button v-if="isLoggedIn" @click="logout" class="btn btn-primary">Logout</button>
 </div> 
 </template>

@@ -87,6 +87,7 @@ router.beforeEach((to, from, next) => {
   const loggedIn = store.isProfessor
 
   if (authRequired && !loggedIn) {
+    console.log('Not logged in')
     return next('/login')
   }
 

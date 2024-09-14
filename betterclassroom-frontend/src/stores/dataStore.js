@@ -51,7 +51,7 @@ export const useDataStore = defineStore('dataStore', () => {
   }
 
   const checkProfessor = () => {
-    const profString = sessionStorage.getItem('professor')
+    const profString = sessionStorage.getItem('user')
     console.log('Check professor: ', profString)
     if (profString) {
       user.value = JSON.parse(profString)
@@ -84,7 +84,7 @@ export const useDataStore = defineStore('dataStore', () => {
 
   const readProfessor = () => {
     console.log('Reading professor from sessionStorage')
-    const professor = JSON.parse(sessionStorage.getItem('professor'))
+    const professor = JSON.parse(sessionStorage.getItem('user'))
     if (professor) {
       return professor
     } else {
@@ -101,7 +101,7 @@ export const useDataStore = defineStore('dataStore', () => {
 
   const deleteProfessorLocally = () => {
     user.value = {}
-    sessionStorage.removeItem('professor')
+    sessionStorage.removeItem('user')
     console.log({ user: !!user.value })
   }
 
