@@ -150,6 +150,13 @@ const deleteStudent = () => {
     } else {
       console.log('Student erfolgreich gelöscht:', response.success)
     }
+    // Update local seat status
+    const [tableNumber, seatSide] = dataStore.user.table.split('-')
+    const tableIndex = parseInt(tableNumber) - 1
+    const sideKey = seatSide === 'L' ? 'occupied_left' : 'occupied_right'
+    
+    classroomSeats.value[tableIndex][sideKey] = false
+
     dataStore.deleteStudentLocally()
     isAuth.value = false
     student_id.value = ''
