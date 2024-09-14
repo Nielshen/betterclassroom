@@ -1,6 +1,6 @@
 <script setup>
 import {computed, onBeforeMount, ref} from 'vue'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import TaskView from './TaskView.vue'
 import axios from 'axios'
 import {getApiUrl} from '@/utils/common'
@@ -9,6 +9,7 @@ import {useDataStore} from '../stores/dataStore'
 
 const dataStore = useDataStore()
 const route = useRoute()
+const router = useRouter() // <--- Router importiert
 
 const courseId = route.params.courseId
 const exerciseId = route.params.taskId
@@ -82,24 +83,8 @@ const submitStudent = async () => {
 
   const tableId = seat.value.split('-')[0] - 1;
   const seatSide = seat.value.split('-')[1];
-  console.log('tableId:', tableId, 'seatSide:', seatSide);
 
-  try {
-    const getResponse = await axios.get(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}/occupied`);
-    console.log('getResponse:', getResponse.data);
-    const isOccupied = getResponse.data.occupied;
-
-    if (isOccupied) {
-      notify({type: "error", text: `The seat on ${seatSide} side of table ${tableId} is already occupied.`})
-      return;
-    } else {
-      const putResponse = await axios.post(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}`, {
-        occupied: true
-      })
-      console.log('putResponse:', putResponse.data);
-    }
-
-    const studentData = {
+  const studentData = {
     id: studentName.value,
     table: seat.value,
     course: courseId,
@@ -107,35 +92,55 @@ const submitStudent = async () => {
   }
 
 
-  socket.emit(
-      'student_register',
-      {course: courseId, exercise: exerciseId, student: studentName.value},
-      function (response) {
-        if (response.error) {
-          console.error('Fehler beim Registrieren:', response.error)
-        } else {
-          console.log('Erfolgreich registriert:', response.success)
-        }
-      }
-  )
+  try {
 
-  console.log('Emitting new_student', studentData)
-  socket.emit('new_student', studentData, function (response) {
-    if (response.error) {
-      notify({type: "error", text: "Student with this name already exists"})
-      console.error('Fehler beim Hinzufügen des Studenten:', response.error)
-      isAuth.value = false
-    } else {
-      console.log('Student erfolgreich hinzugefügt:', response.success)
-      dataStore.saveStudentLocally(studentData)
-      console.log('studentAuth: student_id ref:', dataStore.user.id)
-      student_id.value = dataStore.user.id
-      isAuth.value = true
+    socket.emit(
+        'student_register',
+        {course: courseId, exercise: exerciseId, student: studentName.value},
+        function (response) {
+          if (response.error) {
+            console.error('Fehler beim Registrieren:', response.error)
+          } else {
+            console.log('Erfolgreich registriert:', response.success)
+          }
+        }
+    )
+
+    console.log('Emitting new_student', studentData)
+    socket.emit('new_student', studentData, function (response) {
+      if (response.error) {
+        alert("Ein Student mit diesem Namen existiert bereits.")
+        console.error('Fehler beim Hinzufügen des Studenten:', response.error)
+        isAuth.value = false
+      } else {
+        console.log('Student erfolgreich hinzugefügt:', response.success)
+        dataStore.saveStudentLocally(studentData)
+        console.log('studentAuth: student_id ref:', dataStore.user.id)
+        student_id.value = dataStore.user.id
+        isAuth.value = true
+        submitSeat(tableId, seatSide)
+      }
+    })
+
+    } catch (error) {
+      console.error("Error updating seat status:", error);
     }
-  })
-  } catch (error) {
-    console.error("Error updating seat status:", error);
-  }
+}
+
+const submitSeat = async (tableId, seatSide) => {
+  const getResponse = await axios.get(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}/occupied`);
+      console.log('getResponse:', getResponse.data);
+      const isOccupied = getResponse.data.occupied;
+
+      if (isOccupied) {
+        alert(`Der Sitzplatz auf der ${seatSide}-Seite von Tisch ${tableId + 1} ist bereits belegt.`);
+        return;
+      } else {
+        const putResponse = await axios.post(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}`, {
+          occupied: true
+        })
+        console.log('putResponse:', putResponse.data);
+      }
 }
 
 const deleteStudent = () => {
@@ -145,6 +150,13 @@ const deleteStudent = () => {
     } else {
       console.log('Student erfolgreich gelöscht:', response.success)
     }
+    // Update local seat status
+    const [tableNumber, seatSide] = dataStore.user.table.split('-')
+    const tableIndex = parseInt(tableNumber) - 1
+    const sideKey = seatSide === 'L' ? 'occupied_left' : 'occupied_right'
+    
+    classroomSeats.value[tableIndex][sideKey] = false
+
     dataStore.deleteStudentLocally()
     isAuth.value = false
     student_id.value = ''
@@ -331,6 +343,13 @@ onBeforeMount(async () => {
          <button v-if="isAuth" class="btn btn-primary mr-6 mt-1" @click="deleteStudent">Abmelden</button>
        </div>
        <TaskView v-if="isAuth" :key="student_id" @idxChange="changeIndex" @raisedHand="raisedHand"/>
+
+       <!-- Zum Dashboard Button -->
+       <div class="flex justify-end m-4">
+         <button class="btn btn-secondary" @click="router.push(`/DashboardStudentView/${courseId}/${exerciseId}`)">
+           Zum Dashboard
+         </button>
+       </div>
      </div>
   </div>
  </template>

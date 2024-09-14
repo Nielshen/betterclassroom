@@ -130,7 +130,7 @@ const startTask = async (taskId) => {
 
   try {
     await axios.post(`${api_url}/course/${courseId}/exercise/${taskId}/start`)
-    notify({type: "success", text: `"Kurs gestartet: " ${courseLink}`})
+    notify({type: "success", text: "Kurs gestartet"})
     router.push(`/dashboard/${courseId}/${taskId}`)
   } catch (error) {
     console.error('Error starting the course:', error)

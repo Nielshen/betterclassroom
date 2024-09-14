@@ -67,9 +67,14 @@ const router = createRouter({
       path: '/courses', // Professor
       name: 'courses',
       component: () => import('../views/CourseView.vue')
-    }
-  ]
-})
+    },
+    { 
+      path: '/DashboardStudentView/:courseId/:taskId',
+        name: 'DashboardStudentView/:courseId/:taskId',
+        component: () => import('../views/DashboardStudentView.vue')
+      }
+    ]    
+  })
 
 router.beforeEach((to, from, next) => {
   const professorRoutes = [
