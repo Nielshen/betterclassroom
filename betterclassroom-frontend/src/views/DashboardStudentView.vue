@@ -6,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { io } from 'socket.io-client'
 import { getApiUrl } from '@/utils/common'
 
-const route = useRoute()
+const route = useRoute() 
 const router = useRouter()
 
 const courseId = route.params.courseId
@@ -178,6 +178,13 @@ onBeforeMount(async () => {
           <p class="text-4xl">Tafel</p>
         </div>
       </div>
+    </div>
+    
+    <!-- Zurück-Button -->
+    <div class="flex justify-end m-4">
+      <button class="btn btn-primary" @click="router.push(`/tasks/${courseId}`)">
+        Zurueck zu den Aufgaben
+      </button>
     </div>
     
   </div>
