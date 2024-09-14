@@ -55,21 +55,25 @@ const loadCourse = async () => {
       .map(() => ({ student1: null, student2: null }))
 
     courseStudents.forEach((student) => {
-      const tableIndex = student.table - 1
+      const [tableNumber, side] = student.table.split('-')
+      const tableIndex = parseInt(tableNumber) - 1
+      
       if (tableIndex >= 0 && tableIndex < tableOccupancy.length) {
         const table = tableOccupancy[tableIndex]
-
-        if (!table.student1) {
+        
+        if (side === 'L' && !table.student1) {
           table.student1 = student
-        } else if (!table.student2) {
+        } else if (side === 'R' && !table.student2) {
           table.student2 = student
         } else {
-          console.error('Table is full. Student cannot be added:', table, student)
+          console.error('Table side is already occupied. Student cannot be added:', table, student)
         }
+      } else {
+        console.error('Invalid table index:', tableIndex, 'for student:', student)
       }
     })
 
-    tableOccupation.value = tableOccupancy || []
+    tableOccupation.value = tableOccupancy
   } catch (error) {
     console.error('Error loading course data:', error)
   }
@@ -228,6 +232,7 @@ onBeforeMount(async () => {
   courseLink.value = `${window.location.host}/student/${courseId}/${exerciseId}`
   initSockets()
 })
+
 </script>
 <template>
   <div class="flex flex-col h-screen">

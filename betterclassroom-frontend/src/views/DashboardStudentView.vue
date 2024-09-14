@@ -4,9 +4,10 @@ import DashboardTable from '../components/DashboardTable.vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import { io } from 'socket.io-client'
+import QRCode from 'qrcode'
 import { getApiUrl } from '@/utils/common'
 
-const route = useRoute() 
+const route = useRoute()
 const router = useRouter()
 
 const courseId = route.params.courseId
@@ -21,7 +22,8 @@ const courseLink = ref('')
 const exerciseCount = ref(0)
 const fullLink = computed(() => `http://${courseLink.value}`)
 const showFullLink = ref(false)
-const copyStatus = ref('Copy to clipboard');
+const showNames = ref(true)
+
 
 const fetchExercisesCount = async () => {
   try {
@@ -53,39 +55,78 @@ const loadCourse = async () => {
       .map(() => ({ student1: null, student2: null }))
 
     courseStudents.forEach((student) => {
-      const tableIndex = student.table - 1
+      const [tableNumber, side] = student.table.split('-')
+      const tableIndex = parseInt(tableNumber) - 1
+      
       if (tableIndex >= 0 && tableIndex < tableOccupancy.length) {
         const table = tableOccupancy[tableIndex]
-
-        if (!table.student1) {
+        
+        if (side === 'L' && !table.student1) {
           table.student1 = student
-        } else if (!table.student2) {
+        } else if (side === 'R' && !table.student2) {
           table.student2 = student
         } else {
-          console.error('Table is full. Student cannot be added:', table, student)
+          console.error('Table side is already occupied. Student cannot be added:', table, student)
         }
+      } else {
+        console.error('Invalid table index:', tableIndex, 'for student:', student)
       }
     })
 
-    tableOccupation.value = tableOccupancy || []
+    tableOccupation.value = tableOccupancy
   } catch (error) {
     console.error('Error loading course data:', error)
   }
 }
 
-const updateStudentProperty = (data, property) => {
-  console.log('Updating student property:', data, property)
-  const studentIndex = data.table - 1
+const handleStudentUpdate = (data) => {
+  console.log('Handle student update', data)
+
+  const tableNumber = parseInt(data.table.slice(0, -1), 10)
+  const seatSide = data.table.slice(-1)
+
+  const studentIndex = tableNumber - 1
   if (studentIndex < 0 || studentIndex >= tableOccupation.value.length) {
     console.error('Invalid table index')
     return
   }
 
   const table = tableOccupation.value[studentIndex]
-  const studentKey = ['student1', 'student2'].find(
-    (key) => table[key] && table[key]._id === data._id
-  )
-  if (studentKey) {
+
+  const studentKey = seatSide === 'L' ? 'student1' : 'student2'
+
+  if (data.action === 'add') {
+    if (!table[studentKey] || table[studentKey]._id === data._id) {
+      table[studentKey] = data
+    } else {
+      console.error('All slots at table are full. Cannot add student:', data)
+    }
+  } else if (data.action === 'delete') {
+    if (table[studentKey] && table[studentKey]._id === data._id) {
+      table[studentKey] = null
+    } else {
+      console.error('Student not found at table:', data)
+    }
+  }
+}
+
+const updateStudentProperty = (data, property) => {
+  console.log('Updating student property:', data, property)
+
+  const tableNumber = parseInt(data.table.slice(0, -1), 10)
+  const seatSide = data.table.slice(-1)
+
+  const studentIndex = tableNumber - 1
+  if (studentIndex < 0 || studentIndex >= tableOccupation.value.length) {
+    console.error('Invalid table index')
+    return
+  }
+
+  const table = tableOccupation.value[studentIndex]
+
+  const studentKey = seatSide === 'L' ? 'student1' : 'student2'
+
+  if (table[studentKey] && table[studentKey]._id === data._id) {
     table[studentKey][property] = data[property]
   } else {
     console.error(`Updating student failed: Student not found for property ${property}`)
@@ -99,34 +140,77 @@ const initSockets = () => {
   })
 
   socket.emit(
-    'student_register',
+    'dashboard_register',
     { course: courseId, exercise: exerciseId },
     function (response) {
       if (response.error) {
-        console.error('Error registering:', response.error)
+        console.error('Fehler beim Registrieren:', response.error)
       } else {
-        console.log('Successfully registered:', response.success)
+        console.log('Erfolgreich registriert:', response.success)
       }
     }
   )
 
   socket.on('connect', () => console.log('Connected to server'))
   socket.on('disconnect', () => console.log('Disconnected from server'))
+  socket.on('help', (data) => updateStudentProperty(data.data, 'help_requested'))
   socket.on('progress', (data) => updateStudentProperty(data.data, 'current_exercise'))
+  socket.on('student', (data) => handleStudentUpdate(data.data))
 }
 
-const copyToClipboard = async () => {
+const generateQRCode = async () => {
   try {
-    await navigator.clipboard.writeText(fullLink.value);
-    copyStatus.value = 'Copied!';
-    setTimeout(() => {
-      copyStatus.value = 'Copy to clipboard';
-    }, 2000);
+    const qrCodeDataURL = await QRCode.toDataURL(courseLink.value)
+    const qrCodeWindow = window.open()
+    qrCodeWindow.document.write(`
+      <html>
+        <head>
+          <title>${exerciseId}</title>
+        </head>
+        <body style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+          <img src="${qrCodeDataURL}" style="width: 250px; height: 250px;">
+        </body>
+      </html>
+    `)
   } catch (err) {
-    console.error('Failed to copy: ', err);
-    copyStatus.value = 'Failed to copy';
+    console.error(err)
   }
-};
+}
+
+function copyToClipboard(text) {
+  let copied = false;
+
+  // Try using navigator.clipboard
+  if (navigator.clipboard && window.isSecureContext) {
+    console.log('Using navigator.clipboard')
+    navigator.clipboard.writeText(text);
+    copied = true;
+  } else {
+    // Fallback to execCommand
+    console.log('Using execCommand')
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      copied = document.execCommand('copy');
+    } catch (err) {
+      copied = false;
+    }
+    document.body.removeChild(textArea);
+  }
+
+  // If both methods failed, prompt user
+  if (!copied) {
+    window.prompt("Copy this link:", text);
+  }
+
+  return copied;
+}
+
+const toggleShowNames = () => {
+  showNames.value = !showNames.value
+}
 
 onBeforeMount(async () => {
   await fetchExercisesCount()
@@ -135,8 +219,8 @@ onBeforeMount(async () => {
   courseLink.value = `${window.location.host}/student/${courseId}/${exerciseId}`
   initSockets()
 })
-</script>
 
+</script>
 <template>
   <div class="flex flex-col h-screen">
 
@@ -159,7 +243,11 @@ onBeforeMount(async () => {
             {{ fullLink }}
           </span>
         </div>
+        <button class="btn btn-danger ml-2" @click="generateQRCode">QR-Code</button>
       </div>
+      <button class="btn btn-warning" @click="router.push(`/student/${courseId}/${exerciseId}`)">
+        Zurück zu den Aufgaben
+      </button>
     </div>
 
     <div class="flex-grow flex flex-col">
@@ -171,20 +259,14 @@ onBeforeMount(async () => {
             :exerciseCount="exerciseCount"
             :table="table"
             :tableNumber="table.id"
+            :showNames="showNames"
             class="w-full max-w-[300px]"
           />
         </div>
-        <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white flex items-center justify-center">
-          <p class="text-4xl">Tafel</p>
-        </div>
+          <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white flex items-center justify-center">
+            <p class="text-4xl">Tafel</p>
+          </div>
       </div>
-    </div>
-    
-    <!-- Zurück-Button -->
-    <div class="flex justify-end m-4">
-      <button class="btn btn-primary" @click="router.push(`/tasks/${courseId}`)">
-        Zurueck zu den Aufgaben
-      </button>
     </div>
     
   </div>

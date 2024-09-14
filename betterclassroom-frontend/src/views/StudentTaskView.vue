@@ -83,24 +83,8 @@ const submitStudent = async () => {
 
   const tableId = seat.value.split('-')[0] - 1;
   const seatSide = seat.value.split('-')[1];
-  console.log('tableId:', tableId, 'seatSide:', seatSide);
 
-  try {
-    const getResponse = await axios.get(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}/occupied`);
-    console.log('getResponse:', getResponse.data);
-    const isOccupied = getResponse.data.occupied;
-
-    if (isOccupied) {
-      alert(`Der Sitzplatz auf der ${seatSide}-Seite von Tisch ${tableId + 1} ist bereits belegt.`);
-      return;
-    } else {
-      const putResponse = await axios.post(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}`, {
-        occupied: true
-      })
-      console.log('putResponse:', putResponse.data);
-    }
-
-    const studentData = {
+  const studentData = {
     id: studentName.value,
     table: seat.value,
     course: courseId,
@@ -108,35 +92,55 @@ const submitStudent = async () => {
   }
 
 
-  socket.emit(
-      'student_register',
-      {course: courseId, exercise: exerciseId, student: studentName.value},
-      function (response) {
-        if (response.error) {
-          console.error('Fehler beim Registrieren:', response.error)
-        } else {
-          console.log('Erfolgreich registriert:', response.success)
-        }
-      }
-  )
+  try {
 
-  console.log('Emitting new_student', studentData)
-  socket.emit('new_student', studentData, function (response) {
-    if (response.error) {
-      alert("Ein Student mit diesem Namen existiert bereits.")
-      console.error('Fehler beim Hinzufügen des Studenten:', response.error)
-      isAuth.value = false
-    } else {
-      console.log('Student erfolgreich hinzugefügt:', response.success)
-      dataStore.saveStudentLocally(studentData)
-      console.log('studentAuth: student_id ref:', dataStore.user.id)
-      student_id.value = dataStore.user.id
-      isAuth.value = true
+    socket.emit(
+        'student_register',
+        {course: courseId, exercise: exerciseId, student: studentName.value},
+        function (response) {
+          if (response.error) {
+            console.error('Fehler beim Registrieren:', response.error)
+          } else {
+            console.log('Erfolgreich registriert:', response.success)
+          }
+        }
+    )
+
+    console.log('Emitting new_student', studentData)
+    socket.emit('new_student', studentData, function (response) {
+      if (response.error) {
+        alert("Ein Student mit diesem Namen existiert bereits.")
+        console.error('Fehler beim Hinzufügen des Studenten:', response.error)
+        isAuth.value = false
+      } else {
+        console.log('Student erfolgreich hinzugefügt:', response.success)
+        dataStore.saveStudentLocally(studentData)
+        console.log('studentAuth: student_id ref:', dataStore.user.id)
+        student_id.value = dataStore.user.id
+        isAuth.value = true
+        submitSeat(tableId, seatSide)
+      }
+    })
+
+    } catch (error) {
+      console.error("Error updating seat status:", error);
     }
-  })
-  } catch (error) {
-    console.error("Error updating seat status:", error);
-  }
+}
+
+const submitSeat = async (tableId, seatSide) => {
+  const getResponse = await axios.get(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}/occupied`);
+      console.log('getResponse:', getResponse.data);
+      const isOccupied = getResponse.data.occupied;
+
+      if (isOccupied) {
+        alert(`Der Sitzplatz auf der ${seatSide}-Seite von Tisch ${tableId + 1} ist bereits belegt.`);
+        return;
+      } else {
+        const putResponse = await axios.post(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}`, {
+          occupied: true
+        })
+        console.log('putResponse:', putResponse.data);
+      }
 }
 
 const deleteStudent = () => {
