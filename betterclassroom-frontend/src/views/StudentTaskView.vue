@@ -1,6 +1,6 @@
 <script setup>
 import {computed, onBeforeMount, ref} from 'vue'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import TaskView from './TaskView.vue'
 import axios from 'axios'
 import {getApiUrl} from '@/utils/common'
@@ -9,6 +9,7 @@ import {useDataStore} from '../stores/dataStore'
 
 const dataStore = useDataStore()
 const route = useRoute()
+const router = useRouter() // <--- Router importiert
 
 const courseId = route.params.courseId
 const exerciseId = route.params.taskId
@@ -90,7 +91,7 @@ const submitStudent = async () => {
     const isOccupied = getResponse.data.occupied;
 
     if (isOccupied) {
-      alert(`The seat on ${seatSide} side of table ${tableId} is already occupied.`);
+      alert(`Der Sitzplatz auf der ${seatSide}-Seite von Tisch ${tableId + 1} ist bereits belegt.`);
       return;
     } else {
       const putResponse = await axios.post(`${api_url}/classroom/${classroomId.value}/table/${tableId}/${seatSide}`, {
@@ -122,7 +123,7 @@ const submitStudent = async () => {
   console.log('Emitting new_student', studentData)
   socket.emit('new_student', studentData, function (response) {
     if (response.error) {
-      alert("Student with this name already exists")
+      alert("Ein Student mit diesem Namen existiert bereits.")
       console.error('Fehler beim Hinzufügen des Studenten:', response.error)
       isAuth.value = false
     } else {
@@ -331,6 +332,13 @@ onBeforeMount(async () => {
          <button v-if="isAuth" class="btn btn-primary mr-6 mt-1" @click="deleteStudent">Abmelden</button>
        </div>
        <TaskView v-if="isAuth" :key="student_id" @idxChange="changeIndex" @raisedHand="raisedHand"/>
+
+       <!-- Zum Dashboard Button -->
+       <div class="flex justify-end m-4">
+         <button class="btn btn-secondary" @click="router.push(`/studentdashboard/${courseId}/${exerciseId}`)">
+           Zum Dashboard
+         </button>
+       </div>
      </div>
   </div>
  </template>
