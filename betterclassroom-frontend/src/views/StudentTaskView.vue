@@ -335,7 +335,7 @@ onBeforeMount(async () => {
 
        <!-- Zum Dashboard Button -->
        <div class="flex justify-end m-4">
-         <button class="btn btn-secondary" @click="router.push(`/studentdashboard/${courseId}/${exerciseId}`)">
+         <button class="btn btn-secondary" @click="router.push(`/DashboardStudentView/${courseId}/${exerciseId}`)">
            Zum Dashboard
          </button>
        </div>
