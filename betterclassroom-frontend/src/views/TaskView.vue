@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue'
 import { useDataStore } from '../stores/dataStore'
+import { marked } from 'marked'
 
 const emits = defineEmits(['idxChange', 'raisedHand'])
 const dataStore = useDataStore()
@@ -19,9 +20,7 @@ watch(() => dataStore.user.current_exercise, (newVal) => {
   exercise.value = newVal
 })
 
-
 watch(tasks, (newTasks) => {
-
   if (newTasks.length === 0) {
     exercise.value = 0
     emits('idxChange', exercise.value)
@@ -89,6 +88,10 @@ onMounted(() => {
   previousTasks.value = JSON.parse(JSON.stringify(tasks.value))
   emits('idxChange', exercise.value)
 })
+
+const renderMarkdown = (markdown) => {
+  return marked(markdown)
+}
 </script>
 
 <template>
@@ -109,7 +112,7 @@ onMounted(() => {
             </div>
             <p>
               <div v-if="tasks[exercise]">
-                <div v-html="tasks[exercise].description.replace(/(\\n|\n)/g, '<br><br>')"></div>
+                <div v-html="renderMarkdown(tasks[exercise].description)"></div>
               </div>
               <div v-else>Du hast alle Aufgaben bearbeitet.</div>
             </p>
