@@ -95,6 +95,13 @@ const renderMarkdown = (markdown) => {
 }
 </script>
 
+<style scoped>
+.markdown-body {
+  background-color: transparent;
+  color: black; 
+}
+</style>
+
 <template>
   <div class="w-full h-full">
     <div class="carousel h-full w-full">
