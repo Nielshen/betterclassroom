@@ -12,7 +12,6 @@ const isLoggedIn = computed(() => dataStore.user.role === 'professor')
 const logout = async () => {
   dataStore.deleteProfessorLocally()
   router.push('/login')
-  alert('Logged out')
 }
 
 const toDashboard = () => {
