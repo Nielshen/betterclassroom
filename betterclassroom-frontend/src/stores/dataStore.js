@@ -27,9 +27,9 @@ export const useDataStore = defineStore('dataStore', () => {
     }
   }
 
-  const saveProfessorLocally = ({ id, firstName, lastName }) => {
+  const saveProfessorLocally = ({ id, firstName, lastName, email}) => {
     try {
-      user.value = { id, firstName, lastName, role: 'professor' }
+      user.value = { id, firstName, lastName, email, role: 'professor' }
       console.log('User value', user.value)
       sessionStorage.setItem('user', JSON.stringify(user.value))
       console.log('Lokale Benutzerdaten gespeichert:', user.value)
