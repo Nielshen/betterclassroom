@@ -63,12 +63,10 @@ def reset_password():
     - Response: An HTTP response indicating the success or failure of the password reset.
     """
     data = request.json
-    professor = professor_repo.get_collection().find_one({"email": data["email"]})
+    professor = professor_repo.get_collection().find_one({"id": data["email"]})  
     if not professor:
         return Response("Professor not found", status=404)
 
     professor["password"] = data["password"]
-    professor_repo.get_collection().update_one(
-        {"email": data["email"]}, {"$set": {"password": data["new_password"]}}
-    )
+    professor_repo.get_collection().update_one({"id": data["email"]}, {"$set": {"password": data["new_password"]}})
     return Response("Password updated successfully", status=200)
