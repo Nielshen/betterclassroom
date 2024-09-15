@@ -4,6 +4,10 @@ import { onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getApiUrl } from '@/utils/common'
 import { io } from 'socket.io-client';
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+import { notify } from '@kyvg/vue3-notification'
+
 
 const route = useRoute()
 const router = useRouter()
@@ -54,7 +58,7 @@ const loadExercises = async () => {
 const createExercise = async () => {
   const name = taskName.value
   if (!name) {
-    alert("Keine Aufgaben-ID")
+    notify({type: "error", text: "Keine Aufgaben-ID"})
     return
   }
   try {
@@ -64,7 +68,7 @@ const createExercise = async () => {
       exercises: subExercises.value.map((e) => ({ ...e, name: e.name }))
     })
     console.log(result)
-    alert('Aufgabe erstellt')
+    notify({type: "success", text: "Aufgabe erstellt"})
     router.push(`/createCourse/${courseId}`)
   } catch (error) {
     console.log(error)
@@ -73,15 +77,15 @@ const createExercise = async () => {
 
 const deleteTask = async (taskId) => {
   if (!taskId) {
-    alert("Keine Aufgaben-ID")
+    notify({type: "error", text: "Keine Aufgaben-ID"})
     return
   }
   try {
     const result = await axios.delete(`${api_url}/course/${courseId}/exercise/${taskId}`)
-    alert("Aufgabe gelöscht")
+    notify({type: "success", text: "Aufgabe gelöscht"})
     router.push(`/createCourse/${courseId}`)
   } catch (error) {
-    alert('Fehler', error)
+    notify({type: "error", text: "Fehler" + error})
     subExercises.value.pop();
   }
 }
@@ -100,10 +104,13 @@ const handleSubTaskAction = () => {
 const addSubTask = () => {
   console.log('addSubTask')
   if (!subtaskName.value) {
-    alert("Kein Unteraufgaben Titel")
+    notify({type: "error", text: "Kein Unteraufgaben Titel"})
+    return
+  } else if (!subtask.value) {
+    notify({type: "error", text: "Keine Unteraufgaben Beschreibung"})
     return
   }
-  const description = subtask.value.replace(/\r?\n/g, '\\n')
+  const description = subtask.value
 
   subExercises.value.push({ name: subtaskName.value, description: description })
   subtaskName.value = ''
@@ -137,7 +144,7 @@ const saveSubTask = async () => {
 
 const selectSubTaskToEdit = async (subTaskId) => {
   if (!subTaskId) {
-    alert("Keine Aufgaben-ID")
+    notify({type: "error", text: "Keine Aufgaben-ID"})
     return
   }
   const task = subExercises.value.find(subTask => subTask.id === subTaskId)
@@ -162,7 +169,7 @@ const saveEditedSubTask = async () => {
         { course: courseId, exercise: taskId, subexercise: currentSubTaskId.value, name: subtaskName.value, description: subtask.value },
         function (response) {
           if (response.success) {
-            alert("Änderungen gespeichert")
+            notify({type: "success", text: "Änderungen gespeichert"})
           } else
             console.error('Fehler beim Ändernn der SubExercise: ', response.error)
         }
@@ -177,7 +184,7 @@ const saveEditedSubTask = async () => {
 
 const deleteSubTask = async (subTaskId) => {
   if (!subTaskId) {
-    alert("Keine Aufgaben-ID")
+    notify({type: "error", text: "Keine Aufgaben-ID"})
     return
   }
 
@@ -190,7 +197,7 @@ const deleteSubTask = async (subTaskId) => {
         subexercise: subTaskId
       }, function (response) {
         if (response.success) {
-          alert("Unteraufgabe gelöscht")
+          notify({type: "success", text: "Unteraufgabe gelöscht"})
         } else
           if (response.error) {
             console.error('Fehler beim Löschen der SubExercise:', response.error)
@@ -237,9 +244,24 @@ onBeforeMount(async () => {
 })
 </script>
 
+<style scoped>
+.md-editor-container {
+  height: 500px; 
+  width: 100%; 
+}
+
+.editor-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+</style>
+
 <template>
-  <div class="flex justify-center item-center">
-    <div class="flex flex-col w-2/3">
+  <div class="flex justify-center items-center">
+    <div class="flex flex-col w-full md:w-2/3">
       <div class="flex flex-row items-center justify-between">
         <h1 class="text-2xl my-10">{{ title }}</h1>
         <div>
@@ -250,15 +272,13 @@ onBeforeMount(async () => {
 
       <input type="text" placeholder="Aufgabenname" class="input input-bordered input-accent w-full max-w-xs my-5"
         v-model="taskName" />
-      <textarea class="textarea textarea-accent my-5 overflow-auto" placeholder="Beschreibung der Aufgabe"
-        style="min-height: 100px;" v-model="taskDescription"></textarea>
+      <textarea placeholder="Aufgabenbeschreibung" class="textarea textarea-bordered textarea-accent w-full my-5" v-model="taskDescription"></textarea>
       <div class="overflow-x-auto w-full">
         <h2 class="text-xl my-5">Unteraufgaben</h2>
-        <input type="text" placeholder="Unteraufgabentitel" class="input input-md input-bordered input-accent w-full"
+        <input type="text" placeholder="Unteraufgabentitel" class="input input-md input-bordered input-accent w-full mb-4"
           v-model="subtaskName" />
-        <div class="flex items-center">
-          <textarea class="textarea textarea-accent my-5 overflow-auto flex-grow"
-            placeholder="Beschreibung der Unteraufgabe" style="min-height: 200px;" v-model="subtask"></textarea>
+        <div class="editor-wrapper">
+          <MdEditor v-model="subtask" language="en-US" class="md-editor-container" />
         </div>
         <button class="btn btn-accent mb-5 float-right" v-if="!isEditing" @click="handleSubTaskAction">&#65291
           Unteraufgabe

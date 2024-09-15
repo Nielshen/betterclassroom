@@ -7,6 +7,7 @@
 3. [Accessing Staging and Production Environments](#accessing-staging-and-production-environments)
 4. [Merge Process](#merge-process)
 5. [Testing WebSockets](#testing-websockets)
+6. [Edit Staging, Production](#edit-staging-production)
 
 ## Local Development
 
@@ -246,3 +247,21 @@ For local testing, use:
 ```
 ws://better-classroom.com:8088/api/socket.io/?EIO=4&transport=websocket&path=/api/socket.io/student
 ```
+
+## Edit Staging, Production
+
+ssh admin@141.37.29.38
+
+Password: K****
+
+##### swap k3d cluster context (Staging, Production): 
+
+k3d cluster list
+
+kubectl config get-contexts
+
+kubectl config use-context <Kontext-Name>
+
+kubectl config current-context
+
+k9s

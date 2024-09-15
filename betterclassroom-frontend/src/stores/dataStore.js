@@ -7,13 +7,14 @@ export const useDataStore = defineStore('dataStore', () => {
   const dashboardData = ref([])
 
   const isStudent = computed(() => user.value.role === 'student')
+  const isProfessor = computed(() => user.value.role === 'professor')
   const isLoggedIn = computed(() => !!user.value.role)
 
   const initStudent = () => {
     user.value = { role: 'student' }
   }
 
-  const saveStudentLocally = ({ id, table, course }) => {
+  const saveStudentLocally = ({ id, table }) => {
     try {
       user.value = { id, table, role: 'student', help_requested: false, current_exercise: 0 }
       console.log('User value', user.value)
@@ -26,11 +27,34 @@ export const useDataStore = defineStore('dataStore', () => {
     }
   }
 
+  const saveProfessorLocally = ({ id, firstName, lastName, email}) => {
+    try {
+      user.value = { id, firstName, lastName, email, role: 'professor' }
+      console.log('User value', user.value)
+      sessionStorage.setItem('user', JSON.stringify(user.value))
+      console.log('Lokale Benutzerdaten gespeichert:', user.value)
+      return true
+    } catch (e) {
+      console.error('Error saving professor to local storage: ', e)
+      return false
+    }
+  }
+
   const checkUser = () => {
     const userString = sessionStorage.getItem('user')
     console.log('Check user: ', userString)
     if (userString) {
       user.value = JSON.parse(userString)
+      return true
+    }
+    return false
+  }
+
+  const checkProfessor = () => {
+    const profString = sessionStorage.getItem('user')
+    console.log('Check professor: ', profString)
+    if (profString) {
+      user.value = JSON.parse(profString)
       return true
     }
     return false
@@ -58,7 +82,24 @@ export const useDataStore = defineStore('dataStore', () => {
     }
   }
 
+  const readProfessor = () => {
+    console.log('Reading professor from sessionStorage')
+    const professor = JSON.parse(sessionStorage.getItem('user'))
+    if (professor) {
+      return professor
+    } else {
+      console.error('No professor found in sessionStorage')
+      return {}
+    }
+  }
+
   const deleteStudentLocally = () => {
+    user.value = {}
+    sessionStorage.removeItem('user')
+    console.log({ user: !!user.value })
+  }
+
+  const deleteProfessorLocally = () => {
     user.value = {}
     sessionStorage.removeItem('user')
     console.log({ user: !!user.value })
@@ -102,14 +143,18 @@ export const useDataStore = defineStore('dataStore', () => {
     user,
     tasks: getTasks,
     isStudent,
+    isProfessor,
     isLoggedIn,
     dashboardData,
     initStudent,
     saveStudentLocally,
+    saveProfessorLocally,
     checkUser,
+    checkProfessor,
     updateUserField,
     readUser,
     deleteStudentLocally,
+    deleteProfessorLocally,
     updateTasks,
     alterTask,
     addNewSubexercise,

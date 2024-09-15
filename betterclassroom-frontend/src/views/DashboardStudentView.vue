@@ -6,7 +6,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { io } from 'socket.io-client'
 import QRCode from 'qrcode'
 import { getApiUrl } from '@/utils/common'
-import { notify } from '@kyvg/vue3-notification'
 
 const route = useRoute()
 const router = useRouter()
@@ -185,7 +184,6 @@ function copyToClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
     console.log('Using navigator.clipboard')
     navigator.clipboard.writeText(text);
-    notify({type: "success", text: "Link kopiert"})
     copied = true;
   } else {
     // Fallback to execCommand
@@ -196,7 +194,6 @@ function copyToClipboard(text) {
     textArea.select();
     try {
       copied = document.execCommand('copy');
-      notify({type: "success", text: "Link kopiert"})
     } catch (err) {
       copied = false;
     }
@@ -206,28 +203,13 @@ function copyToClipboard(text) {
   // If both methods failed, prompt user
   if (!copied) {
     window.prompt("Copy this link:", text);
-    notify({type: "error", text: "Link nicht kopiert"})
   }
 
   return copied;
 }
 
-
-const closeCourse = async () => {
-  try {
-    await axios.delete(`${api_url}/course/${courseId}/exercise/${exerciseId}/students`)
-    await axios.post(`${api_url}/course/${courseId}/exercise/${exerciseId}/close`)
-    tableOccupation.value = []
-    notify({type: "success", text: "Kurs wurde geschlossen und alle Studenten wurden abgemeldet."})
-    router.push('/courses')
-  } catch (error) {
-    console.error('Error closing course:', error)
-  }
-}
-
 const toggleShowNames = () => {
   showNames.value = !showNames.value
-  notify({type: "success", text: "Toggle Studentennamen "})
 }
 
 onBeforeMount(async () => {
@@ -263,8 +245,8 @@ onBeforeMount(async () => {
         </div>
         <button class="btn btn-danger ml-2" @click="generateQRCode">QR-Code</button>
       </div>
-      <button class="btn btn-warning" @click="router.push(`/editTask/${courseId}/${exerciseId}`)">
-        Aufgaben bearbeiten
+      <button class="btn btn-warning" @click="router.push(`/student/${courseId}/${exerciseId}`)">
+        Zurück zu den Aufgaben
       </button>
     </div>
 
@@ -284,11 +266,6 @@ onBeforeMount(async () => {
           <div class="rounded-lg w-full h-[55px] mt-5 mb-5 bg-primary text-center text-white flex items-center justify-center">
             <p class="text-4xl">Tafel</p>
           </div>
-      </div>
-
-      <div class="flex justify-between items-center px-4 py-4">
-        <button class="btn btn-danger" @click="toggleShowNames">Namen anzeigen</button>
-        <button class="btn btn-warning" @click="closeCourse">Beenden</button>
       </div>
     </div>
     
