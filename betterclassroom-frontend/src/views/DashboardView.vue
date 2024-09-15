@@ -196,6 +196,7 @@ function copyToClipboard(text) {
     textArea.select();
     try {
       copied = document.execCommand('copy');
+      notify({type: "success", text: "Link kopiert"})
     } catch (err) {
       copied = false;
     }
