@@ -20,7 +20,7 @@ def handle_professors(data):
 
         professor_repo.save(
             Professor(
-                id=data["id"], # email
+                id=data["id"],  # email
                 password=data["password"],
                 firstName=data["firstName"],
                 lastName=data["lastName"],
@@ -48,8 +48,6 @@ def login_professor():
         return jsonify(professor), 200
     return Response("Invalid credentials*", status=401)
 
-    
-    
 
 @professor_bp.route("/api/professor/reset_password", methods=["POST"])
 def reset_password():
@@ -65,14 +63,10 @@ def reset_password():
     - Response: An HTTP response indicating the success or failure of the password reset.
     """
     data = request.json
-    professor = professor_repo.get_collection().find_one({"email": data["email"]})  
+    professor = professor_repo.get_collection().find_one({"id": data["email"]})  
     if not professor:
         return Response("Professor not found", status=404)
 
     professor["password"] = data["password"]
-    professor_repo.get_collection().update_one({"email": data["email"]}, {"$set": {"password": data["new_password"]}})
+    professor_repo.get_collection().update_one({"id": data["email"]}, {"$set": {"password": data["new_password"]}})
     return Response("Password updated successfully", status=200)
-
-
-
-

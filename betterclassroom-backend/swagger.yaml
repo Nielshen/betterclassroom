@@ -15,12 +15,12 @@ servers:
 paths:
   /classroom:
     get:
-      summary: Returns list of all classrooms.
+      summary: Returns a list of all classrooms.
       tags:
         - Classroom
       responses:
         "200":
-          description: A JSON array of classrooms
+          description: A JSON array of classroom objects
           content:
             application/json:
               schema:
@@ -50,16 +50,88 @@ paths:
               schema:
                 $ref: "#/components/schemas/Classroom"
         "404":
-          description: Classroom ID not found
+          description: Classroom not found
 
+  /classroom/{classroom_id}/table/{table_id}/{seat_side}/occupied:
+    get:
+      summary: Checks if a specific seat in a classroom is occupied.
+      tags:
+        - Classroom
+      parameters:
+        - in: path
+          name: classroom_id
+          required: true
+          description: ID of the classroom
+          schema:
+            type: string
+        - in: path
+          name: table_id
+          required: true
+          description: ID of the table
+          schema:
+            type: string
+        - in: path
+          name: seat_side
+          required: true
+          description: Side of the table (L for left, R for right)
+          schema:
+            type: string
+            enum: [L, R]
+      responses:
+        "200":
+          description: Seat occupation status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  occupied:
+                    type: boolean
+        "400":
+          description: Invalid seat side provided
+        "404":
+          description: Classroom or table not found
+
+  /classroom/{classroom_id}/table/{table_id}/{seat_side}:
+    post:
+      summary: Updates the occupation status of a specific seat in a classroom.
+      tags:
+        - Classroom
+      parameters:
+        - in: path
+          name: classroom_id
+          required: true
+          description: ID of the classroom
+          schema:
+            type: string
+        - in: path
+          name: table_id
+          required: true
+          description: ID of the table
+          schema:
+            type: string
+        - in: path
+          name: seat_side
+          required: true
+          description: Side of the table (L for left, R for right)
+          schema:
+            type: string
+            enum: [L, R]
+      responses:
+        "200":
+          description: Seat successfully occupied
+        "400":
+          description: Invalid seat side provided or seat is already occupied
+        "404":
+          description: Classroom or table not found
   /professor:
     get:
-      summary: Returns a list of professors.
+      summary: Returns a list of all professors.
       tags:
         - Professor
       responses:
         "200":
-          description: A JSON array of professor names
+          description: A JSON array of professor objects
           content:
             application/json:
               schema:
@@ -83,23 +155,61 @@ paths:
         "400":
           description: Professor with that ID already exists
 
-  /professor/{professor_id}:
-    delete:
-      summary: Delete a professor by ID.
+  /professor/login:
+    post:
+      summary: Log in a professor
       tags:
         - Professor
-      parameters:
-        - in: path
-          name: professor_id
-          required: true
-          description: ID of the professor to delete
-          schema:
-            type: string
+      requestBody:
+        description: Professor's login credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
       responses:
         "200":
-          description: Professor deleted successfully
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Professor"
+        "401":
+          description: Invalid credentials
+
+  /professor/reset_password:
+    post:
+      summary: Reset a professor's password
+      tags:
+        - Professor
+      requestBody:
+        description: Professor's email and new password
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                new_password:
+                  type: string
+              required:
+                - email
+                - new_password
+      responses:
+        "200":
+          description: Password updated successfully
         "404":
-          description: Professor ID not found
+          description: Professor not found
 
   /students:
     get:
@@ -115,8 +225,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Student"
-        "404":
-          description: No students found
     post:
       summary: Add a new student.
       tags:
@@ -132,9 +240,9 @@ paths:
         "201":
           description: Student added successfully
         "400":
-          description: Student with that ID already exists
+          description: Student with this ID already exists
         "404":
-          description: Given course or exercise not found
+          description: Course or Exercise not found
     delete:
       summary: Delete all students.
       tags:
@@ -163,7 +271,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Student"
         "404":
-          description: Student with student ID not found
+          description: Student not found
     delete:
       summary: Delete a student by ID.
       tags:
@@ -179,7 +287,7 @@ paths:
         "200":
           description: Student deleted successfully
         "404":
-          description: Student ID not found
+          description: Student not found
 
   /students/{student_id}/progress:
     get:
@@ -201,7 +309,7 @@ paths:
               schema:
                 type: integer
         "404":
-          description: Student ID not found
+          description: Student not found
     post:
       summary: Updates the progress of a student.
       tags:
@@ -225,11 +333,11 @@ paths:
                   type: integer
       responses:
         "200":
-          description: Progress updated successfully
+          description: Current exercise updated successfully
         "400":
-          description: No data provided /current_exercise not provided / current_exercise not an integer
+          description: No data provided / current_exercise is required / current_exercise must be an integer
         "404":
-          description: Student ID not found
+          description: Student not found
 
   /students/{student_id}/help:
     get:
@@ -254,29 +362,29 @@ paths:
                   help_requested:
                     type: boolean
                   table:
-                    type: integer
+                    type: string
         "404":
-          description: Student ID not found
+          description: Student not found
     post:
-      summary: Updates the help status of a student.
+      summary: Toggles the help status of a student.
       tags:
         - Student
       parameters:
         - in: path
           name: student_id
           required: true
-          description: ID of the student whose help status is to be updated
+          description: ID of the student whose help status is to be toggled
           schema:
             type: string
       responses:
         "200":
-          description: Help status updated successfully
+          description: Help requested updated successfully
         "404":
-          description: Student ID not found
+          description: Student not found
 
   /course:
     get:
-      summary: Returns list containing all Courses.
+      summary: Returns list of all courses.
       tags:
         - Course
       responses:
@@ -303,7 +411,7 @@ paths:
         "201":
           description: Course added successfully
         "400":
-          description: Course with that ID already exists
+          description: Course with this ID already exists
         "404":
           description: Professor or Classroom not found
 
@@ -327,23 +435,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Course"
         "404":
-          description: Course ID not found
-    delete:
-      summary: Delete a course by ID.
-      tags:
-        - Course
-      parameters:
-        - in: path
-          name: course_id
-          required: true
-          description: ID of the course to delete
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Course deleted successfully
-        "404":
-          description: Course ID not found
+          description: Course not found
     put:
       summary: Update a course by ID.
       tags:
@@ -374,6 +466,22 @@ paths:
           description: Course updated successfully
         "400":
           description: Only name, description and classroom can be modified / No data provided
+        "404":
+          description: Course or Classroom not found
+    delete:
+      summary: Delete a course by ID.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to delete
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Course deleted successfully
         "404":
           description: Course not found
 
@@ -435,7 +543,7 @@ paths:
         - in: path
           name: course_id
           required: true
-          description: ID of the course to return subexercises for
+          description: ID of the course
           schema:
             type: string
         - in: path
@@ -463,7 +571,7 @@ paths:
         - in: path
           name: course_id
           required: true
-          description: ID of the course to add the subexercise to
+          description: ID of the course
           schema:
             type: string
         - in: path
@@ -484,28 +592,6 @@ paths:
           description: Subexercise added successfully
         "400":
           description: Subexercise with this ID already exists
-        "404":
-          description: Course or Exercise not found
-    delete:
-      summary: Delete an exercise by ID.
-      tags:
-        - Course
-      parameters:
-        - in: path
-          name: course_id
-          required: true
-          description: ID of the course to delete the exercise from
-          schema:
-            type: string
-        - in: path
-          name: exercise_id
-          required: true
-          description: ID of the exercise to delete
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Exercise deleted successfully
         "404":
           description: Course or Exercise not found
     put:
@@ -541,7 +627,29 @@ paths:
         "200":
           description: Exercise updated successfully
         "400":
-          description: No data provided / No valid fields provided / Only name and description can be modified
+          description: Only name and description can be modified / No data provided / No valid fields provided for update
+        "404":
+          description: Course or Exercise not found
+    delete:
+      summary: Delete an exercise by ID.
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          description: ID of the course to delete the exercise from
+          schema:
+            type: string
+        - in: path
+          name: exercise_id
+          required: true
+          description: ID of the exercise to delete
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Exercise deleted successfully
         "404":
           description: Course or Exercise not found
 
@@ -713,7 +821,7 @@ paths:
         "200":
           description: SubExercise updated successfully
         "400":
-          description: Only name and description can be modified / No valid fields provided
+          description: Only name and description can be modified / No valid fields provided for update
         "404":
           description: Course, Exercise, or Subexercise not found
 
@@ -725,7 +833,7 @@ components:
         id:
           type: string
         table:
-          type: integer
+          type: string
         course:
           type: string
         exercise:
@@ -740,10 +848,12 @@ components:
         - course
         - exercise
       example:
-        id: "Ruediger"
-        table: 2
+        id: "Albert"
+        table: "1-L"
         course: "Softwarequalitätssicherung"
         exercise: "Aufgabe 1"
+        current_exercise: 0
+        help_requested: false
 
     Classroom:
       type: object
@@ -769,33 +879,45 @@ components:
         rows: 5
         tables:
           - id: 1
-            occupied: false
-          - id: 2
-            occupied: true
+            occupied_left: false
+            occupied_right: true
 
     Table:
       type: object
       properties:
         id:
-          type: int
-        occupied:
+          type: integer
+        occupied_left:
+          type: boolean
+        occupied_right:
           type: boolean
       required:
         - id
-        - occupied
+        - occupied_left
+        - occupied_right
       example:
         id: 1
-        occupied: false
+        occupied_left: false
+        occupied_right: true
 
     Professor:
       type: object
       properties:
         id:
           type: string
+          description: email
+        password:
+          type: string
+        lastName:
+          type: string
+        firstName:
+          type: string
       required:
         - id
       example:
-        id: "Prof. Dr. Markus Eiglsperger"
+        id: "john.doe@example.com"
+        lastName: "Doe"
+        firstName: "John"
 
     Course:
       type: object
@@ -823,7 +945,7 @@ components:
         name: "Softwarequalitätssicherung"
         description: "Grundlagen der Softwarequalitätssicherung"
         classroom: "O-201"
-        professor: "Prof. Dr. Markus Eiglsperger"
+        professor: "professor@example.com"
 
     Exercise:
       type: object
@@ -845,7 +967,7 @@ components:
         is_active:
           type: boolean
       required:
-        - id
+        - name
         - description
       example:
         name: "Aufgabe 1"
@@ -853,11 +975,9 @@ components:
         exercises:
           - name: "Schritt 1"
             description: "Installieren Sie Postman"
-          - name: "Schritt 2"
-            description: "Definieren Sie beispielhafte Anfragen"
         participants:
-          - "Ruediger"
-          - "Dieter"
+          - "Albert"
+          - "Olaf"
         is_active: true
 
     SubExercise:
@@ -870,8 +990,9 @@ components:
         description:
           type: string
       required:
-        - id
+        - name
         - description
       example:
-        id: "Schritt 1"
+        id: "step-1"
+        name: "Schritt 1"
         description: "Installieren Sie Postman"

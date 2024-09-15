@@ -3,14 +3,26 @@ import { onBeforeMount, ref, computed, watch } from 'vue'
 import axios from 'axios'
 import { getApiUrl } from '@/utils/common'
 import { useDataStore } from '../stores/dataStore'
+import { useRouter } from 'vue-router'
 
 const { saveProfessorLocally,deleteProfessorLocally } = useDataStore()
 
 const email = ref('')
 const password1 = ref('')
 const password2 = ref('')
+const router = useRouter()
+
+const alertMessage = ref('')
+
+const setAlertMessageFor2Seconds = (message) => {
+  alertMessage.value = message
+  setTimeout(() => {
+    alertMessage.value = ''
+  }, 2000)
+}
 
 const rawUrl = getApiUrl()
+const api_url = `http://${rawUrl}/api`
 const professorApiUrl = `http://${rawUrl}/api/professor`
 
 
@@ -26,26 +38,32 @@ const requestChangePassword = async ({ email, password}) => {
       email: email,
       password: password,
     }
-    const apiUrl = getApiUrl() + "/api/professor/reset_Password"
-    console.log({
-      apiUrl, data
-    })
-    const response = await axios.post(apiUrl, data)
+    const url = api_url + "/professor/reset_password"
+    const response = await axios.post(url, data)
     if (response.status !== 200) {
+      setAlertMessageFor2Seconds("Register failed")
       console.error("Register failed", response)
       return
     }
     console.log("Response", response)
     saveProfessorLocally(data)
+    router.push("/login")
   } catch (e) {
+    setAlertMessageFor2Seconds("Register failed")
     console.error(e)
   }
 }
 
 
 const  resetPassword = async () => {
+  if(!email.value || !password1.value || !password2.value) {
+    console.error("Please fill in all fields")
+    setAlertMessageFor2Seconds("Please fill in all fields")
+    return
+  }
   if (password1.value !== password2.value) {
     console.error("Passwords do not match")
+    setAlertMessageFor2Seconds("Passwords do not match")
     return
   }
   const data = {
@@ -56,6 +74,7 @@ const  resetPassword = async () => {
   try {
     await requestChangePassword(data)
   } catch (e) {
+    setAlertMessageFor2Seconds("Register failed")
     console.error(e)
   }
 }
@@ -67,6 +86,11 @@ const  resetPassword = async () => {
     >
       <h1 class="text-2xl">Better Classroom</h1>
       <h1 class="text-xl font-bold mb-10">Neues Passwort erstellen</h1>
+      <div v-if="alertMessage" class="left-3 toast-middle toast-center">
+        <div class="alert bg-red-300">
+          <span>{{ alertMessage }}</span>
+        </div>
+      </div>
       <label class="input input-bordered flex items-center gap-2 my-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
