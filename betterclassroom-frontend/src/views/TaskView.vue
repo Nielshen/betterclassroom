@@ -2,6 +2,7 @@
 import { ref, watch, computed, onMounted } from 'vue'
 import { useDataStore } from '../stores/dataStore'
 import { marked } from 'marked'
+import 'github-markdown-css/github-markdown.css'
 
 const emits = defineEmits(['idxChange', 'raisedHand'])
 const dataStore = useDataStore()
@@ -112,7 +113,7 @@ const renderMarkdown = (markdown) => {
             </div>
             <p>
               <div v-if="tasks[exercise]">
-                <div v-html="renderMarkdown(tasks[exercise].description)"></div>
+                <div class="markdown-body" v-html="renderMarkdown(tasks[exercise].description)"></div>
               </div>
               <div v-else>Du hast alle Aufgaben bearbeitet.</div>
             </p>
