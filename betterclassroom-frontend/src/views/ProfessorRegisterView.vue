@@ -10,8 +10,6 @@ const router = useRouter()
 
 const { saveProfessorLocally, deleteProfessorLocally } = useDataStore()
 
-
-
 const email = ref('')
 const lastName = ref('')
 const firstName = ref('')
@@ -38,17 +36,17 @@ const requestRegister = async ({ email, last_name, first_name, password }) => {
     if (response.status !== 201) {
       notify({
         type: 'error',
-        text: 'Registrierung fehlgeschlagen',
+        text: 'Registrierung fehlgeschlagen'
       })
       console.error('Register failed', response)
       return
     }
     console.log('Response', response)
-    saveProfessorLocally(data)
+    saveProfessorLocally({ email: data.id, lastName: data.lastName, firstName: data.firstName })
   } catch (e) {
     notify({
       type: 'error',
-      text: 'Registrierung fehlgeschlagen',
+      text: 'Registrierung fehlgeschlagen'
     })
     console.error(e)
   }
@@ -59,14 +57,14 @@ const register = async () => {
     console.error('Please fill in all fields')
     notify({
       type: 'error',
-      text: 'Bitte füllen Sie alle Felder aus',
+      text: 'Bitte füllen Sie alle Felder aus'
     })
     return
   }
   if (password1.value !== password2.value) {
     notify({
       type: 'error',
-      text: 'Passwörter stimmen nicht überein',
+      text: 'Passwörter stimmen nicht überein'
     })
     console.error('Passwords do not match')
     return

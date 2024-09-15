@@ -95,7 +95,7 @@ const deleteCourse = async () => {
 
 
 onBeforeMount(async () => {
-  professorId.value = dataStore.user.id
+  professorId.value = dataStore.user.email
   if (courseId) {
     title.value = 'Kurs bearbeiten'
     createButton.value = 'Speichern'
