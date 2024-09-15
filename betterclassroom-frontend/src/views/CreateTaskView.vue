@@ -246,8 +246,8 @@ onBeforeMount(async () => {
 
 <style scoped>
 .md-editor-container {
-  height: 500px; /* Erhöhen Sie die Höhe nach Bedarf */
-  width: 95%; /* Passt die Breite an den Container an */
+  height: 500px; 
+  width: 100%; 
 }
 
 .editor-wrapper {
