@@ -4,6 +4,7 @@ import axios from 'axios'
 import { getApiUrl } from '@/utils/common'
 import { useDataStore } from '../stores/dataStore'
 import { useRouter } from 'vue-router'
+import { notify } from '@kyvg/vue3-notification'
 
 const { saveProfessorLocally,deleteProfessorLocally } = useDataStore()
 
@@ -12,14 +13,7 @@ const password1 = ref('')
 const password2 = ref('')
 const router = useRouter()
 
-const alertMessage = ref('')
 
-const setAlertMessageFor2Seconds = (message) => {
-  alertMessage.value = message
-  setTimeout(() => {
-    alertMessage.value = ''
-  }, 2000)
-}
 
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
@@ -41,7 +35,10 @@ const requestChangePassword = async ({ email, password}) => {
     const url = api_url + "/professor/reset_password"
     const response = await axios.post(url, data)
     if (response.status !== 200) {
-      setAlertMessageFor2Seconds("Register failed")
+      notify({
+        type : 'error',
+        text: 'Passwort zurücksetzen fehlgeschlagen'
+      })
       console.error("Register failed", response)
       return
     }
@@ -49,7 +46,10 @@ const requestChangePassword = async ({ email, password}) => {
     saveProfessorLocally(data)
     router.push("/login")
   } catch (e) {
-    setAlertMessageFor2Seconds("Register failed")
+    notify({
+      type: 'error',
+      text: 'Passwort zurücksetzen fehlgeschlagen'
+    })
     console.error(e)
   }
 }
@@ -58,12 +58,18 @@ const requestChangePassword = async ({ email, password}) => {
 const  resetPassword = async () => {
   if(!email.value || !password1.value || !password2.value) {
     console.error("Please fill in all fields")
-    setAlertMessageFor2Seconds("Please fill in all fields")
+    notify({
+      type: 'error',
+      text: 'Bitte füllen Sie alle Felder aus'
+    })
     return
   }
   if (password1.value !== password2.value) {
     console.error("Passwords do not match")
-    setAlertMessageFor2Seconds("Passwords do not match")
+    notify({
+      type: 'error',
+      text: 'Passwörter stimmen nicht überein'
+    })
     return
   }
   const data = {
@@ -74,7 +80,10 @@ const  resetPassword = async () => {
   try {
     await requestChangePassword(data)
   } catch (e) {
-    setAlertMessageFor2Seconds("Register failed")
+    notify({
+      type: 'error',
+      text: 'Passwort zurücksetzen fehlgeschlagen'
+    })
     console.error(e)
   }
 }
@@ -86,11 +95,6 @@ const  resetPassword = async () => {
     >
       <h1 class="text-2xl">Better Classroom</h1>
       <h1 class="text-xl font-bold mb-10">Neues Passwort erstellen</h1>
-      <div v-if="alertMessage" class="left-3 toast-middle toast-center">
-        <div class="alert bg-red-300">
-          <span>{{ alertMessage }}</span>
-        </div>
-      </div>
       <label class="input input-bordered flex items-center gap-2 my-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"

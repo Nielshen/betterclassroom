@@ -4,19 +4,13 @@ import axios from 'axios'
 import { getApiUrl } from '@/utils/common'
 import { useRouter } from 'vue-router'
 import { useDataStore } from '../stores/dataStore'
+import { notify } from '@kyvg/vue3-notification'
 
 const router = useRouter()
 
 const { saveProfessorLocally, deleteProfessorLocally } = useDataStore()
 
-const alertMessage = ref('')
 
-const setAlertMessageFor2Seconds = (message) => {
-  alertMessage.value = message
-  setTimeout(() => {
-    alertMessage.value = ''
-  }, 2000)
-}
 
 const email = ref('')
 const lastName = ref('')
@@ -42,14 +36,20 @@ const requestRegister = async ({ email, last_name, first_name, password }) => {
     })
     const response = await axios.post(apiUrl, data)
     if (response.status !== 201) {
-      setAlertMessageFor2Seconds('Register failed')
+      notify({
+        type: 'error',
+        text: 'Registrierung fehlgeschlagen',
+      })
       console.error('Register failed', response)
       return
     }
     console.log('Response', response)
     saveProfessorLocally(data)
   } catch (e) {
-    setAlertMessageFor2Seconds('Register failed')
+    notify({
+      type: 'error',
+      text: 'Registrierung fehlgeschlagen',
+    })
     console.error(e)
   }
 }
@@ -57,11 +57,17 @@ const requestRegister = async ({ email, last_name, first_name, password }) => {
 const register = async () => {
   if (!email.value || !lastName.value || !firstName.value || !password1.value || !password2.value) {
     console.error('Please fill in all fields')
-    setAlertMessageFor2Seconds('Please fill in all fields')
+    notify({
+      type: 'error',
+      text: 'Bitte füllen Sie alle Felder aus',
+    })
     return
   }
   if (password1.value !== password2.value) {
-    setAlertMessageFor2Seconds('Passwords do not match')
+    notify({
+      type: 'error',
+      text: 'Passwörter stimmen nicht überein',
+    })
     console.error('Passwords do not match')
     return
   }
@@ -91,11 +97,6 @@ onBeforeMount(() => {
     >
       <h1 class="text-2xl">Better Classroom</h1>
       <h1 class="text-xl font-bold mb-10">Registrierung</h1>
-      <div v-if="alertMessage" class="left-3 toast-middle toast-center">
-        <div class="alert bg-red-300">
-          <span>{{ alertMessage }}</span>
-        </div>
-      </div>
 
       <label class="input input-bordered flex items-center gap-2 my-2">
         <svg

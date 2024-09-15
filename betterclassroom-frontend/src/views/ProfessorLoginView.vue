@@ -4,18 +4,11 @@ import axios from 'axios'
 import { getApiUrl } from '@/utils/common'
 import { useRouter } from 'vue-router'
 import { useDataStore } from '../stores/dataStore'
+import { notify } from '@kyvg/vue3-notification'
 
 const { user, checkProfessor, saveProfessorLocally } = useDataStore()
 const router = useRouter()
 
-const alertMessage = ref('')
-
-const setAlertMessageFor2Seconds = (message) => {
-  alertMessage.value = message
-  setTimeout(() => {
-    alertMessage.value = ''
-  }, 2000)
-}
 
 const rawUrl = getApiUrl()
 const api_url = `http://${rawUrl}/api`
@@ -43,14 +36,20 @@ const requestLogin = async ({ email, password }) => {
     const response = await axios.post(apiUrl, data)
     if (response.status !== 200) {
       console.error('Login failed', response)
-      setAlertMessageFor2Seconds('Login failed')
+      notify({
+        type: 'error',
+        text: 'Login fehlgeschlagen',
+      })
       return
     }
     console.log('Response', response)
     saveProfessorLocally(data)
   } catch (e) {
     console.error(e)
-    setAlertMessageFor2Seconds('Login failed')  
+    notify({
+      type: 'error',
+      text: 'Login fehlgeschlagen',
+    })
     throw e
   }
 }
@@ -84,11 +83,6 @@ onBeforeMount(() => {
     <div class="flex flex-col w-[400px] h-full my-10 p-8 justify-between shadow-2xl rounded-xl">
       <h1 class="text-2xl">Better Classroom</h1>
       <h1 class="text-xl font-bold mb-10">Professor Login</h1>
-      <div v-if="alertMessage" class="left-3 toast-middle toast-center">
-        <div class="alert bg-red-300">
-          <span>{{ alertMessage }}</span>
-        </div>
-      </div>
       <label class="input input-bordered flex items-center gap-2 my-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
