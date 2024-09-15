@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: mein-backend
-          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:47-als-dozent-mochte-ich-die-moglichkeit-haben-uber-markdown-aufgaben-und-unteraufgaben-zu #TODO: set to current feature branch name or on production and main to image tag name
+          image: registry.gitlab.in.htwg-konstanz.de/lehre/meiglspe/sose24/betterclassroom/backend:0.0.38 #TODO: set to current feature branch name or on production and main to image tag name
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
