@@ -7,7 +7,7 @@
 3. [Accessing Staging and Production Environments](#accessing-staging-and-production-environments)
 4. [Merge Process](#merge-process)
 5. [Testing WebSockets](#testing-websockets)
-6. [Edit Staging, Production](#edit staging, production)
+6. [Edit Staging, Production](#edit-staging-production)
 
 ## Local Development
 
@@ -265,4 +265,3 @@ kubectl config use-context <Kontext-Name>
 kubectl config current-context
 
 k9s
-
