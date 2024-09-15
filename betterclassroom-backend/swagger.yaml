@@ -993,6 +993,5 @@ components:
         - name
         - description
       example:
-        id: "step-1"
         name: "Schritt 1"
         description: "Installieren Sie Postman"
