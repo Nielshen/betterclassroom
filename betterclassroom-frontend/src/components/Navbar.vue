@@ -6,7 +6,8 @@ import { computed } from 'vue'
 const router = useRouter()
 const dataStore = useDataStore()
 
-const isLoggedIn = computed(() => !!dataStore.user.role)
+
+const isLoggedIn = computed(() => dataStore.user.role === 'professor')
 
 const logout = async () => {
   dataStore.deleteProfessorLocally()
