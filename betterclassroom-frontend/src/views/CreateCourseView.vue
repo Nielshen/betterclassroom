@@ -37,9 +37,10 @@ const loadCourse = async (id) => {
 
 const pushCourse = async ({ name, description, professor, classroom }) => {
   try {
+    console.log({ name, description, professor, classroom })    
     const result = await axios.post(`${api_url}/course`, {
       name,
-      professor: professor,
+      professor,
       description,
       classroom
     })
@@ -94,6 +95,7 @@ const deleteCourse = async () => {
 
 
 onBeforeMount(async () => {
+  professorId.value = dataStore.user.id
   if (courseId) {
     title.value = 'Kurs bearbeiten'
     createButton.value = 'Speichern'
@@ -107,7 +109,6 @@ onBeforeMount(async () => {
   } else {
     title.value = 'Kurs erstellen'
     createButton.value = 'Erstellen'
-    professorId.value = dataStore.user.email
     isEditMode.value = false
   }
 })
