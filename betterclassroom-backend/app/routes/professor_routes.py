@@ -2,6 +2,7 @@ from flask import Blueprint, request, Response, jsonify
 from app.db_models import Professor
 from app.utils.helpers import validate_request
 from app import professor_repo
+import logging
 
 professor_bp = Blueprint("professor", __name__)
 
@@ -63,10 +64,9 @@ def reset_password():
     - Response: An HTTP response indicating the success or failure of the password reset.
     """
     data = request.json
-    professor = professor_repo.get_collection().find_one({"id": data["email"]})  
+    professor = professor_repo.get_collection().find_one({"_id": data["email"]})
     if not professor:
         return Response("Professor not found", status=404)
-
-    professor["password"] = data["password"]
-    professor_repo.get_collection().update_one({"id": data["email"]}, {"$set": {"password": data["new_password"]}})
+    
+    professor_repo.get_collection().update_one({"_id": data["email"]}, {"$set": {"password": data["password"]}})
     return Response("Password updated successfully", status=200)
