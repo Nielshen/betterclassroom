@@ -250,10 +250,6 @@ ws://better-classroom.com:8088/api/socket.io/?EIO=4&transport=websocket&path=/ap
 
 ## Edit Staging, Production
 
-ssh admin@141.37.29.38
-
-Password: K****
-
 ##### swap k3d cluster context (Staging, Production): 
 
 k3d cluster list
